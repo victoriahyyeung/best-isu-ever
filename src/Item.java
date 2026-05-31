@@ -4,15 +4,13 @@ abstract class Item{
 
     }
 
-    protected blend(){
+    protected void pickUp(){
 
     }
 
-    protected cut(){
+    protected void putDown(){
 
     }
-    protected cooked(){
 
-    }
 
 }
