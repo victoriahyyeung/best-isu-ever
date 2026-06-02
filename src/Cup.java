@@ -42,14 +42,9 @@ public class Cup extends Item {
 		}
 		return false;
 	}
+
 	
-	//may be unesccesary
-	public void clear() {
-		fruits.clear();
-		toppings.clear();
-	}
-	
-	public void drawLayered(Graphics g, int x, int y) {
+	public void drawLayered(Graphics g, int x, int y) {		
 		g.drawImage(baseCupImg, x, y, null);
 		//TODO: DRAW LIQUID AND TOPPINGS 
 		//	idk how to draw liquid or show the image but have it change colours accordingly...
