@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.sound.sampled.FloatControl;
-public class Main extends JPanel implements MouseListener, KeyListener {
+public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener {
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
 	// 0 - Home
@@ -35,14 +36,31 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 
 	JTextField usernameField;
 
-	boolean spawnedMango = false;
-
 	ArrayList<Item> ingredientsOnScreen = new ArrayList<>();
+	
+	private Item selectedItem = null;
+	
+	int offsetX;
+	int offsetY;
 
 	public void spawnMango() {
-		Mango m = new Mango(); 
-		m.placeDown(x-32, y-27);
+		Item m = new Item("mango"); 
+		m.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(m);
+		repaint();
+	}
+	
+	public void spawnLychee() {
+		Lychee l = new Lychee(); 
+		l.setPosition(x-32, y-27);
+		ingredientsOnScreen.add(l);
+		repaint();
+	}
+	
+	public void spawnPearl() {
+		Pearl p = new Pearl();
+		p.setPosition(x-31, y - 22);
+		ingredientsOnScreen.add(p);
 		repaint();
 	}
 
@@ -134,10 +152,9 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 			
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
 			for (Item i : ingredientsOnScreen) {
-				if (i.itemImg != null) {
-					g.drawImage(i.itemImg, i.itemX, i.itemY, this);
+				if (i.img != null) {
+					g.drawImage(i.img, i.x, i.y, this);
 				}
-				System.out.println("Yes");
 			}
 
 		}
@@ -238,6 +255,15 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
 				spawnMango();
 			}
+			
+			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
+				spawnLychee();
+			}
+			
+			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
+				spawnPearl();
+			}
+			
 		}
 		repaint(); 
 	}
@@ -262,6 +288,7 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel.addMouseListener(panel);
+		panel.addMouseMotionListener(panel);
 	}
 
 	@Override
@@ -278,13 +305,26 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
+		for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
+	        Item item = ingredientsOnScreen.get(i);
+	        if (item.contains(e.getX(), e.getY())) {
+	            selectedItem = item;
+	            offsetX = e.getX() - item.x;
+	            offsetY = e.getY() - item.y;
+	            return; 
+	        }
+	    }
+	    
+	    
+	    if (screenState == 9) {
+	        handleAction(e.getX(), e.getY());
+	    }
 
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		selectedItem = null;
 
 	}
 
@@ -296,8 +336,24 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (selectedItem != null) {
+	        selectedItem.x = e.getX() - offsetX;
+	        selectedItem.y = e.getY() - offsetY;
+	        repaint(); 
+	    }
+
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
