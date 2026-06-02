@@ -4,5 +4,9 @@ import java.awt.Toolkit;
 public class Mango extends Fruit {
 
 	public Mango () {
-		super(Toolkit.getDefaultToolkit().getImage("freshMango.png"));	}
+		super(
+				Toolkit.getDefaultToolkit().getImage("freshMango.png"),
+				Toolkit.getDefaultToolkit().getImage("cutMango.png"),
+				Toolkit.getDefaultToolkit().getImage("blendedMango.png"));
+	}
 }

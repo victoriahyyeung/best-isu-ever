@@ -4,7 +4,9 @@ import java.awt.Toolkit;
 public class Lychee extends Fruit {
 
 	public Lychee () {
-		super ((Toolkit.getDefaultToolkit().getImage("freshLychee.png")));
+		super(
+				Toolkit.getDefaultToolkit().getImage("freshLychee.png"),
+				Toolkit.getDefaultToolkit().getImage("cutLychee.png"),
+				Toolkit.getDefaultToolkit().getImage("blendedLychee.png"));
 	}
-
 }
