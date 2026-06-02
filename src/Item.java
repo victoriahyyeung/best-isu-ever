@@ -5,46 +5,47 @@ import java.awt.*;
 
 abstract class Item {
     
-    int itemX;
-    int itemY;
-    Image itemImg;
-    boolean itemClicked;
-    boolean isHeld;
+    int x, y, width, height;
+    Image img;
+    boolean isHeld; //true when being dragged
     
     boolean blendable;
     boolean cuttable;
     boolean cookable;
     
     
-    int width;
-    int height;
-    
-    public Item (Image itemImg) {
-    	this.itemImg = itemImg;
+    public Item (Image img) {
+    	this.img = img;
+    	if (img!=null) {//getting width and height
+    		this.width=img.getWidth(null);
+    		this.height=img.getHeight(null);
+    	}
+    	else
+    		System.out.print("ITEM IMAGE IS NULL!!!!");
+    	//default, subclasses must override
+    	this.blendable=false;
+    	this.cuttable=false;
+    	this.cookable=false;
     }
     
-    public void placeDown(int newX, int newY) {
-    	this.itemX = newX;
-        this.itemY = newY;
-        this.isHeld = false;
+    public void setPosition(int newX, int newY) {
+    	this.x = newX;
+        this.y = newY;
     }
     
-    public Rectangle itemBounds() {
-        return new Rectangle(itemX, itemY, width, height);
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
+    }
+    //simplifies the main
+    public boolean contains (int mx, int my) {
+    	return getBounds().contains(mx, my);
+    }
+    //for organizion and convenience when drawing
+    public void draw(Graphics g) {
+    	if (img!=null) {
+    		g.drawImage(img,  x, y, null);
+    	}
+    	
     }
     
-    public boolean isClicked(int mouseX, int mouseY) {
-        return itemBounds().contains(mouseX, mouseY);
-    }
-    
-    
-  
-    public void mouseClicked(MouseEvent e) {
-		int x = e.getX ();
-		int y = e.getY ();
-	}
-    
-    
-
-
 }
