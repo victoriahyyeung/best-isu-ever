@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -23,7 +24,7 @@ public class Cup extends Item {
 		this.blendable=false;
 		this.cookable=false;
 	}
-	
+
 	public boolean addFruit(String fruitType) {
 		if (fruits.size()>=2)//max 2 fruits can be added
 			return false;
@@ -43,13 +44,13 @@ public class Cup extends Item {
 		return false;
 	}
 
-	
+
 	public void drawLayered(Graphics g, int x, int y) {		
 		g.drawImage(baseCupImg, x, y, null);
 		//TODO: DRAW LIQUID AND TOPPINGS 
 		//	idk how to draw liquid or show the image but have it change colours accordingly...
-	}
 
+	}
 	//getters
 	public ArrayList<String>getFruits(){
 		return fruits;
@@ -63,6 +64,6 @@ public class Cup extends Item {
 	public boolean hasTopping(String topping) {
 		return toppings.contains(topping);
 	}
-	
+
 
 }
