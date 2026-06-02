@@ -137,6 +137,7 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 				if (i.itemImg != null) {
 					g.drawImage(i.itemImg, i.itemX, i.itemY, this);
 				}
+				System.out.println("Yes");
 			}
 
 		}
