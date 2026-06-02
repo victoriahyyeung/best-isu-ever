@@ -4,11 +4,7 @@ import javax.swing.JProgressBar;
 public class Pearl extends Item{
 
 	private Image uncookedImg, cookedImg;
-	private boolean isCooked;
-	
-	JProgressBar cookBar;
-	boolean showCookBar;
-	
+	private boolean isCooked;	
 	
 	public Pearl () {
 		super (Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png"));
