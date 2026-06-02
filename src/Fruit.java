@@ -5,6 +5,7 @@ import javax.swing.*;
 
 public class Fruit extends Item {
 
+	private String type; //"mango", "lychee"
 	// Images for the 3 fruit states
 	protected Image freshImg, cutImg, blendedImg;
 
@@ -12,24 +13,16 @@ public class Fruit extends Item {
 
 
 	protected int chopCount;//need 4 chops to become cut
-	protected Timer blendTimer;
 
-	//	JProgressBar blendBar;
-	//	boolean showBlendBar;
-	//	
-	//	JProgressBar cutBar;
-	//	boolean showCutBar;
-	//MOVE TO MAIN!!!
-
-	public Fruit (Image freshImg, Image cutImage, Image blendedImg) {
-		super (freshImg);
-		this.freshImg=freshImg;
-		this.cutImg=cutImg;
-		this.blendedImg=blendedImg;
+	public Fruit (String type) {
+		super(Toolkit.getDefaultToolkit().getImage(type + "_fresh.png"));
+		this.type=type;
+		this.freshImg=this.img;;
+		this.cutImg=Toolkit.getDefaultToolkit().getImage(type + "_cut.png");
+		this.blendedImg=Toolkit.getDefaultToolkit().getImage(type+"_blended.png");
 		//default fruit states
 		this.isCut=false;
 		this.isBlended=false;
-		this.isCut=false;
 		this.chopCount=0;
 		//capabilities inherited from Item class
 		this.cuttable=true;
@@ -63,6 +56,9 @@ public class Fruit extends Item {
 	}
 	public boolean isCut() {
 		return isCut;
+	}
+	public String getType() {
+		return type;
 	}
 
 }
