@@ -10,8 +10,6 @@ public class Fruit extends Item {
 	protected Image freshImg, cutImg, blendedImg;
 
 	protected boolean isBlended, isCut;
-
-
 	protected int chopCount;//need 4 chops to become cut
 
 	public Fruit (String type) {
@@ -42,7 +40,7 @@ public class Fruit extends Item {
 		}
 	}
 
-	public void blend(JProgressBar bar, JPanel panel) {
+	public void blend() {
 		if (!isBlended && blendable) {//check if blend() can even be done
 			isBlended=true;
 			this.img=blendedImg;
