@@ -1,33 +1,40 @@
 import java.util.ArrayList;
-public class Order  {
-	private ArrayList<String> reqIngredients;
-	private boolean completed;
-	
-	public Order(String drinkType) {
-        this.reqIngredients = new ArrayList<>();
-        this.completed = false;
-        
-        // Define the recipe based on the drink type
-        if (drinkType.equals("mango")) {
-            reqIngredients.add("mangoSlush");
-            reqIngredients.add("tapioca");
-        } 
-        else if (drinkType.equals("lychee")) {
-            reqIngredients.add("lycheeSlush");
-            reqIngredients.add("tapioca");
-        }
-        else if (drinkType.equals("justMango")) {
-        	reqIngredients.add("mango");
-        }
-        else if (drinkType.equals("justLychee")) {
-        	reqIngredients.add("lychee");
-        }
-        
+
+// WHAT THE ORDER IS ASKING FOR
+public class Order {
+    private ArrayList<Drink> drinks; //each drink has fruits and toppings
+
+    public Order(ArrayList<Drink> drinks) {
+        this.drinks= new ArrayList<>(drinks);
     }
-	
-	public boolean matchOrder(ArrayList<String> cupIngredients) {
-		return cupIngredients.containsAll(reqIngredients) && cupIngredients.size() == reqIngredients.size();
-	}
-	
-    
+
+    public boolean matches(ArrayList<Cup> trayCups) {
+        if (trayCups.size() != drinks.size())
+            return false; //first check correct number of drinks
+
+        // Make a copy of the drinks list to match against
+        ArrayList<Drink> remainingDrinks = new ArrayList<>(drinks);
+
+        for (Cup cup:trayCups) {
+            Drink cupDrink=cupToDrink(cup);
+            boolean found=false;
+            for (int i=0;i<remainingDrinks.size();i++) {
+                if (cupDrink.equals(remainingDrinks.get(i))) {
+                    remainingDrinks.remove(i);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)return false;
+        }
+        return remainingDrinks.isEmpty();
+    }
+
+    private Drink cupToDrink(Cup cup) {
+        return new Drink(cup.getFruits(), cup.getToppings());
+    }
+
+    public ArrayList<Drink> getDrinks() {
+        return drinks;
+    }
 }
