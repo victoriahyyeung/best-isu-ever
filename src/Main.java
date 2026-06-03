@@ -76,14 +76,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	Fruit selectedFruit;
 
 	public void spawnMango() {
-		Item m = new Fruit("mango"); 
+Fruit m=new Fruit("mango", mangoFresh,mangoCut,mangoBlended);
 		m.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(m);
 		repaint();
 	}
 
 	public void spawnLychee() {
-		Item l = new Fruit ("lychee"); 
+		Fruit l=new Fruit("lychee", lycheeFresh,lycheeCut,lycheeBlended);
 		l.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(l);
 		repaint();
