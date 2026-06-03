@@ -24,7 +24,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private JProgressBar actionBar;//progress of cooking/blending
 
 	//stations
-	private Rectangle chopStation=new Rectangle (50, 50, 50, 50);
+	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
+	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
+
+
 	private Rectangle blendStation=new Rectangle (150, 150, 50, 50);
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
@@ -164,9 +167,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			blendProgress+=5;
 			if (blendProgress>=100) {
 				blendTimer.stop();
-				actionBar.setVisible(false);;
-				blendingFruit.setBlended();
-				ingredientsOnScreen.add(blendingFruit);
+				actionBar.setVisible(false);
+				if (blendingFruit != null) {
+					blendingFruit.setBlended();
+					ingredientsOnScreen.add(blendingFruit);
+				}
 				blendingFruit=null;
 				repaint();
 			}
@@ -217,6 +222,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					g.drawImage(i.img, i.x, i.y, this);
 				}
 
+
 				if (i.isFruit()) {
 					Fruit f = (Fruit) i;
 
@@ -224,23 +230,28 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					int centerY = i.y + (int) Math.round(i.height*0.5);
 
 					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && !f.isCut) {
-						//if (f.chopCount > 0 && !f.isCut) {
+
 						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
 						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+						f.chopBar.setValue(f.chopCount);
+
+						f.chopBar.setVisible(true);
+
 					}
 
 
-					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
+					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623  && selectedItem != null &&  selectedItem.isFruit()){
 						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
 						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+						f.chopBar.setVisible(true);
+
 					}
 				}
 
 			}
 
-
-
 		}
+
 		if (screenState == 10) {
 		}
 		if (screenState == 11) {
@@ -337,6 +348,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 9) {
 			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
 				spawnMango();
+				System.out.println("spanwed mango");
 			}
 
 			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
@@ -404,7 +416,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 9) {
 			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
 				Item item = ingredientsOnScreen.get(i);
-				if (item.contains(e.getX(), e.getY())) {
+				if (item.img != null && item.contains(e.getX(), e.getY())) {
 					selectedItem = item;
 					offsetX = e.getX() - item.x;
 					offsetY = e.getY() - item.y;
@@ -417,17 +429,25 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-<<<<<<< HEAD
 		if (selectedItem==null)
 			return;
+
 		int mx=e.getX();
 		int my=e.getY();
-		String type=selectedItem.type;
-		if (type.equals("fruit")) {
+
+		int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
+		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
+
+
+		if (selectedItem.type.equals("mango") || selectedItem.type.equals("lychee")){
 			Fruit f=(Fruit) selectedItem;
 			//chopboard
-			if (chopStation.contains(mx,my)) {
-				ingredientsOnScreen.add(f);
+			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+				if (!f.isCut()) {
+					f.cut();
+					System.out.println("Cut! Chop count: " + f.chopCount);
+					repaint();
+				}
 			}
 			//blender
 			else if (blendStation.contains(mx,my)) {
@@ -458,7 +478,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				ingredientsOnScreen.add(f);
 			}
 		}
-		else if(type.equals("pearl")) {
+		else if(selectedItem.type.equals("pearl")) {
 			Pearl p=(Pearl) selectedItem;
 			if (cupStation.contains(mx,my)) {
 				if (currentCup==null) {
@@ -473,7 +493,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				ingredientsOnScreen.add(p);
 			}
 		}
-		else if (type.equals("cup")) {
+		else if (selectedItem.type.equals("cup")) {
 			Cup cup=(Cup) selectedItem;
 			if (trayStation.contains(mx,my)) {
 				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
@@ -497,13 +517,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		selectedItem=null;
 		repaint();
-=======
 		if (selectedItem != null) {
-			int centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
-			int centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
+			centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
+			centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
 
 			// Chopping board #1
-			if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && selectedItem.isFruit()) {
+			if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624  && selectedItem != null && selectedItem.isFruit()) {
 				selectedFruit = (Fruit) selectedItem;
 				if (!selectedFruit.isCut()) {
 					selectedFruit.cut();
@@ -520,12 +539,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 		}
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 
 	}
 	private Drink cupToDrink(Cup cup) {
 		return new Drink(cup.getFruits(), cup.getToppings());
 	}
+
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -554,13 +573,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
-private void startBlendingAnimation(Fruit f) {
-	blendingFruit=f;
-	blendProgress=0;
-	actionBar.setValue(0);
-	actionBar.setVisible(true);
-	blendTimer.start();
-}
+	private void startBlendingAnimation(Fruit f) {
+		blendingFruit=f;
+		blendProgress=0;
+		actionBar.setValue(0);
+		actionBar.setVisible(true);
+		blendTimer.start();
+	}
 
 
 }

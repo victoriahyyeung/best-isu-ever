@@ -13,7 +13,7 @@ public class Cup extends Item {
 	private Image puddingImg;
 
 	public Cup (Image baseCup, Image pearl, Image pudding) {
-		super (baseCup);
+		super (baseCup, "cup");
 		this.baseCupImg=baseCup;
 		this.pearlImg=pearl;
 		this.puddingImg =pudding;

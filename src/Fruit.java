@@ -17,7 +17,7 @@ public class Fruit extends Item {
 
 
 	public Fruit (String fruitType) {
-		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), "fruit");
+		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), fruitType);
 		this.fruitType=fruitType;
 		this.freshImg=this.img;
 		this.cutImg=Toolkit.getDefaultToolkit().getImage(fruitType + "_cut.png");
@@ -25,8 +25,6 @@ public class Fruit extends Item {
 		//default fruit states
 		this.isCut=false;
 		this.isBlended=false;
-
-		
 
 		this.chopCount=0;
 		chopping = false;
@@ -49,6 +47,7 @@ public class Fruit extends Item {
 		if (!isCut && !isBlended && cuttable) {//check if cut() can be done
 			chopCount++;//cut
 			chopBar.setValue(chopCount);
+			System.out.println("value set");
 			if (chopCount>=4) {
 				isCut=true;//will no longer be able to go into this method
 				this.cuttable=false;
