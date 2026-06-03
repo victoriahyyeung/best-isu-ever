@@ -407,8 +407,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
 			if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
 				Fruit f=(Fruit) selectedItem;
-				f.cut();
-				repaint();
+				if (f.isOnChopStation() && !f.isCut()) {
+					f.cut();
+					repaint();
+				}
 			}
 		}
 
@@ -454,42 +456,47 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					offsetX=x- item.x;
 					offsetY =y - item.y;
 					if(selectedItem.isFruit()) {
-						((Fruit)selectedItem).setOnChopStation(false);
+						Fruit f=(Fruit) selectedItem;
+						f.setOnChopStation(false);
+						if(f.isOnChopStation()&& !f.isCut()) {
+							f.cut();
+							repaint();
+						}
 					}
 					itemSelected=true;
 					return; 
 				}
+				if (!itemSelected) 
+					handleAction(x,y);
 			}
-			if (!itemSelected) 
+			else
 				handleAction(x,y);
 		}
-		else
-			handleAction(x,y);
-	}
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (selectedItem==null)
-			return;
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (selectedItem==null)
+				return;
 
-		int mx=e.getX();
-		int my=e.getY();
+			int mx=e.getX();
+			int my=e.getY();
 
-		int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
-		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
+			int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
+			int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
 
 
-		if (selectedItem.type.equals("fruit")){
-			Fruit f=(Fruit) selectedItem;
-			f.setOnChopStation(false);//default
+			if (selectedItem.type.equals("fruit")){
+				Fruit f=(Fruit) selectedItem;
+				f.setOnChopStation(false);//default
 
-			//chopboard
-			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-				f.setOnChopStation(true);
-				if (!f.isCut()) {
-					f.cut();
+				//chopboard
+				if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+					f.setOnChopStation(true);
+					//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
 					ingredientsOnScreen.add(f);
+					selectedItem=f;
 					repaint();
+					return;
 				}
 			}
 			//blender
@@ -638,15 +645,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//////////     CUSTOMER
 		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
 		tracker.addImage(customerImg, 9);
-		
+
 		///PEARLZ
 		pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
 		tracker.addImage(pearlUncooked, 10);
 		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
 		tracker.addImage(pearlCooked, 11);
-		
-		
-		
+
+
+
 		try {
 			tracker.waitForAll();
 
