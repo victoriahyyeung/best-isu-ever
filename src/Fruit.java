@@ -16,7 +16,7 @@ public class Fruit extends Item {
 
 	
 	public Fruit (String fruitType) {
-		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), fruitType);
+		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), "fruit");
 		this.fruitType=fruitType;
 		this.freshImg=this.img;
 		this.cutImg=Toolkit.getDefaultToolkit().getImage(fruitType + "_cut.png");
