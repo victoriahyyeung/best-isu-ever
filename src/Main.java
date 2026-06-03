@@ -25,6 +25,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private JProgressBar actionBar;//progress of cooking/blending
 	private int score=0;
 	private Item selectedItem=null;
+	private boolean spacePressed=false;
 	//stations
 	//!v- NEEDA FIX COORDIANTES
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
@@ -136,7 +137,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
-		Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
 		customers.add(new Customer(50, 300, this.customerImg));
 
 		//bar for blend/cook/cut
@@ -202,8 +202,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
 			if(screenState==9) {
-				Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-
 				customers.add(new Customer(300,10,customerImg));
 				repaint();
 			}
@@ -405,11 +403,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
 		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
-			if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
-				Fruit f=(Fruit) selectedItem;
-				if (f.isOnChopStation() && !f.isCut()) {
-					f.cut();
-					repaint();
+			if (!spacePressed) {
+				spacePressed=true;
+				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
+					Fruit f=(Fruit) selectedItem;
+					if (f.isOnChopStation() && !f.isCut()) {
+						f.cut();
+						repaint();
+					}
 				}
 			}
 		}
@@ -439,8 +440,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-
+		if (e.getKeyCode()==KeyEvent.VK_SPACE) {
+			spacePressed=false;
+		}
 	}
 
 	@Override
@@ -457,7 +459,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					offsetY =y - item.y;
 					if(selectedItem.isFruit()) {
 						Fruit f=(Fruit) selectedItem;
-						f.setOnChopStation(false);
 						if(f.isOnChopStation()&& !f.isCut()) {
 							f.cut();
 							repaint();
@@ -466,38 +467,39 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					itemSelected=true;
 					return; 
 				}
-				if (!itemSelected) 
-					handleAction(x,y);
 			}
-			else
+			if (!itemSelected) 
 				handleAction(x,y);
 		}
+		else
+			handleAction(x,y);
+	}
 
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			if (selectedItem==null)
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (selectedItem==null)
+			return;
+
+		int mx=e.getX();
+		int my=e.getY();
+
+		//!v- MIKA WHAT IS THIS BROTHER
+		int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
+		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
+
+
+		if (selectedItem.type.equals("fruit")){
+			Fruit f=(Fruit) selectedItem;
+			f.setOnChopStation(false);//default
+
+			//chopboard
+			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+				f.setOnChopStation(true);
+				//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
+				ingredientsOnScreen.add(f);
+				selectedItem=f;//keep selected
+				repaint();
 				return;
-
-			int mx=e.getX();
-			int my=e.getY();
-
-			int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
-			int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
-
-
-			if (selectedItem.type.equals("fruit")){
-				Fruit f=(Fruit) selectedItem;
-				f.setOnChopStation(false);//default
-
-				//chopboard
-				if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-					f.setOnChopStation(true);
-					//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
-					ingredientsOnScreen.add(f);
-					selectedItem=f;
-					repaint();
-					return;
-				}
 			}
 			//blender
 			else if (blendStation.contains(mx,my)) {
@@ -513,9 +515,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else if (cupStation.contains (mx,my)) {
 				if (f.isBlended()) {
 					if (currentCup==null) {
-						Image cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
-						Image pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-						Image puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
 						currentCup=new Cup (cupBase,pearlIcon,puddingIcon);
 					}
 					currentCup.addFruit(f.getFruitType());
@@ -532,9 +531,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			Pearl p=(Pearl) selectedItem;
 			if (cupStation.contains(mx,my)) {
 				if (currentCup==null) {
-					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
-					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");	
 					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
 				}
 				currentCup.addTopping("pearls");//good
@@ -548,10 +544,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (trayStation.contains(mx,my)) {
 				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
 					trayDrinks.add(cup);
-					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
-					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
-
 					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
 					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
 
@@ -632,9 +624,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
 		tracker.addImage(lycheeCut, 4);
 		lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
-		tracker.addImage(lycheeFresh, 5);
+		tracker.addImage(lycheeBlended, 5);
 		//CUP and TOPPINGS
-		//////////MANGO
 		cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
 		tracker.addImage(cupBase, 6);
 		pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
