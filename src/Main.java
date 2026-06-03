@@ -225,35 +225,28 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 				if (i.isFruit()) {
 					Fruit f = (Fruit) i;
-
-					int centerX = i.x + (int) Math.round(i.width*0.5);
-					int centerY = i.y + (int) Math.round(i.height*0.5);
-
-					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 ) {
-
-						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
-						f.chopping = true;
-						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
-						f.chopBar.setValue(f.chopCount);
-						f.chopBar.setVisible(true);
-
-					}
-
-
-
-
-					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623){
-
-						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
-						f.chopping = true;
-						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
-						f.chopBar.setValue(f.chopCount);
-
-						f.chopBar.setVisible(true);
-
+					if (f.isOnChopStation() && !f.isCut()) {
+						int barWidth=40;
+						int barHeight=8;
+						int fillWidth =barWidth*f.getChopProgress() / 100;
+						int barX=f.x+(f.width-barWidth)/2;
+						int barY=f.y -12;
+						g.setColor(Color.LIGHT_GRAY);
+						g.fillRect(barX, barY, barWidth, barHeight);
+						g.setColor(Color.RED);//!v-CHANGE!!!
+						g.fillRect(barX, barY, fillWidth, barHeight);
+						g.setColor(Color.BLACK);
+						g.drawRect(barX, barY, barWidth, barHeight);
 					}
 				}
 
+			}
+			if (currentCup!=null && selectedItem!=currentCup) {
+				currentCup.drawLayered(g, cupStation.x, cupStation.y);
+		
+			}
+			if (actionBar.isVisible()) {
+				actionBar.paint(g);
 			}
 
 		}
@@ -422,10 +415,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 9) {
 			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
 				Item item = ingredientsOnScreen.get(i);
-				if (item.img != null && item.contains(e.getX(), e.getY())) {
+				if (item.contains(e.getX(), e.getY())) {
 					selectedItem = item;
-					offsetX = e.getX() - item.x;
+					offsetX=e.getX()- item.x;
 					offsetY = e.getY() - item.y;
+					if(selectedItem.isFruit()) {
+						((Fruit)selectedItem).setOnChopStation(false);
+					}
 					return; 
 				}
 			}
@@ -447,6 +443,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		if (selectedItem.type.equals("fruit")){
 			Fruit f=(Fruit) selectedItem;
+			f.setOnChopStation(true);
+
 			//chopboard
 			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
 				if (!f.isCut()) {
@@ -520,6 +518,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else
 				currentCup=cup;
 		}
+		
 
 		selectedItem=null;
 		repaint();
