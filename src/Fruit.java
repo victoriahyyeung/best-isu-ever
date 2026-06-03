@@ -13,7 +13,6 @@ public class Fruit extends Item {
 	boolean chopping;
 	JProgressBar chopBar;
 	protected int chopCount;//need 4 chops to become cut
-	protected int chopsNeeded;
 
 
 
@@ -30,11 +29,9 @@ public class Fruit extends Item {
 		
 
 		this.chopCount=0;
-		this.chopsNeeded = 4;
 		chopping = false;
-		chopsNeeded = 4;
 		
-		chopBar = new JProgressBar(0, chopsNeeded);
+		chopBar = new JProgressBar(0, 4);
 		chopBar.setValue(0);
 		chopBar.setForeground(new Color(255, 204, 51));
 		chopBar.setBackground(new Color (255, 240, 200));

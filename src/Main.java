@@ -168,8 +168,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
 						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
 					}
-					
-					
+
+
 					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
 						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
 						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
@@ -343,13 +343,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		y = e.getY();
 		handleAction(x, y);
 
-		for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
-			Item item = ingredientsOnScreen.get(i);
-			if (item.contains(e.getX(), e.getY())) {
-				selectedItem = item;
-				offsetX = e.getX() - item.x;
-				offsetY = e.getY() - item.y;
-				return; 
+		if (screenState == 9) {
+			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
+				Item item = ingredientsOnScreen.get(i);
+				if (item.contains(e.getX(), e.getY())) {
+					selectedItem = item;
+					offsetX = e.getX() - item.x;
+					offsetY = e.getY() - item.y;
+					return; 
+				}
 			}
 		}
 
@@ -369,7 +371,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					//System.out.println("cut");
 				}
 			}
-			
+
 			// Chopping board #2
 			if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
 				selectedFruit = (Fruit) selectedItem;
