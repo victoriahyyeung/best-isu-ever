@@ -10,10 +10,9 @@ public class Fruit extends Item {
 	protected Image freshImg, cutImg, blendedImg;
 
 	protected boolean isBlended, isCut;
-	boolean chopping;
-	JProgressBar chopBar;
 	protected int chopCount;//need 4 chops to become cut
-
+	private boolean onChopStation;
+	
 	
 	public Fruit (String fruitType) {
 		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), "fruit");
@@ -26,18 +25,7 @@ public class Fruit extends Item {
 		this.isBlended=false;
 
 		this.chopCount=0;
-		chopping = false;
-		
-		chopBar = new JProgressBar(0, 4);
-		chopBar.setValue(0);
-		if ("mango".equals(fruitType)) {
-		    chopBar.setUI(new CustomProgressBarUI(new Color(255, 204, 51)));
-		} 
-		else if ("lychee".equals(fruitType)){
-		    chopBar.setUI(new CustomProgressBarUI(Color.PINK));
-		}
-		chopBar.setBackground(Color.LIGHT_GRAY);
-		chopBar.setBorderPainted(true);
+		this.onChopStation=false;
 		
 		isFruit = true;
 		isTopping = false;
@@ -50,14 +38,11 @@ public class Fruit extends Item {
 	public void cut() {
 		if (!isCut && !isBlended && cuttable) {//check if cut() can be done
 			chopCount++;//cut
-			chopping = true;
-			chopBar.setValue(chopCount);
 			if (chopCount>=4) {
 				isCut=true;//will no longer be able to go into this method
 				this.cuttable=false;
 				this.img=cutImg;//change img to cut version
 				this.blendable=true;//NOW can be blended
-				chopping = false;
 			}
 		}
 	}
@@ -69,6 +54,9 @@ public class Fruit extends Item {
 			this.blendable=false;
 		}
 	}
+	public void setOnChopStation(boolean b) {
+		this.onChopStation=b;
+	}
 
 	//getters
 	public boolean isBlended() {
@@ -77,8 +65,17 @@ public class Fruit extends Item {
 	public boolean isCut() {
 		return isCut;
 	}
+	public boolean isOnChopStation() {
+		return onChopStation;
+	}
 	public String getFruitType() {
 		return fruitType;
 	}
 
+	public int getChopProgress() {//values til 100 for consistency
+		return chopCount*25;
+	}
+	public int getChopCount() {
+		return chopCount;
+	}
 }
