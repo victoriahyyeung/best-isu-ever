@@ -59,6 +59,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	int offsetX;
 	int offsetY;
 
+	Fruit selectedFruit;
+
 	public void spawnMango() {
 		Item m = new Fruit("mango"); 
 		m.setPosition(x-32, y-27);
@@ -214,7 +216,29 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if (i.img != null) {
 					g.drawImage(i.img, i.x, i.y, this);
 				}
+
+				if (i.isFruit()) {
+					Fruit f = (Fruit) i;
+
+					int centerX = i.x + (int) Math.round(i.width*0.5);
+					int centerY = i.y + (int) Math.round(i.height*0.5);
+
+					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && !f.isCut) {
+						//if (f.chopCount > 0 && !f.isCut) {
+						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
+						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+					}
+					
+					
+					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
+						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
+						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+					}
+				}
+
 			}
+
+
 
 		}
 		if (screenState == 10) {
@@ -330,11 +354,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 	public void mouseClicked(MouseEvent e) {
-		//x = e.getX ();
-		//y = e.getY ();
-		//	handleAction (x, y);
+
 	}
 
+<<<<<<< HEAD
 	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
 		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
 			if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
@@ -343,6 +366,19 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				repaint();
 			}
 		}
+=======
+	public void keyPressed(KeyEvent e) {
+		int key = e.getKeyCode();
+		/*
+		if (key == KeyEvent.VK_SPACE) {
+			if (selectedItem != null && selectedItem.isFruit()) {
+				Fruit f = (Fruit) selectedItem;
+				f.cut();
+				repaint();
+			}
+		}
+		 */
+>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 	}
 
 
@@ -356,6 +392,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel.addMouseListener(panel);
 		panel.addMouseMotionListener(panel);
+		panel.addKeyListener(panel);
+		panel.setFocusable(true);
 	}
 
 	@Override
@@ -372,7 +410,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-
 		x = e.getX();
 		y = e.getY();
 		handleAction(x, y);
@@ -387,13 +424,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 
-
-
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+<<<<<<< HEAD
 		if (selectedItem==null)
 			return;
 		int mx=e.getX();
@@ -473,6 +508,30 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		selectedItem=null;
 		repaint();
+=======
+		if (selectedItem != null) {
+			int centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
+			int centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
+
+			// Chopping board #1
+			if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && selectedItem.isFruit()) {
+				selectedFruit = (Fruit) selectedItem;
+				if (!selectedFruit.isCut()) {
+					selectedFruit.cut();
+					//System.out.println("cut");
+				}
+			}
+			
+			// Chopping board #2
+			if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
+				selectedFruit = (Fruit) selectedItem;
+				if (!selectedFruit.isCut()) {
+					selectedFruit.cut();
+					//System.out.println("cut");
+				}
+			}
+		}
+>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 
 	}
 	private Drink cupToDrink(Cup cup) {

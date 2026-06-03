@@ -10,7 +10,12 @@ public class Fruit extends Item {
 	protected Image freshImg, cutImg, blendedImg;
 
 	protected boolean isBlended, isCut;
+	boolean chopping;
+	JProgressBar chopBar;
 	protected int chopCount;//need 4 chops to become cut
+	protected int chopsNeeded;
+
+
 
 	public Fruit (String fruitType) {
 		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), "fruit");
@@ -21,7 +26,22 @@ public class Fruit extends Item {
 		//default fruit states
 		this.isCut=false;
 		this.isBlended=false;
+
+		
+
 		this.chopCount=0;
+		this.chopsNeeded = 4;
+		chopping = false;
+		chopsNeeded = 4;
+		
+		chopBar = new JProgressBar(0, chopsNeeded);
+		chopBar.setValue(0);
+		chopBar.setForeground(new Color(255, 204, 51));
+		chopBar.setBackground(new Color (255, 240, 200));
+		chopBar.setBorderPainted(false);
+		
+		isFruit = true;
+		isTopping = false;
 		//capabilities inherited from Item class
 		this.cuttable=true;
 		this.blendable=false;//must be cut first before being blendable
@@ -31,11 +51,13 @@ public class Fruit extends Item {
 	public void cut() {
 		if (!isCut && !isBlended && cuttable) {//check if cut() can be done
 			chopCount++;//cut
+			chopBar.setValue(chopCount);
 			if (chopCount>=4) {
 				isCut=true;//will no longer be able to go into this method
 				this.cuttable=false;
 				this.img=cutImg;//change img to cut version
 				this.blendable=true;//NOW can be blended
+				chopping = false;
 			}
 		}
 	}

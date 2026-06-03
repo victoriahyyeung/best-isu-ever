@@ -14,8 +14,16 @@ abstract class Item {
     boolean cookable;
     String type;//fruit, pearl, cup, etc
     
+<<<<<<< HEAD
     public Item (Image img, String type) {
     	this.type=type;
+=======
+   protected boolean isFruit;
+   protected boolean isTopping;
+    
+    
+    public Item (Image img) {
+>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
     	this.img = img;
     	if (img!=null) {//getting width and height
     		this.width=img.getWidth(null);
@@ -32,6 +40,26 @@ abstract class Item {
     public void setPosition(int newX, int newY) {
     	this.x = newX;
         this.y = newY;
+    }
+    
+    public boolean isFruit() {
+    	return isFruit;
+    }
+    
+    public boolean isTopping() {
+    	return isTopping;
+    }
+    
+    public boolean isBlendable() {
+    	return blendable;
+    }
+    
+    public boolean isCuttable() {
+    	return cuttable;
+    }
+    
+    public boolean isCookable() {
+    	return cookable;
     }
     
     public Rectangle getBounds() {
