@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.sound.sampled.FloatControl;
-public class Main extends JPanel implements MouseListener, KeyListener {
+public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener {
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
 	// 0 - Home
@@ -22,7 +23,6 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 	// 2 – Instructions (slide 2)
 	// 3 – Instructions (slide 3)
 	// 4 – Instructions (slide 4)
-	// 5 – Instructions (slide 5)
 	// 6 – Locked Levels
 	// 7 – Unlocked Levels
 	// 8 – Start Screen
@@ -35,14 +35,31 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 
 	JTextField usernameField;
 
-	boolean spawnedMango = false;
-
 	ArrayList<Item> ingredientsOnScreen = new ArrayList<>();
 
+	private Item selectedItem = null;
+
+	int offsetX;
+	int offsetY;
+
 	public void spawnMango() {
-		Mango m = new Mango(); 
-		m.placeDown(x-32, y-27);
+		Item m = new Fruit("mango"); 
+		m.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(m);
+		repaint();
+	}
+
+	public void spawnLychee() {
+		Item l = new Fruit ("lychee"); 
+		l.setPosition(x-32, y-27);
+		ingredientsOnScreen.add(l);
+		repaint();
+	}
+
+	public void spawnPearl() {
+		Pearl p = new Pearl();
+		p.setPosition(x-31, y - 22);
+		ingredientsOnScreen.add(p);
 		repaint();
 	}
 
@@ -131,11 +148,11 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 		if (screenState == 8) {
 		}
 		if (screenState == 9) {
-			
+
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
 			for (Item i : ingredientsOnScreen) {
-				if (i.itemImg != null) {
-					g.drawImage(i.itemImg, i.itemX, i.itemY, this);
+				if (i.img != null) {
+					g.drawImage(i.img, i.x, i.y, this);
 				}
 			}
 
@@ -237,14 +254,25 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
 				spawnMango();
 			}
+
+			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
+				spawnLychee();
+			}
+
+			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
+				spawnPearl();
+			}
+
 		}
 		repaint(); 
 	}
 	int x, y;
+
+
 	public void mouseClicked(MouseEvent e) {
-		x = e.getX ();
-		y = e.getY ();
-		handleAction (x, y);
+		//x = e.getX ();
+		//y = e.getY ();
+		//	handleAction (x, y);
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -261,6 +289,7 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel.addMouseListener(panel);
+		panel.addMouseMotionListener(panel);
 	}
 
 	@Override
@@ -277,13 +306,29 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
+
+		x = e.getX();
+		y = e.getY();
+		handleAction(x, y);
+		
+		for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
+			Item item = ingredientsOnScreen.get(i);
+			if (item.contains(e.getX(), e.getY())) {
+				selectedItem = item;
+				offsetX = e.getX() - item.x;
+				offsetY = e.getY() - item.y;
+				return; 
+			}
+		}
+
+
+
 
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		selectedItem = null;
 
 	}
 
@@ -295,6 +340,22 @@ public class Main extends JPanel implements MouseListener, KeyListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (selectedItem != null) {
+			selectedItem.x = e.getX() - offsetX;
+			selectedItem.y = e.getY() - offsetY;
+			repaint(); 
+		}
+
+
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
 
 	}
