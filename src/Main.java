@@ -15,7 +15,22 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.sound.sampled.FloatControl;
-public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener {
+public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
+	private Cup currentCup;
+	private ArrayList<Drink> trayDrinks;
+	private ArrayList<Customer> customers=new ArrayList<>();
+	private Timer gameTimer;//FOR THE GAME REFRESH REPAINTING
+	private Timer patienceTimer;
+	private JProgressBar actionBar;//progress of cooking/blending
+	
+	//stations
+	private Rectangle chopStation=new Rectangle (50, 50, 50, 50);
+	private Rectangle blendStation=new Rectangle (150, 150, 50, 50);
+	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
+	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
+
+
+	
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
 	// 0 - Home
@@ -98,19 +113,48 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		usernameField.setBounds(66, 300, 258, 21); 
 		usernameField.setText("user xxxxxxx");
 		usernameField.setForeground(Color.BLACK);
-		usernameField.setVisible(false); 
+		usernameField.setVisible(false);
+		
+		currentCup=new Cup(Toolkit.getDefaultToolkit().getImage("cup_base.png"), Toolkit.getDefaultToolkit().getImage("pearl_icon.png"), Toolkit.getDefaultToolkit().getImage("pudding_icon.png"));
+		trayDrinks=new ArrayList<>();
+		Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+		customers.add(new Customer(50, 300, customerImg));
+		
+		//bar for blend/cook/cut
+		actionBar= new JProgressBar(0,100);
+		actionBar.setVisible(false);//not visible til action is doing
+		this.add(actionBar);
+		
+gameTimer=new Timer (50, this);
+gameTimer.start();
 
+patienceTimer=new Timer( 1000, this);
+patienceTimer.start();
 
-
+addKeyListener(this);
+setFocusable(true);
 		this.setLayout(null); // Use absolute positioning for the box
 		this.add(usernameField);
 
+		
+		
 		try
 		{
 			tracker.waitForAll ();
 		}  
 		catch (InterruptedException e){}
 
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource()==gameTimer) {//maybe do dif method?
+			repaint();
+		}
+		else if(e.getSource()==patienceTimer) {
+			for (Customer c: customers) {
+				c.decreasePatience();
+			}
+		}
 	}
 
 	public void paintComponent(Graphics g) {
@@ -275,9 +319,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//	handleAction (x, y);
 	}
 
-	public void keyPressed(KeyEvent e) {
-		int key = e.getKeyCode();
+	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
+if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
+	if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
+		Fruit f=(Fruit) selectedItem;
+		f.cut();
+		repaint();
+		}
 	}
+}
 
 
 	public static void main(String[] args) {

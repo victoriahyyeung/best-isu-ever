@@ -12,9 +12,10 @@ abstract class Item {
     boolean blendable;
     boolean cuttable;
     boolean cookable;
+    String type;//fruit, pearl, cup, etc
     
-    
-    public Item (Image img) {
+    public Item (Image img, String type) {
+    	this.type=type;
     	this.img = img;
     	if (img!=null) {//getting width and height
     		this.width=img.getWidth(null);
