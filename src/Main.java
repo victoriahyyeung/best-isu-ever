@@ -40,6 +40,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private int blendProgress;
 	private Timer blendTimer;
 
+	//IMAGES
+	private Image mangoFresh,mangoCut,mangoBlended;
+	private Image lycheeFresh, lycheeCut,lycheeBlended;
+	private Image cupBase, pearlIcon, puddingIcon;
+	private Image customerImg;
+
+
+
+
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
 	// 0 - Home
@@ -89,7 +98,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
-
+loadAllImages();//btw this is only for in game images
 		MediaTracker tracker = new MediaTracker (this);
 		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
 		tracker.addImage (home, 0);
@@ -594,6 +603,45 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
+
+	}
+
+	private void loadAllImages() {
+		MediaTracker tracker=new MediaTracker(this);
+		//////////MANGO
+		mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
+		tracker.addImage(mangoFresh, 0);
+		mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
+		tracker.addImage(mangoCut, 1);
+		mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
+		tracker.addImage(mangoFresh, 2);
+		//////////LYCHEE
+		lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
+		tracker.addImage(lycheeFresh, 3);
+		lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
+		tracker.addImage(lycheeCut, 4);
+		lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
+		tracker.addImage(lycheeFresh, 5);
+		//CUP and TOPPINGS
+		//////////MANGO
+		cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
+		tracker.addImage(cupBase, 6);
+		pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+		tracker.addImage(pearlIcon, 7);
+		puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
+		tracker.addImage(puddingIcon, 8);
+
+		//////////     CUSTOMER
+		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+		tracker.addImage(customerImg, 9);
+		
+		try {
+			tracker.waitForAll();
+			
+		}
+		catch(InterruptedException e) {
+			e.printStackTrace();
+		}
 
 	}
 
