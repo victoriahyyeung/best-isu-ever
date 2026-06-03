@@ -19,7 +19,7 @@ public class Cup extends Item {
 		this.puddingImg =pudding;
 		fruits=new ArrayList<>();
 		toppings=new ArrayList<>();
-		//cups cant do any of these actions, its still an item tho.
+		//cups cant do any of these actions, its still an item tho so must.
 		this.cuttable=false;
 		this.blendable=false;
 		this.cookable=false;
