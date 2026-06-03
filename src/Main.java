@@ -445,12 +445,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
 
 
-		if (selectedItem.type.equals("mango") || selectedItem.type.equals("lychee")){
+		if (selectedItem.type.equals("fruit")){
 			Fruit f=(Fruit) selectedItem;
 			//chopboard
 			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
 				if (!f.isCut()) {
 					f.cut();
+					ingredientsOnScreen.add(f);
 					repaint();
 				}
 			}
@@ -522,28 +523,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		selectedItem=null;
 		repaint();
-		if (selectedItem != null) {
-			centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
-			centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
-
-			// Chopping board #1
-			if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624  && selectedItem != null && selectedItem.isFruit()) {
-				selectedFruit = (Fruit) selectedItem;
-				if (!selectedFruit.isCut()) {
-					selectedFruit.cut();
-					//System.out.println("cut");
-				}
-			}
-
-			// Chopping board #2
-			if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
-				selectedFruit = (Fruit) selectedItem;
-				if (!selectedFruit.isCut()) {
-					selectedFruit.cut();
-					//System.out.println("cut");
-				}
-			}
-		}
 
 	}
 	private Drink cupToDrink(Cup cup) {
