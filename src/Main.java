@@ -23,7 +23,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Timer patienceTimer;
 	private Timer customerSpawnTimer;//spawn customer every n seconds
 	private JProgressBar actionBar;//progress of cooking/blending
-private int score=0;
+	private int score=0;
+	private Item selectedItem=null;
 	//stations
 	//!v- NEEDA FIX COORDIANTES
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
@@ -34,7 +35,7 @@ private int score=0;
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
-	
+
 	private Fruit blendingFruit;
 	private int blendProgress;
 	private Timer blendTimer;
@@ -59,8 +60,6 @@ private int score=0;
 	JTextField usernameField;
 
 	ArrayList<Item> ingredientsOnScreen = new ArrayList<>();
-
-	private Item selectedItem = null;
 
 	int offsetX;
 	int offsetY;
@@ -151,7 +150,7 @@ private int score=0;
 
 		customerSpawnTimer=new Timer(8000,this);
 		customerSpawnTimer.start();
-		
+
 		try
 		{
 			tracker.waitForAll ();
@@ -164,11 +163,17 @@ private int score=0;
 		if (e.getSource()==gameTimer) {//maybe do dif method?
 			repaint();
 		}
+		//CUSOTMER PATIENCE
 		else if(e.getSource()==patienceTimer) {
-			for (Customer c: customers) {
+			for (int i=customers.size()-1;i>=0;i--) {
+				Customer c=customers.get(i);
 				c.decreasePatience();
+				if (c.isAngry()) {
+					customers.remove(i);
+				}
 			}
 		}
+		//BLENDING
 		else if (e.getSource()==blendTimer) {
 			blendProgress+=5;
 			if (blendProgress>=100) {
@@ -184,10 +189,11 @@ private int score=0;
 			else
 				actionBar.setValue(blendProgress);
 		}
+		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
 			if(screenState==9) {
 				Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-			
+
 				customers.add(new Customer(300,10,customerImg));
 				repaint();
 			}
@@ -261,13 +267,13 @@ private int score=0;
 			}
 			if (currentCup!=null && selectedItem!=currentCup) {
 				currentCup.drawLayered(g, cupStation.x, cupStation.y);
-		
+
 			}
 			if (actionBar.isVisible()) {
 				actionBar.paint(g);
 			}
 
-			
+
 		}
 
 		if (screenState == 10) {
@@ -556,13 +562,13 @@ private int score=0;
 			else
 				currentCup=cup;
 		}
-		
+
 
 		selectedItem=null;
 		repaint();
 
 	}
-	
+
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
