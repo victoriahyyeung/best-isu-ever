@@ -444,23 +444,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	public void mousePressed(MouseEvent e) {
 		x = e.getX();
 		y = e.getY();
-		handleAction(x, y);
-
 		if (screenState == 9) {
+			boolean itemSelected=false;//default
 			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
 				Item item = ingredientsOnScreen.get(i);
-				if (item.contains(e.getX(), e.getY())) {
+				if (item.contains(x, y)) {
 					selectedItem = item;
-					offsetX=e.getX()- item.x;
-					offsetY = e.getY() - item.y;
+					offsetX=x- item.x;
+					offsetY =y - item.y;
 					if(selectedItem.isFruit()) {
 						((Fruit)selectedItem).setOnChopStation(false);
 					}
+					itemSelected=true;
 					return; 
 				}
 			}
+			if (!itemSelected) 
+				handleAction(x,y);
 		}
-
+		else
+			handleAction(x,y);
 	}
 
 	@Override
