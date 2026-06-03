@@ -14,12 +14,12 @@ public class Fruit extends Item {
 	private boolean onChopStation;
 	
 	
-	public Fruit (String fruitType) {
-		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), "fruit");
+	public Fruit (String fruitType, Image fresh, Image cut, Image blended) {
+		super(fresh, "fruit");
 		this.fruitType=fruitType;
-		this.freshImg=this.img;
-		this.cutImg=Toolkit.getDefaultToolkit().getImage(fruitType + "_cut.png");
-		this.blendedImg=Toolkit.getDefaultToolkit().getImage(fruitType+"_blended.png");
+		this.freshImg=fresh;
+		this.cutImg=cut;
+		this.blendedImg=blended;
 		//default fruit states
 		this.isCut=false;
 		this.isBlended=false;
