@@ -357,7 +357,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
-<<<<<<< HEAD
 	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
 		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
 			if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
@@ -366,19 +365,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				repaint();
 			}
 		}
-=======
-	public void keyPressed(KeyEvent e) {
-		int key = e.getKeyCode();
-		/*
-		if (key == KeyEvent.VK_SPACE) {
-			if (selectedItem != null && selectedItem.isFruit()) {
-				Fruit f = (Fruit) selectedItem;
-				f.cut();
-				repaint();
-			}
-		}
-		 */
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+
 	}
 
 
