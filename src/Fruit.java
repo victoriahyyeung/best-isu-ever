@@ -14,8 +14,7 @@ public class Fruit extends Item {
 	JProgressBar chopBar;
 	protected int chopCount;//need 4 chops to become cut
 
-
-
+	
 	public Fruit (String fruitType) {
 		super(Toolkit.getDefaultToolkit().getImage(fruitType + "_fresh.png"), fruitType);
 		this.fruitType=fruitType;
