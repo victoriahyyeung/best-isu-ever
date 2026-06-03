@@ -45,6 +45,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image lycheeFresh, lycheeCut,lycheeBlended;
 	private Image cupBase, pearlIcon, puddingIcon;
 	private Image customerImg;
+	private Image pearlUncooked, pearlCooked;
 
 
 
@@ -90,7 +91,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void spawnPearl() {
-		Pearl p = new Pearl();
+		Pearl p = new Pearl(pearlUncooked, pearlCooked);
 		p.setPosition(x-31, y - 22);
 		ingredientsOnScreen.add(p);
 		repaint();
@@ -136,7 +137,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
 		Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-		customers.add(new Customer(50, 300, customerImg));
+		customers.add(new Customer(50, 300, this.customerImg));
 
 		//bar for blend/cook/cut
 		actionBar= new JProgressBar(0,100);
@@ -617,7 +618,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
 		tracker.addImage(mangoCut, 1);
 		mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
-		tracker.addImage(mangoFresh, 2);
+		tracker.addImage(mangoBlended, 2);
 		//////////LYCHEE
 		lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
 		tracker.addImage(lycheeFresh, 3);
@@ -637,7 +638,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//////////     CUSTOMER
 		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
 		tracker.addImage(customerImg, 9);
-
+		
+		///PEARLZ
+		pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
+		tracker.addImage(pearlUncooked, 10);
+		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
+		tracker.addImage(pearlCooked, 11);
+		
+		
+		
 		try {
 			tracker.waitForAll();
 
