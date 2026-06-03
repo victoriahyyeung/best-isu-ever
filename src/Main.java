@@ -229,20 +229,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					int centerX = i.x + (int) Math.round(i.width*0.5);
 					int centerY = i.y + (int) Math.round(i.height*0.5);
 
-					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && !f.isCut) {
+					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 ) {
 
 						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
+						f.chopping = true;
 						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
 						f.chopBar.setValue(f.chopCount);
-
 						f.chopBar.setVisible(true);
 
 					}
 
 
-					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623  && selectedItem != null &&  selectedItem.isFruit()){
+
+
+					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623){
+
 						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
+						f.chopping = true;
 						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+						f.chopBar.setValue(f.chopCount);
+
 						f.chopBar.setVisible(true);
 
 					}
@@ -445,7 +451,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
 				if (!f.isCut()) {
 					f.cut();
-					System.out.println("Cut! Chop count: " + f.chopCount);
 					repaint();
 				}
 			}

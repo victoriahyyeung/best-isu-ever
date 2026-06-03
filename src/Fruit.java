@@ -31,9 +31,14 @@ public class Fruit extends Item {
 		
 		chopBar = new JProgressBar(0, 4);
 		chopBar.setValue(0);
-		chopBar.setForeground(new Color(255, 204, 51));
-		chopBar.setBackground(new Color (255, 240, 200));
-		chopBar.setBorderPainted(false);
+		if ("mango".equals(fruitType)) {
+		    chopBar.setUI(new CustomProgressBarUI(new Color(255, 204, 51)));
+		} 
+		else if ("lychee".equals(fruitType)){
+		    chopBar.setUI(new CustomProgressBarUI(Color.PINK));
+		}
+		chopBar.setBackground(Color.LIGHT_GRAY);
+		chopBar.setBorderPainted(true);
 		
 		isFruit = true;
 		isTopping = false;
@@ -46,8 +51,8 @@ public class Fruit extends Item {
 	public void cut() {
 		if (!isCut && !isBlended && cuttable) {//check if cut() can be done
 			chopCount++;//cut
+			chopping = true;
 			chopBar.setValue(chopCount);
-			System.out.println("value set");
 			if (chopCount>=4) {
 				isCut=true;//will no longer be able to go into this method
 				this.cuttable=false;
