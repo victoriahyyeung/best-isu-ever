@@ -17,13 +17,15 @@ import javax.swing.*;
 import javax.sound.sampled.FloatControl;
 public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
 	private Cup currentCup;
-	private ArrayList<Drink> trayDrinks;
+	private ArrayList<Cup> trayDrinks;
 	private ArrayList<Customer> customers=new ArrayList<>();
 	private Timer gameTimer;//FOR THE GAME REFRESH REPAINTING
 	private Timer patienceTimer;
+	private Timer customerSpawnTimer;//spawn customer every n seconds
 	private JProgressBar actionBar;//progress of cooking/blending
-
+private int score=0;
 	//stations
+	//!v- NEEDA FIX COORDIANTES
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
@@ -31,7 +33,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle blendStation=new Rectangle (150, 150, 50, 50);
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
-
+	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
+	
 	private Fruit blendingFruit;
 	private int blendProgress;
 	private Timer blendTimer;
@@ -146,6 +149,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		blendTimer=new Timer(30, this);
 		blendTimer.stop();//not initially running
 
+		customerSpawnTimer=new Timer(8000,this);
+		customerSpawnTimer.start();
+		
 		try
 		{
 			tracker.waitForAll ();
@@ -177,6 +183,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 			else
 				actionBar.setValue(blendProgress);
+		}
+		else if(e.getSource()==customerSpawnTimer) {
+			if(screenState==9) {
+				Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+			
+				customers.add(new Customer(300,10,customerImg));
+				repaint();
+			}
 		}
 	}
 
@@ -217,6 +231,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 9) {
 
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
+			//score
+			g.setColor(Color.BLACK);
+			g.setFont(new Font("Times New Roman", Font.BOLD,16));
+			g.drawString("Score: "+score,10,10);
 			for (Item i : ingredientsOnScreen) {
 				if (i.img != null) {
 					g.drawImage(i.img, i.x, i.y, this);
@@ -249,6 +267,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				actionBar.paint(g);
 			}
 
+			
 		}
 
 		if (screenState == 10) {
@@ -443,10 +462,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		if (selectedItem.type.equals("fruit")){
 			Fruit f=(Fruit) selectedItem;
-			f.setOnChopStation(true);
+			f.setOnChopStation(false);//default
 
 			//chopboard
 			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+				f.setOnChopStation(true);
 				if (!f.isCut()) {
 					f.cut();
 					ingredientsOnScreen.add(f);
@@ -501,7 +521,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			Cup cup=(Cup) selectedItem;
 			if (trayStation.contains(mx,my)) {
 				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
-					trayDrinks.add(cupToDrink(cup));
+					trayDrinks.add(cup);
 					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
 					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
 					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
@@ -515,6 +535,24 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					currentCup=cup;
 				}
 			}
+			else if(servingStation.contains(mx,my)) {
+				boolean served=false;//default
+				for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
+					Customer c=customers.get(i);
+					if(c.getOrder().matches(trayDrinks)) {
+						customers.remove(i);
+						trayDrinks.clear(); //next tray!
+						JOptionPane.showMessageDialog(this, "served! +100 points");
+						served=true;
+						score+=100;
+						break;
+					}
+				}
+				if(!served) {//not matching
+					JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
+					currentCup=cup;//put last cup back into hand
+				}
+			}
 			else
 				currentCup=cup;
 		}
@@ -524,10 +562,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 
 	}
-	private Drink cupToDrink(Cup cup) {
-		return new Drink(cup.getFruits(), cup.getToppings());
-	}
-
+	
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
