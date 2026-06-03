@@ -76,7 +76,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	Fruit selectedFruit;
 
 	public void spawnMango() {
-Fruit m=new Fruit("mango", mangoFresh,mangoCut,mangoBlended);
+		Fruit m=new Fruit("mango", mangoFresh,mangoCut,mangoBlended);
 		m.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(m);
 		repaint();
@@ -98,7 +98,7 @@ Fruit m=new Fruit("mango", mangoFresh,mangoCut,mangoBlended);
 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
-loadAllImages();//btw this is only for in game images
+		loadAllImages();//btw this is only for in game images
 		MediaTracker tracker = new MediaTracker (this);
 		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
 		tracker.addImage (home, 0);
@@ -133,7 +133,7 @@ loadAllImages();//btw this is only for in game images
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
-		currentCup=new Cup(Toolkit.getDefaultToolkit().getImage("cup_base.png"), Toolkit.getDefaultToolkit().getImage("pearl_icon.png"), Toolkit.getDefaultToolkit().getImage("pudding_icon.png"));
+		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
 		Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
 		customers.add(new Customer(50, 300, customerImg));
@@ -634,10 +634,10 @@ loadAllImages();//btw this is only for in game images
 		//////////     CUSTOMER
 		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
 		tracker.addImage(customerImg, 9);
-		
+
 		try {
 			tracker.waitForAll();
-			
+
 		}
 		catch(InterruptedException e) {
 			e.printStackTrace();
