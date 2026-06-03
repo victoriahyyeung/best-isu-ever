@@ -15,7 +15,24 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.sound.sampled.FloatControl;
-public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener {
+public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
+	private Cup currentCup;
+	private ArrayList<Drink> trayDrinks;
+	private ArrayList<Customer> customers=new ArrayList<>();
+	private Timer gameTimer;//FOR THE GAME REFRESH REPAINTING
+	private Timer patienceTimer;
+	private JProgressBar actionBar;//progress of cooking/blending
+
+	//stations
+	private Rectangle chopStation=new Rectangle (50, 50, 50, 50);
+	private Rectangle blendStation=new Rectangle (150, 150, 50, 50);
+	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
+	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
+
+	private Fruit blendingFruit;
+	private int blendProgress;
+	private Timer blendTimer;
+
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
 	// 0 - Home
@@ -100,12 +117,31 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		usernameField.setBounds(66, 300, 258, 21); 
 		usernameField.setText("user xxxxxxx");
 		usernameField.setForeground(Color.BLACK);
-		usernameField.setVisible(false); 
+		usernameField.setVisible(false);
 
+		currentCup=new Cup(Toolkit.getDefaultToolkit().getImage("cup_base.png"), Toolkit.getDefaultToolkit().getImage("pearl_icon.png"), Toolkit.getDefaultToolkit().getImage("pudding_icon.png"));
+		trayDrinks=new ArrayList<>();
+		Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+		customers.add(new Customer(50, 300, customerImg));
 
+		//bar for blend/cook/cut
+		actionBar= new JProgressBar(0,100);
+		actionBar.setVisible(false);//not visible til action is doing
+		this.add(actionBar);
 
+		gameTimer=new Timer (50, this);
+		gameTimer.start();
+
+		patienceTimer=new Timer( 1000, this);
+		patienceTimer.start();
+
+		addKeyListener(this);
+		setFocusable(true);
 		this.setLayout(null); // Use absolute positioning for the box
 		this.add(usernameField);
+
+		blendTimer=new Timer(30, this);
+		blendTimer.stop();//not initially running
 
 		try
 		{
@@ -113,6 +149,30 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}  
 		catch (InterruptedException e){}
 
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource()==gameTimer) {//maybe do dif method?
+			repaint();
+		}
+		else if(e.getSource()==patienceTimer) {
+			for (Customer c: customers) {
+				c.decreasePatience();
+			}
+		}
+		else if (e.getSource()==blendTimer) {
+			blendProgress+=5;
+			if (blendProgress>=100) {
+				blendTimer.stop();
+				actionBar.setVisible(false);;
+				blendingFruit.setBlended();
+				ingredientsOnScreen.add(blendingFruit);
+				blendingFruit=null;
+				repaint();
+			}
+			else
+				actionBar.setValue(blendProgress);
+		}
 	}
 
 	public void paintComponent(Graphics g) {
@@ -297,17 +357,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
-	public void keyPressed(KeyEvent e) {
-		int key = e.getKeyCode();
-		/*
-		if (key == KeyEvent.VK_SPACE) {
-			if (selectedItem != null && selectedItem.isFruit()) {
-				Fruit f = (Fruit) selectedItem;
+	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
+		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
+			if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
+				Fruit f=(Fruit) selectedItem;
 				f.cut();
 				repaint();
 			}
 		}
-		 */
+
 	}
 
 
@@ -359,6 +417,87 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+<<<<<<< HEAD
+		if (selectedItem==null)
+			return;
+		int mx=e.getX();
+		int my=e.getY();
+		String type=selectedItem.type;
+		if (type.equals("fruit")) {
+			Fruit f=(Fruit) selectedItem;
+			//chopboard
+			if (chopStation.contains(mx,my)) {
+				ingredientsOnScreen.add(f);
+			}
+			//blender
+			else if (blendStation.contains(mx,my)) {
+				if (f.isCut()&& !f.isBlended()) {
+					startBlendingAnimation(f);
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+					ingredientsOnScreen.add(f);
+				}
+			}
+			//cup station (add components to cup)
+			else if (cupStation.contains (mx,my)) {
+				if (f.isBlended()) {
+					if (currentCup==null) {
+						Image cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
+						Image pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+						Image puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
+						currentCup=new Cup (cupBase,pearlIcon,puddingIcon);
+					}
+					currentCup.addFruit(f.getFruitType());
+				}else {
+					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
+					ingredientsOnScreen.add(f);
+				}
+			}
+			else {
+				ingredientsOnScreen.add(f);
+			}
+		}
+		else if(type.equals("pearl")) {
+			Pearl p=(Pearl) selectedItem;
+			if (cupStation.contains(mx,my)) {
+				if (currentCup==null) {
+					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
+					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");	
+					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+				}
+				currentCup.addTopping("pearls");//good
+			}
+			else {
+				ingredientsOnScreen.add(p);
+			}
+		}
+		else if (type.equals("cup")) {
+			Cup cup=(Cup) selectedItem;
+			if (trayStation.contains(mx,my)) {
+				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
+					trayDrinks.add(cupToDrink(cup));
+					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
+					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
+
+					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
+
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "empty cup...");
+					currentCup=cup;
+				}
+			}
+			else
+				currentCup=cup;
+		}
+
+		selectedItem=null;
+		repaint();
+=======
 		if (selectedItem != null) {
 			int centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
 			int centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
@@ -381,9 +520,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 		}
+>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 
 	}
-
+	private Drink cupToDrink(Cup cup) {
+		return new Drink(cup.getFruits(), cup.getToppings());
+	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -411,5 +553,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		// TODO Auto-generated method stub
 
 	}
+
+private void startBlendingAnimation(Fruit f) {
+	blendingFruit=f;
+	blendProgress=0;
+	actionBar.setValue(0);
+	actionBar.setVisible(true);
+	blendTimer.start();
+}
+
 
 }

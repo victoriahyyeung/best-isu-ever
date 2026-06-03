@@ -12,12 +12,18 @@ abstract class Item {
     boolean blendable;
     boolean cuttable;
     boolean cookable;
+    String type;//fruit, pearl, cup, etc
     
+<<<<<<< HEAD
+    public Item (Image img, String type) {
+    	this.type=type;
+=======
    protected boolean isFruit;
    protected boolean isTopping;
     
     
     public Item (Image img) {
+>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
     	this.img = img;
     	if (img!=null) {//getting width and height
     		this.width=img.getWidth(null);
