@@ -15,6 +15,8 @@ public class Pearl extends Item{
 		this.cookable=true;
 		this.cuttable=false;
 		this.blendable=false;
+		isFruit = false;
+		isTopping = true;
 	}
 	
 	public void cook() {

@@ -13,6 +13,9 @@ abstract class Item {
     boolean cuttable;
     boolean cookable;
     
+   protected boolean isFruit;
+   protected boolean isTopping;
+    
     
     public Item (Image img) {
     	this.img = img;
@@ -31,6 +34,26 @@ abstract class Item {
     public void setPosition(int newX, int newY) {
     	this.x = newX;
         this.y = newY;
+    }
+    
+    public boolean isFruit() {
+    	return isFruit;
+    }
+    
+    public boolean isTopping() {
+    	return isTopping;
+    }
+    
+    public boolean isBlendable() {
+    	return blendable;
+    }
+    
+    public boolean isCuttable() {
+    	return cuttable;
+    }
+    
+    public boolean isCookable() {
+    	return cookable;
     }
     
     public Rectangle getBounds() {

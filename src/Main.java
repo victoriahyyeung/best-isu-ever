@@ -42,6 +42,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	int offsetX;
 	int offsetY;
 
+	Fruit selectedFruit;
+
 	public void spawnMango() {
 		Item m = new Fruit("mango"); 
 		m.setPosition(x-32, y-27);
@@ -154,7 +156,29 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if (i.img != null) {
 					g.drawImage(i.img, i.x, i.y, this);
 				}
+
+				if (i.isFruit()) {
+					Fruit f = (Fruit) i;
+
+					int centerX = i.x + (int) Math.round(i.width*0.5);
+					int centerY = i.y + (int) Math.round(i.height*0.5);
+
+					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && !f.isCut) {
+						//if (f.chopCount > 0 && !f.isCut) {
+						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
+						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+					}
+					
+					
+					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
+						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
+						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
+					}
+				}
+
 			}
+
+
 
 		}
 		if (screenState == 10) {
@@ -270,13 +294,20 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 	public void mouseClicked(MouseEvent e) {
-		//x = e.getX ();
-		//y = e.getY ();
-		//	handleAction (x, y);
+
 	}
 
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
+		/*
+		if (key == KeyEvent.VK_SPACE) {
+			if (selectedItem != null && selectedItem.isFruit()) {
+				Fruit f = (Fruit) selectedItem;
+				f.cut();
+				repaint();
+			}
+		}
+		 */
 	}
 
 
@@ -290,6 +321,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel.addMouseListener(panel);
 		panel.addMouseMotionListener(panel);
+		panel.addKeyListener(panel);
+		panel.setFocusable(true);
 	}
 
 	@Override
@@ -306,11 +339,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-
 		x = e.getX();
 		y = e.getY();
 		handleAction(x, y);
-		
+
 		for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
 			Item item = ingredientsOnScreen.get(i);
 			if (item.contains(e.getX(), e.getY())) {
@@ -321,14 +353,32 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 
-
-
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		selectedItem = null;
+		if (selectedItem != null) {
+			int centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
+			int centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
+
+			// Chopping board #1
+			if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 && selectedItem.isFruit()) {
+				selectedFruit = (Fruit) selectedItem;
+				if (!selectedFruit.isCut()) {
+					selectedFruit.cut();
+					//System.out.println("cut");
+				}
+			}
+			
+			// Chopping board #2
+			if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
+				selectedFruit = (Fruit) selectedItem;
+				if (!selectedFruit.isCut()) {
+					selectedFruit.cut();
+					//System.out.println("cut");
+				}
+			}
+		}
 
 	}
 
