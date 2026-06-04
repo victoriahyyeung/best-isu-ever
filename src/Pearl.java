@@ -8,10 +8,10 @@ public class Pearl extends Item{
 	
 	JProgressBar cookBar;
 	
-	public Pearl () {
-		super (Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png"), "pearl");
-		this.uncookedImg=this.img;
-		this.cookedImg=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
+	public Pearl (Image uncooked, Image cooked) {
+		super (uncooked, "pearl");
+		this.uncookedImg=uncooked;
+		this.cookedImg=cooked;
 		this.isCooked=false;
 		//abilities default
 		this.cookable=true;

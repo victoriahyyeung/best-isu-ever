@@ -17,13 +17,17 @@ import javax.swing.*;
 import javax.sound.sampled.FloatControl;
 public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
 	private Cup currentCup;
-	private ArrayList<Drink> trayDrinks;
+	private ArrayList<Cup> trayDrinks;
 	private ArrayList<Customer> customers=new ArrayList<>();
 	private Timer gameTimer;//FOR THE GAME REFRESH REPAINTING
 	private Timer patienceTimer;
+	private Timer customerSpawnTimer;//spawn customer every n seconds
 	private JProgressBar actionBar;//progress of cooking/blending
-
+	private int score=0;
+	private Item selectedItem=null;
+	private boolean spacePressed=false;
 	//stations
+	//!v- NEEDA FIX COORDIANTES
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
@@ -35,10 +39,21 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
+	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
 
 	private Fruit blendingFruit;
 	private int blendProgress;
 	private Timer blendTimer;
+
+	//IMAGES
+	private Image mangoFresh,mangoCut,mangoBlended;
+	private Image lycheeFresh, lycheeCut,lycheeBlended;
+	private Image cupBase, pearlIcon, puddingIcon;
+	private Image customerImg;
+	private Image pearlUncooked, pearlCooked;
+
+
+
 
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
@@ -61,29 +76,27 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	ArrayList<Item> ingredientsOnScreen = new ArrayList<>();
 
-	private Item selectedItem = null;
-
 	int offsetX;
 	int offsetY;
 
 	Fruit selectedFruit;
 
 	public void spawnMango() {
-		Item m = new Fruit("mango"); 
+		Fruit m=new Fruit("mango", mangoFresh,mangoCut,mangoBlended);
 		m.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(m);
 		repaint();
 	}
 
 	public void spawnLychee() {
-		Item l = new Fruit ("lychee"); 
+		Fruit l=new Fruit("lychee", lycheeFresh,lycheeCut,lycheeBlended);
 		l.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(l);
 		repaint();
 	}
 
 	public void spawnPearl() {
-		Pearl p = new Pearl();
+		Pearl p = new Pearl(pearlUncooked, pearlCooked);
 		p.setPosition(x-31, y - 22);
 		ingredientsOnScreen.add(p);
 		repaint();
@@ -91,7 +104,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
-
+		loadAllImages();//btw this is only for in game images
 		MediaTracker tracker = new MediaTracker (this);
 		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
 		tracker.addImage (home, 0);
@@ -126,10 +139,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
-		currentCup=new Cup(Toolkit.getDefaultToolkit().getImage("cup_base.png"), Toolkit.getDefaultToolkit().getImage("pearl_icon.png"), Toolkit.getDefaultToolkit().getImage("pudding_icon.png"));
+		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
-		Image customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-		customers.add(new Customer(50, 300, customerImg));
+		customers.add(new Customer(50, 300, this.customerImg));
 
 		//bar for blend/cook/cut
 		actionBar= new JProgressBar(0,100);
@@ -150,6 +162,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		blendTimer=new Timer(30, this);
 		blendTimer.stop();//not initially running
 
+		customerSpawnTimer=new Timer(8000,this);
+		customerSpawnTimer.start();
+
 		try
 		{
 			tracker.waitForAll ();
@@ -162,11 +177,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (e.getSource()==gameTimer) {//maybe do dif method?
 			repaint();
 		}
+		//CUSOTMER PATIENCE
 		else if(e.getSource()==patienceTimer) {
-			for (Customer c: customers) {
+			for (int i=customers.size()-1;i>=0;i--) {
+				Customer c=customers.get(i);
 				c.decreasePatience();
+				if (c.isAngry()) {
+					customers.remove(i);
+				}
 			}
 		}
+		//BLENDING
 		else if (e.getSource()==blendTimer) {
 			blendProgress+=5;
 			if (blendProgress>=100) {
@@ -181,6 +202,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 			else
 				actionBar.setValue(blendProgress);
+		}
+		//CUSTOMER SPAWN 
+		else if(e.getSource()==customerSpawnTimer) {
+			if(screenState==9) {
+				customers.add(new Customer(300,10,customerImg));
+				repaint();
+			}
 		}
 	}
 
@@ -221,6 +249,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 9) {
 
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
+			//score
+			g.setColor(Color.BLACK);
+			g.setFont(new Font("Times New Roman", Font.BOLD,16));
+			g.drawString("Score: "+score,10,10);
 			for (Item i : ingredientsOnScreen) {
 				if (i.img != null) {
 					g.drawImage(i.img, i.x, i.y, this);
@@ -229,36 +261,30 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 				if (i.isFruit()) {
 					Fruit f = (Fruit) i;
-
-					int centerX = i.x + (int) Math.round(i.width*0.5);
-					int centerY = i.y + (int) Math.round(i.height*0.5);
-
-					if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624 ) {
-
-						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
-						f.chopping = true;
-						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
-						f.chopBar.setValue(f.chopCount);
-						f.chopBar.setVisible(true);
-
-					}
-
-
-
-
-					if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623){
-
-						f.chopBar.setBounds(f.x, f.y - 15, f.width, 10);
-						f.chopping = true;
-						f.chopBar.paint(g.create(f.x, f.y - 15, f.width, 10));
-						f.chopBar.setValue(f.chopCount);
-
-						f.chopBar.setVisible(true);
-
+					if (f.isOnChopStation() && !f.isCut()) {
+						int barWidth=40;
+						int barHeight=8;
+						int fillWidth =barWidth*f.getChopProgress() / 100;
+						int barX=f.x+(f.width-barWidth)/2;
+						int barY=f.y -12;
+						g.setColor(Color.LIGHT_GRAY);
+						g.fillRect(barX, barY, barWidth, barHeight);
+						g.setColor(Color.RED);//!v-CHANGE!!!
+						g.fillRect(barX, barY, fillWidth, barHeight);
+						g.setColor(Color.BLACK);
+						g.drawRect(barX, barY, barWidth, barHeight);
 					}
 				}
 
 			}
+			if (currentCup!=null && selectedItem!=currentCup) {
+				currentCup.drawLayered(g, cupStation.x, cupStation.y);
+
+			}
+			if (actionBar.isVisible()) {
+				actionBar.paint(g);
+			}
+
 
 		}
 
@@ -381,10 +407,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
 		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
-			if (selectedItem!=null&& selectedItem.type.equals("fruit")) {
-				Fruit f=(Fruit) selectedItem;
-				f.cut();
-				repaint();
+			if (!spacePressed) {
+				spacePressed=true;
+				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
+					Fruit f=(Fruit) selectedItem;
+					if (f.isOnChopStation() && !f.isCut()) {
+						f.cut();
+						repaint();
+					}
+				}
 			}
 		}
 
@@ -413,28 +444,39 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-
+		if (e.getKeyCode()==KeyEvent.VK_SPACE) {
+			spacePressed=false;
+		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		x = e.getX();
 		y = e.getY();
-		handleAction(x, y);
-
 		if (screenState == 9) {
+			boolean itemSelected=false;//default
 			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
 				Item item = ingredientsOnScreen.get(i);
-				if (item.img != null && item.contains(e.getX(), e.getY())) {
+				if (item.contains(x, y)) {
 					selectedItem = item;
-					offsetX = e.getX() - item.x;
-					offsetY = e.getY() - item.y;
+					offsetX=x- item.x;
+					offsetY =y - item.y;
+					if(selectedItem.isFruit()) {
+						Fruit f=(Fruit) selectedItem;
+						if(f.isOnChopStation()&& !f.isCut()) {
+							f.cut();
+							repaint();
+						}
+					}
+					itemSelected=true;
 					return; 
 				}
 			}
+			if (!itemSelected) 
+				handleAction(x,y);
 		}
-
+		else
+			handleAction(x,y);
 	}
 
 	@Override
@@ -445,10 +487,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int mx=e.getX();
 		int my=e.getY();
 
+		//!v- MIKA WHAT IS THIS BROTHER
 		int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
 		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
 
 
+		//<<<<<<< HEAD
 		if (selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
 			// cook
@@ -460,113 +504,106 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 
-		if (selectedItem.type.equals("mango") || selectedItem.type.equals("lychee")){
-			Fruit f=(Fruit) selectedItem;
-			//chopboard
-			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-				if (!f.isCut()) {
-					f.cut();
+		//if (selectedItem.type.equals("mango") || selectedItem.type.equals("lychee")){
+			//=======
+			if (selectedItem.type.equals("fruit")){
+				//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+				Fruit f=(Fruit) selectedItem;
+				f.setOnChopStation(false);//default
+
+				//chopboard
+				if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+					f.setOnChopStation(true);
+					//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
+					ingredientsOnScreen.add(f);
+					selectedItem=f;//keep selected
 					repaint();
+					return;
 				}
-			}
-			//blender
-			else if (blendStation1.contains(mx,my) || blendStation2.contains(mx,my)) {
-				if (f.isCut()&& !f.isBlended()) {
-					startBlendingAnimation(f);
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					ingredientsOnScreen.add(f);
-				}
-			}
-
-
-
-			//cup station (add components to cup)
-			else if (cupStation.contains (mx,my)) {
-				if (f.isBlended()) {
-					if (currentCup==null) {
-						Image cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
-						Image pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-						Image puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
-						currentCup=new Cup (cupBase,pearlIcon,puddingIcon);
+				//blender
+				else if (blendStation1.contains(mx,my) || blendStation2.contains(mx,my)) {
+					if (f.isCut()&& !f.isBlended()) {
+						startBlendingAnimation(f);
 					}
-					currentCup.addFruit(f.getFruitType());
-				}else {
-					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
+					else {
+						JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+						ingredientsOnScreen.add(f);
+					}
+				}
+
+
+
+				//cup station (add components to cup)
+				else if (cupStation.contains (mx,my)) {
+					if (f.isBlended()) {
+						if (currentCup==null) {
+							currentCup=new Cup (cupBase,pearlIcon,puddingIcon);
+						}
+						currentCup.addFruit(f.getFruitType());
+					}else {
+						JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
+						ingredientsOnScreen.add(f);
+					}
+				}
+				else {
 					ingredientsOnScreen.add(f);
 				}
 			}
-			else {
-				ingredientsOnScreen.add(f);
-			}
-		}
-		else if(selectedItem.type.equals("pearl")) {
-			Pearl p=(Pearl) selectedItem;
-			if (cupStation.contains(mx,my)) {
-				if (currentCup==null) {
-					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
-					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");	
-					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
-				}
-				currentCup.addTopping("pearls");//good
-			}
-			else {
-				ingredientsOnScreen.add(p);
-			}
-		}
-		else if (selectedItem.type.equals("cup")) {
-			Cup cup=(Cup) selectedItem;
-			if (trayStation.contains(mx,my)) {
-				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
-					trayDrinks.add(cupToDrink(cup));
-					Image cupBase = Toolkit.getDefaultToolkit().getImage("cup_base.png");
-					Image pearlIcon = Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-					Image puddingIcon = Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
-
-					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
-					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
-
+			else if(selectedItem.type.equals("pearl")) {
+				Pearl p=(Pearl) selectedItem;
+				if (cupStation.contains(mx,my)) {
+					if (currentCup==null) {
+						currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+					}
+					currentCup.addTopping("pearls");//good
 				}
 				else {
-					JOptionPane.showMessageDialog(this, "empty cup...");
+					ingredientsOnScreen.add(p);
+				}
+			}
+			else if (selectedItem.type.equals("cup")) {
+				Cup cup=(Cup) selectedItem;
+				if (trayStation.contains(mx,my)) {
+					if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
+						trayDrinks.add(cup);
+						currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+						JOptionPane.showMessageDialog(this, "Drink added to tray.");;
+
+					}
+					else {
+						JOptionPane.showMessageDialog(this, "empty cup...");
+						currentCup=cup;
+					}
+				}
+				else if(servingStation.contains(mx,my)) {
+					boolean served=false;//default
+					for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
+						Customer c=customers.get(i);
+						if(c.getOrder().matches(trayDrinks)) {
+							customers.remove(i);
+							trayDrinks.clear(); //next tray!
+							JOptionPane.showMessageDialog(this, "served! +100 points");
+							served=true;
+							score+=100;
+							break;
+						}
+					}
+					if(!served) {//not matching
+						JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
+						currentCup=cup;//put last cup back into hand
+					}
+				}
+				else
 					currentCup=cup;
-				}
 			}
-			else
-				currentCup=cup;
+
+
+			selectedItem=null;
+			repaint();
 		}
 
-		selectedItem=null;
-		repaint();
-		if (selectedItem != null) {
-			centerX = selectedItem.x + (int) Math.round(selectedItem.width*0.5);
-			centerY = selectedItem.y + (int) Math.round(selectedItem.height*0.5);
-
-			// Chopping board #1
-			if (centerX >= 177 && centerX <= 228 && centerY >= 571 && centerY <= 624  && selectedItem != null && selectedItem.isFruit()) {
-				selectedFruit = (Fruit) selectedItem;
-				if (!selectedFruit.isCut()) {
-					selectedFruit.cut();
-					//System.out.println("cut");
-				}
-			}
-
-			// Chopping board #2
-			if (centerX >= 230 && centerX <= 281 && centerY >= 571 && centerY <= 623 && selectedItem.isFruit()){
-				selectedFruit = (Fruit) selectedItem;
-				if (!selectedFruit.isCut()) {
-					selectedFruit.cut();
-					//System.out.println("cut");
-				}
-			}
-		}
-
-	}
-	private Drink cupToDrink(Cup cup) {
-		return new Drink(cup.getFruits(), cup.getToppings());
-	}
+	
+	
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -596,6 +633,52 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
+	private void loadAllImages() {
+		MediaTracker tracker=new MediaTracker(this);
+		//////////MANGO
+		mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
+		tracker.addImage(mangoFresh, 0);
+		mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
+		tracker.addImage(mangoCut, 1);
+		mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
+		tracker.addImage(mangoBlended, 2);
+		//////////LYCHEE
+		lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
+		tracker.addImage(lycheeFresh, 3);
+		lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
+		tracker.addImage(lycheeCut, 4);
+		lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
+		tracker.addImage(lycheeBlended, 5);
+		//CUP and TOPPINGS
+		cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
+		tracker.addImage(cupBase, 6);
+		pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+		tracker.addImage(pearlIcon, 7);
+		puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
+		tracker.addImage(puddingIcon, 8);
+
+		//////////     CUSTOMER
+		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+		tracker.addImage(customerImg, 9);
+
+		///PEARLZ
+		pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
+		tracker.addImage(pearlUncooked, 10);
+		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
+		tracker.addImage(pearlCooked, 11);
+
+
+
+		try {
+			tracker.waitForAll();
+
+		}
+		catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	private void startBlendingAnimation(Fruit f) {
 		blendingFruit=f;
 		blendProgress=0;
@@ -603,8 +686,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		actionBar.setVisible(true);
 		blendTimer.start();
 	}
-	
-	
+
+
 
 
 }
