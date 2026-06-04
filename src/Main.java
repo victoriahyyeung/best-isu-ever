@@ -30,6 +30,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	private Rectangle blendStation1=new Rectangle (69, 571, 50, 50);
 	private Rectangle blendStation2 = new Rectangle(124, 571, 50, 50);
+
+	private Rectangle cookingStation = new Rectangle (284, 571, 50, 50);
+
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 
@@ -446,6 +449,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
 
 
+		if (selectedItem.type.equals("pearl")) {
+			Pearl p = (Pearl) selectedItem;
+			// cook
+			if (cookingStation.contains(mx, my)){
+				if (!p.isCooked()) {
+					p.cook();
+					repaint();
+				}
+			}
+		}
+
 		if (selectedItem.type.equals("mango") || selectedItem.type.equals("lychee")){
 			Fruit f=(Fruit) selectedItem;
 			//chopboard
@@ -465,6 +479,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					ingredientsOnScreen.add(f);
 				}
 			}
+
+
+
 			//cup station (add components to cup)
 			else if (cupStation.contains (mx,my)) {
 				if (f.isBlended()) {
@@ -586,6 +603,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		actionBar.setVisible(true);
 		blendTimer.start();
 	}
+	
+	
 
 
 }
