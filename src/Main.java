@@ -28,7 +28,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
 
-	private Rectangle blendStation=new Rectangle (150, 150, 50, 50);
+	private Rectangle blendStation1=new Rectangle (69, 571, 50, 50);
+	private Rectangle blendStation2 = new Rectangle(124, 571, 50, 50);
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 
@@ -455,7 +456,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 			//blender
-			else if (blendStation.contains(mx,my)) {
+			else if (blendStation1.contains(mx,my) || blendStation2.contains(mx,my)) {
 				if (f.isCut()&& !f.isBlended()) {
 					startBlendingAnimation(f);
 				}
