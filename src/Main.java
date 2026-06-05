@@ -43,6 +43,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	private Image emptyBlender1;
 	private Image emptyBlender2;
+	
+	private Image emptyPot;
 
 	private Image mangoBlender;
 	private Image lycheeBlender;
@@ -57,10 +59,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
-
-	//private Fruit blendingFruit;
-	//private int blendProgress;
-	//private Timer blendTimer;
 
 	private Fruit blender1Fruit = null;
 	private Fruit blender2Fruit = null;
@@ -81,9 +79,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image customerImg;
 	private Image pearlUncooked, pearlCooked;
 
-
-	private int finishedBlenderStation = 0;
-	private String finishedBlenderFruit = "";
 
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
@@ -311,30 +306,24 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 
-
-			//if (finishedBlenderStation == 1) {
+			g.drawImage(emptyPot, 247, 512, 150, 150, this);
 
 			if ("mango".equals(blender1FinishedFruit)) {
 				g.drawImage(mangoBlender, 45, 544, 100, 100, this);
-				//finishedBlenderFruit = null;
 			}
 			else if ("lychee".equals(blender1FinishedFruit)) {
 				g.drawImage(lycheeBlender, 45, 544, 100, 100, this);
-				//finishedBlenderFruit = null;
 			}
-			//} 
 			else {
 				g.drawImage(emptyBlender1, 45, 544, 100, 100, this);
 			}
 
-			//if (finishedBlenderStation == 2) {
 			if ("mango".equals(blender2FinishedFruit)) {
 				g.drawImage(mangoBlender, 100, 544, 100, 100, this);
-				//finishedBlenderFruit = null;
 			}
 			else if ("lychee".equals(blender2FinishedFruit)) {
 				g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
-				//finishedBlenderFruit = null;
+				
 			}
 
 			else {
@@ -802,6 +791,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
 		tracker.addImage(lycheeBlender, 15);
 
+		//Pot
+		emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
+		tracker.addImage(emptyPot, 16);
+		
 		try {
 			tracker.waitForAll();
 
