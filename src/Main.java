@@ -8,8 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.*;
+import javax.swing.Timer;
 import java.io.*;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -41,6 +41,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
+	private Image emptyBlender1;
+	private Image emptyBlender2;
+
+	private Image mangoBlender;
+	private Image lycheeBlender;
+
+	private int activeBlender = 0; 
 
 	private Rectangle blendStation1=new Rectangle (69, 571, 50, 50);
 	private Rectangle blendStation2 = new Rectangle(124, 571, 50, 50);
@@ -51,9 +58,21 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
 
-	private Fruit blendingFruit;
-	private int blendProgress;
-	private Timer blendTimer;
+	//private Fruit blendingFruit;
+	//private int blendProgress;
+	//private Timer blendTimer;
+
+	private Fruit blender1Fruit = null;
+	private Fruit blender2Fruit = null;
+
+	private int blender1Progress = 0;
+	private int blender2Progress = 0;
+
+	private Timer blend1Timer;
+	private Timer blend2Timer;
+
+	private String blender1FinishedFruit = "";
+	private String blender2FinishedFruit = "";
 
 	//IMAGES
 	private Image mangoFresh,mangoCut,mangoBlended;
@@ -63,7 +82,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image pearlUncooked, pearlCooked;
 
 
-
+	private int finishedBlenderStation = 0;
+	private String finishedBlenderFruit = "";
 
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
 	// Screen States
@@ -158,6 +178,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		//bar for blend/cook/cut
 		actionBar= new JProgressBar(0,100);
+		//actionBar.setBounds(144, 580, 100, 15);
 		actionBar.setVisible(false);//not visible til action is doing
 		this.add(actionBar);
 
@@ -173,9 +194,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		patienceTimer.start();
 
 
-		blendTimer=new Timer(30, this);
-		blendTimer.stop();//not initially running
+		blend1Timer= new Timer(30, this);
+		blend1Timer.stop();//not initially running
 
+
+
+		blend2Timer = new Timer(30, this);
+		blend2Timer.stop();
 		customerSpawnTimer=new Timer(8000,this);
 		customerSpawnTimer.start();
 
@@ -202,20 +227,40 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 		//BLENDING
-		else if (e.getSource()==blendTimer) {
-			blendProgress+=5;
-			if (blendProgress>=100) {
-				blendTimer.stop();
-				actionBar.setVisible(false);
-				if (blendingFruit != null) {
-					blendingFruit.setBlended();
-					ingredientsOnScreen.add(blendingFruit);
+		else if (e.getSource() == blend1Timer) {
+			blender1Progress += 5;
+			actionBar.setValue(blender1Progress);
+
+			if (blender1Progress >= 100) {
+				blend1Timer.stop();
+
+				if (blender1Fruit != null) {
+					blender1Fruit.setBlended();
+					ingredientsOnScreen.add(blender1Fruit);
+					blender1FinishedFruit = blender1Fruit.getFruitType();
+
 				}
-				blendingFruit=null;
-				repaint();
+
+				//blender1Fruit = null;
 			}
-			else
-				actionBar.setValue(blendProgress);
+			repaint();
+		}
+
+		else if (e.getSource() == blend2Timer) {
+			blender2Progress += 5;
+			actionBar.setValue(blender2Progress);
+			if (blender2Progress >= 100) {
+				blend2Timer.stop();
+
+				if (blender2Fruit != null) {
+					blender2Fruit.setBlended();
+					ingredientsOnScreen.add(blender2Fruit);
+					blender2FinishedFruit = blender2Fruit.getFruitType();
+				}
+
+				//blender2Fruit = null;
+			}
+			repaint();
 		}
 		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
@@ -263,7 +308,39 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 9) {
 
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
-			//score
+
+
+
+
+			//if (finishedBlenderStation == 1) {
+
+			if ("mango".equals(blender1FinishedFruit)) {
+				g.drawImage(mangoBlender, 45, 544, 100, 100, this);
+				//finishedBlenderFruit = null;
+			}
+			else if ("lychee".equals(blender1FinishedFruit)) {
+				g.drawImage(lycheeBlender, 45, 544, 100, 100, this);
+				//finishedBlenderFruit = null;
+			}
+			//} 
+			else {
+				g.drawImage(emptyBlender1, 45, 544, 100, 100, this);
+			}
+
+			//if (finishedBlenderStation == 2) {
+			if ("mango".equals(blender2FinishedFruit)) {
+				g.drawImage(mangoBlender, 100, 544, 100, 100, this);
+				//finishedBlenderFruit = null;
+			}
+			else if ("lychee".equals(blender2FinishedFruit)) {
+				g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
+				//finishedBlenderFruit = null;
+			}
+
+			else {
+				g.drawImage(emptyBlender2, 100, 544, 100, 100, this);
+			}
+
 			g.setColor(Color.BLACK);
 			g.setFont(new Font("Times New Roman", Font.BOLD,16));
 			g.drawString("Score: "+score,10,10);
@@ -295,12 +372,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				currentCup.drawLayered(g, cupStation.x, cupStation.y);
 
 			}
-			if (actionBar.isVisible()) {
-				actionBar.paint(g);
-			}
-
 
 		}
+
 
 		if (screenState == 10) {
 		}
@@ -500,9 +574,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int mx=e.getX();
 		int my=e.getY();
 
-		//!v- MIKA WHAT IS THIS BROTHER
-		int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
-		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
 
 		//COOKING PEARL
 		if (selectedItem.type.equals("pearl")) {
@@ -530,13 +601,56 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				return;
 			}
 			//blender
-			else if (blendStation1.contains(mx,my) || blendStation2.contains(mx,my)) {
+			else if (blendStation1.contains(mx,my)) {
+				
+				if (blender1Fruit != null) {
+			        JOptionPane.showMessageDialog(this, "Blender is already in use!");
+			        ingredientsOnScreen.add(f);
+			        return;
+			    }
+				
+				
 				if (f.isCut()&& !f.isBlended()) {
+					ingredientsOnScreen.remove(f);
+					selectedItem = null;
+
+					activeBlender = 1;
+					actionBar.setBounds(blendStation1.x, blendStation1.y - 15, blendStation1.width, 10);
 					startBlendingAnimation(f);
+					repaint();
+					return;
+
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
 					ingredientsOnScreen.add(f);
+					return;
+
+				}
+			}
+			else if (blendStation2.contains(mx,my)) {
+				
+				
+				if (blender2Fruit != null) {
+			        JOptionPane.showMessageDialog(this, "Blender is already in use!");
+			        ingredientsOnScreen.add(f);
+			        return;
+			    }
+				
+				if (f.isCut()&& !f.isBlended()) {
+					ingredientsOnScreen.remove(f);
+					selectedItem = null;
+					activeBlender = 2;
+					actionBar.setBounds(blendStation2.x, blendStation2.y - 15, blendStation2.width, 10);
+					startBlendingAnimation(f);
+					repaint();
+
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+					ingredientsOnScreen.add(f);
+					return;
+
 				}
 			}
 
@@ -676,7 +790,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
 		tracker.addImage(pearlCooked, 11);
 
+		// blender
+		emptyBlender1 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
+		tracker.addImage(emptyBlender1, 12);
+		emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
+		tracker.addImage(emptyBlender2, 13);
 
+		mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
+		tracker.addImage(mangoBlender, 14);
+
+		lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
+		tracker.addImage(lycheeBlender, 15);
 
 		try {
 			tracker.waitForAll();
@@ -689,11 +813,28 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	private void startBlendingAnimation(Fruit f) {
-		blendingFruit=f;
-		blendProgress=0;
-		actionBar.setValue(0);
-		actionBar.setVisible(true);
-		blendTimer.start();
+
+		 actionBar.setVisible(true);
+		
+		if (activeBlender == 1) {
+			blender1Fruit = f;
+			ingredientsOnScreen.remove(f);
+			blender1Progress = 0;
+			actionBar.setValue(0);
+			actionBar.setVisible(true);
+			blend1Timer.start();
+			repaint();
+		}
+
+		if (activeBlender == 2) {
+			blender2Fruit = f;
+			ingredientsOnScreen.remove(f);
+			blender2Progress = 0;
+			actionBar.setValue(0);
+			actionBar.setVisible(true);
+			blend2Timer.start();
+			repaint();
+		}
 	}
 
 
@@ -711,7 +852,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		Collections.sort(scoreList);
 	}
-	s void saveScore() {
+	void saveScore() {
 		try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
 			for (Score s: scoreList) {
 				inFile.println(s.username+","+s.points);
@@ -728,15 +869,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		gameOn=false;//so no more gaming can happen
 		if (roundTimer!=null)//cuz incase roundTimer doesnt exist
 			roundTimer.stop();
-		blendTimer.stop();
+		blend1Timer.stop();
+		blend2Timer.stop();
 
 		//add a score to scores
 		String name=usernameField.getText().trim();
 		if(name.isEmpty())
 			name="Anonymous";
 		scoreList.add(new Score(name,score));
-		Collections.sort(highScores);
-		saveHighScores();
+		//	Collections.sort(highScores);
+		//saveHighScores();
 		screenState=12;
 		repaint();
 
