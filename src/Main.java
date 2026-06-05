@@ -9,17 +9,27 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
-
+import java.util.*;
+import java.io.*;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.sound.sampled.FloatControl;
 public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
+
+	int x, y;
+
+
+	private ArrayList<Score> scoreList=new ArrayList<>();
+	private String scoreFile="highscores.txt";
 	private Cup currentCup;
 	private ArrayList<Cup> trayDrinks;
 	private ArrayList<Customer> customers=new ArrayList<>();
-	private Timer gameTimer;//FOR THE GAME REFRESH REPAINTING
+	private Timer gameTimer;//for REPAINT
+	private Timer roundTimer;//timer for each ROUND
+	private int timeLeft=120; //120 seconds = 2 mins
+	private boolean gameOn=false;
 	private Timer patienceTimer;
 	private Timer customerSpawnTimer;//spawn customer every n seconds
 	private JProgressBar actionBar;//progress of cooking/blending
@@ -139,6 +149,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
+
+		loadHighScore();
+
 		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
 		customers.add(new Customer(50, 300, this.customerImg));
@@ -148,16 +161,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		actionBar.setVisible(false);//not visible til action is doing
 		this.add(actionBar);
 
+		addKeyListener(this);
+		setFocusable(true);
+		this.setLayout(null); // Use absolute positioning for the box
+		this.add(usernameField);
+
 		gameTimer=new Timer (50, this);
 		gameTimer.start();
 
 		patienceTimer=new Timer( 1000, this);
 		patienceTimer.start();
 
-		addKeyListener(this);
-		setFocusable(true);
-		this.setLayout(null); // Use absolute positioning for the box
-		this.add(usernameField);
 
 		blendTimer=new Timer(30, this);
 		blendTimer.stop();//not initially running
@@ -398,7 +412,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		repaint(); 
 	}
-	int x, y;
 
 
 	public void mouseClicked(MouseEvent e) {
@@ -491,8 +504,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int centerX = selectedItem.x + (int) Math.round(selectedItem.width * 0.5);
 		int centerY = selectedItem.y + (int) Math.round(selectedItem.height * 0.5);
 
-
-		//<<<<<<< HEAD
+		//COOKING PEARL
 		if (selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
 			// cook
@@ -500,110 +512,107 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if (!p.isCooked()) {
 					p.cook();
 					repaint();
+					return;//stop from going further.
 				}
 			}
 		}
+		if (selectedItem.type.equals("fruit")){
+			Fruit f=(Fruit) selectedItem;
+			f.setOnChopStation(false);//default
 
-		//if (selectedItem.type.equals("mango") || selectedItem.type.equals("lychee")){
-			//=======
-			if (selectedItem.type.equals("fruit")){
-				//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
-				Fruit f=(Fruit) selectedItem;
-				f.setOnChopStation(false);//default
-
-				//chopboard
-				if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-					f.setOnChopStation(true);
-					//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
-					ingredientsOnScreen.add(f);
-					selectedItem=f;//keep selected
-					repaint();
-					return;
-				}
-				//blender
-				else if (blendStation1.contains(mx,my) || blendStation2.contains(mx,my)) {
-					if (f.isCut()&& !f.isBlended()) {
-						startBlendingAnimation(f);
-					}
-					else {
-						JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-						ingredientsOnScreen.add(f);
-					}
-				}
-
-
-
-				//cup station (add components to cup)
-				else if (cupStation.contains (mx,my)) {
-					if (f.isBlended()) {
-						if (currentCup==null) {
-							currentCup=new Cup (cupBase,pearlIcon,puddingIcon);
-						}
-						currentCup.addFruit(f.getFruitType());
-					}else {
-						JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
-						ingredientsOnScreen.add(f);
-					}
+			//chopboard
+			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+				f.setOnChopStation(true);
+				//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
+				ingredientsOnScreen.add(f);
+				selectedItem=f;//keep selected
+				repaint();
+				return;
+			}
+			//blender
+			else if (blendStation1.contains(mx,my) || blendStation2.contains(mx,my)) {
+				if (f.isCut()&& !f.isBlended()) {
+					startBlendingAnimation(f);
 				}
 				else {
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
 					ingredientsOnScreen.add(f);
 				}
 			}
-			else if(selectedItem.type.equals("pearl")) {
-				Pearl p=(Pearl) selectedItem;
-				if (cupStation.contains(mx,my)) {
+
+
+
+			//cup station (add components to cup)
+			else if (cupStation.contains (mx,my)) {
+				if (f.isBlended()) {
 					if (currentCup==null) {
-						currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+						currentCup=new Cup (cupBase,pearlIcon,puddingIcon);
 					}
-					currentCup.addTopping("pearls");//good
+					currentCup.addFruit(f.getFruitType());
+				}else {
+					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
+					ingredientsOnScreen.add(f);
+				}
+			}
+			else {
+				ingredientsOnScreen.add(f);
+			}
+		}
+		else if(selectedItem.type.equals("pearl")) {
+			Pearl p=(Pearl) selectedItem;
+			if (cupStation.contains(mx,my)) {
+				if (currentCup==null) {
+					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+				}
+				currentCup.addTopping("pearls");//good
+			}
+			else {
+				ingredientsOnScreen.add(p);
+			}
+		}
+		else if (selectedItem.type.equals("cup")) {
+			Cup cup=(Cup) selectedItem;
+			if (trayStation.contains(mx,my)) {
+				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
+					trayDrinks.add(cup);
+					currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
+					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
+
 				}
 				else {
-					ingredientsOnScreen.add(p);
-				}
-			}
-			else if (selectedItem.type.equals("cup")) {
-				Cup cup=(Cup) selectedItem;
-				if (trayStation.contains(mx,my)) {
-					if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
-						trayDrinks.add(cup);
-						currentCup=new Cup(cupBase,pearlIcon,puddingIcon);
-						JOptionPane.showMessageDialog(this, "Drink added to tray.");;
-
-					}
-					else {
-						JOptionPane.showMessageDialog(this, "empty cup...");
-						currentCup=cup;
-					}
-				}
-				else if(servingStation.contains(mx,my)) {
-					boolean served=false;//default
-					for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
-						Customer c=customers.get(i);
-						if(c.getOrder().matches(trayDrinks)) {
-							customers.remove(i);
-							trayDrinks.clear(); //next tray!
-							JOptionPane.showMessageDialog(this, "served! +100 points");
-							served=true;
-							score+=100;
-							break;
-						}
-					}
-					if(!served) {//not matching
-						JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
-						currentCup=cup;//put last cup back into hand
-					}
-				}
-				else
+					JOptionPane.showMessageDialog(this, "empty cup...");
 					currentCup=cup;
+				}
 			}
-
-
-			selectedItem=null;
-			repaint();
+			else if(servingStation.contains(mx,my)) {
+				boolean served=false;//default
+				for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
+					Customer c=customers.get(i);
+					if(c.getOrder().matches(trayDrinks)) {
+						customers.remove(i);
+						trayDrinks.clear(); //next tray!
+						JOptionPane.showMessageDialog(this, "served! +100 points");
+						served=true;
+						score+=100;
+						break;
+					}
+				}
+				if(!served) {//not matching
+					JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
+					currentCup=cup;//put last cup back into hand
+				}
+			}
+			else
+				currentCup=cup;
 		}
 
-	
-	
+
+		selectedItem=null;
+		repaint();
+	}
+
+
+
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -688,6 +697,52 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 
+	private void loadHighScore() {
+		try(Scanner scanner=new Scanner(new File(scoreFile))){
+			while(scanner.hasNextLine()) {
+				String line=scanner.nextLine();
+				String[]parts=line.split(",");
+				if (parts.length==2)   //usrname ////////points
+					scoreList.add(new Score(parts[0],Integer.parseInt(parts[1])));
+			}
+		}
+		catch(FileNotFoundException e) {
+			//!v-IDK WHAT TO DO HERE
+		}
+		Collections.sort(scoreList);
+	}
+	s void saveScore() {
+		try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
+			for (Score s: scoreList) {
+				inFile.println(s.username+","+s.points);
+			}
+		}
+		catch(FileNotFoundException e) {
+			//!v-IDK
+		}
+	}
+
+	private void endGame() {
+		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
+			return;
+		gameOn=false;//so no more gaming can happen
+		if (roundTimer!=null)//cuz incase roundTimer doesnt exist
+			roundTimer.stop();
+		blendTimer.stop();
+
+		//add a score to scores
+		String name=usernameField.getText().trim();
+		if(name.isEmpty())
+			name="Anonymous";
+		scoreList.add(new Score(name,score));
+		Collections.sort(highScores);
+		saveHighScores();
+		screenState=12;
+		repaint();
+
+
+
+	}
 
 
 }
