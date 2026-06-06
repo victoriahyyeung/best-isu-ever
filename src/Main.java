@@ -43,8 +43,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
 
-	private Image emptyBlender1;
-	private Image emptyBlender2;
+	private Image emptyBlender1, emptyBlender2, blendingMango1, blendingMango2, blendingLychee1, blendingLychee2;
 
 	private Image emptyPot, uncookedPearl1, uncookedPearl2, pearlPot;
 
@@ -53,7 +52,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image lycheeBlender;
 
 	private int activeBlender = 0; 
-	private int activePot;
+
+	private String blend1State = "empty";
+	private String blend2State = "empty";
 
 	private Rectangle blendStation1=new Rectangle (69, 571, 50, 50);
 	private Rectangle blendStation2 = new Rectangle(124, 571, 50, 50);
@@ -248,15 +249,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			if (blender1Progress >= 100) {
 				blend1Timer.stop();
-
+				actionBar.setVisible(false);
 				if (blender1Fruit != null) {
 					blender1Fruit.setBlended();
 					ingredientsOnScreen.add(blender1Fruit);
 					blender1FinishedFruit = blender1Fruit.getFruitType();
-
+					blend1State = "blended";
 				}
 
-				//blender1Fruit = null;
+				blender1Fruit = null;
+			}
+
+			else if (blender1Progress >= 66) {
+				blend1State = "unblended2";
+			}
+			else if (blender1Progress >= 33) {
+				blend1State = "unblended1";
 			}
 			repaint();
 		}
@@ -271,8 +279,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					blender2Fruit.setBlended();
 					ingredientsOnScreen.add(blender2Fruit);
 					blender2FinishedFruit = blender2Fruit.getFruitType();
+					blend2State = "blended";
 				}
+				blender2Fruit = null;
+			}
 
+			else if (blender2Progress >= 66) {
+				blend2State = "unblended2";
+			}
+			else if (blender2Progress >= 33) {
+				blend2State = "unblended1";
 			}
 			repaint();
 		}
@@ -293,17 +309,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 				cookingPearl = null;
 			}
-			
-			
+
+
 			else if (cookingProgress >= 75) {
 				potState = "uncooked2";
 			}
-			
+
 			else if (cookingProgress >= 50) {
 				potState = "uncooked1";
 			}
-			
-			
+
+
 			repaint();
 
 		}
@@ -357,9 +373,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		if (screenState == 9) {
 
+			// game screen
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
 
 
+			// Cooking pot
 			if (potState.equals("empty")) {
 				g.drawImage(emptyPot, 247, 512, 150, 150, this);
 			}
@@ -372,37 +390,71 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else if (potState.equals("cooked")) {
 				g.drawImage(pearlPot, 247, 512, 150, 150, this);
 			}
-			
-			/*
-			if ("cooked".equals(cookFinishPearl)) {
-				g.drawImage(pearlPot, 247, 512, 150, 150, this);
-			} 
-			else {
-				g.drawImage(emptyPot, 247, 512, 150, 150, this);
-			}
-			*/
 
-			if ("mango".equals(blender1FinishedFruit)) {
-				g.drawImage(mangoBlender, 45, 544, 100, 100, this);
-			}
-			else if ("lychee".equals(blender1FinishedFruit)) {
-				g.drawImage(lycheeBlender, 45, 544, 100, 100, this);
-			}
-			else {
+
+			// Blender 1
+			if (blend1State.equals("empty")) {
 				g.drawImage(emptyBlender1, 45, 544, 100, 100, this);
 			}
-
-			if ("mango".equals(blender2FinishedFruit)) {
-				g.drawImage(mangoBlender, 100, 544, 100, 100, this);
+			else if (blend1State.equals("unblended1")) {
+				if ("mango".equals(blender1FinishedFruit)) {
+					g.drawImage(blendingMango1, 45, 544, 100, 100, this);
+					if (blendingMango1 == null) 
+						System.out.println("MANGO1 NOT LOADED");
+				}
+				else if ("lychee".equals(blender1FinishedFruit)) {
+					g.drawImage(blendingLychee1, 45, 544, 100, 100, this);
+				}
 			}
-			else if ("lychee".equals(blender2FinishedFruit)) {
-				g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
 
+			else if (blend1State.equals("unblended2")) {
+				if ("mango".equals(blender1FinishedFruit)) {
+					g.drawImage(blendingMango2, 45, 544, 100, 100, this);
+				}
+				else if ("lychee".equals(blender1FinishedFruit)) {
+					g.drawImage(blendingLychee2, 45, 544, 100, 100, this);
+				}
+			}
+			else if (blend1State.equals("blended")) {
+				if ("mango".equals(blender1FinishedFruit)) {
+					g.drawImage(mangoBlender, 45, 544, 100, 100, this);
+				}
+				else if ("lychee".equals(blender1FinishedFruit)) {
+					g.drawImage(lycheeBlender, 45, 544, 100, 100, this);
+				}
 			}
 
-			else {
+			// Blender 2
+			if (blend2State.equals("empty")) {
 				g.drawImage(emptyBlender2, 100, 544, 100, 100, this);
 			}
+			else if (blend2State.equals("unblended1")) {
+				if ("mango".equals(blender2FinishedFruit)) {
+					g.drawImage(blendingMango1, 100, 544, 100, 100, this);
+				}
+				else if ("lychee".equals(blender1FinishedFruit)) {
+					g.drawImage(blendingLychee1, 100, 544, 100, 100, this);
+				}
+			}
+
+			else if (blend2State.equals("unblended2")) {
+				if ("mango".equals(blender2FinishedFruit)) {
+					g.drawImage(blendingMango2, 100, 544, 100, 100, this);
+				}
+				else if ("lychee".equals(blender2FinishedFruit)) {
+					g.drawImage(blendingLychee2, 100, 544, 100, 100, this);
+				}
+			}
+			else if (blend2State.equals("blended")) {
+				if ("mango".equals(blender2FinishedFruit)) {
+					g.drawImage(mangoBlender, 100, 544, 100, 100, this);
+				}
+				else if ("lychee".equals(blender2FinishedFruit)) {
+					g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
+				}
+			}
+
+
 
 			g.setColor(Color.BLACK);
 			g.setFont(new Font("Times New Roman", Font.BOLD,16));
@@ -654,7 +706,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					cookBar.setBounds(cookingStation.x, cookingStation.y - 15, cookingStation.width, 10);
 					cookBar.setVisible(true);
 					cookTimer.start();
-					 selectedItem = null;
+					selectedItem = null;
 					repaint();
 					return;
 				}
@@ -891,19 +943,33 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
 		tracker.addImage(lycheeBlender, 15);
 
+		blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
+		tracker.addImage(blendingMango1, 16);
+
+		blendingMango2 = Toolkit.getDefaultToolkit().getImage("blending_Mango2.png");
+		tracker.addImage(blendingMango2, 17);
+
+		blendingLychee1 = Toolkit.getDefaultToolkit().getImage("blending_Lychee1.png");
+		tracker.addImage(blendingLychee1, 18);
+
+		blendingLychee2 = Toolkit.getDefaultToolkit().getImage("blending_Lychee2.png");
+		tracker.addImage(blendingLychee2, 19);
+
 		//Pot
 		emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
-		tracker.addImage(emptyPot, 16);
+		tracker.addImage(emptyPot, 20);
 
 		pearlPot = Toolkit.getDefaultToolkit().getImage("pearl_Pot.png");
-		tracker.addImage(pearlPot, 17);
-		
+		tracker.addImage(pearlPot, 21);
+
 		uncookedPearl1 = Toolkit.getDefaultToolkit().getImage("uncookedPearl1_Pot.png");
-		tracker.addImage(uncookedPearl1, 18);
-		
+		tracker.addImage(uncookedPearl1, 22);
+
 		uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
-		tracker.addImage(uncookedPearl2, 18);
-		
+		tracker.addImage(uncookedPearl2, 23);
+
+
+
 		try {
 			tracker.waitForAll();
 
@@ -917,11 +983,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private void startBlendingAnimation(Fruit f) {
 
 		actionBar.setVisible(true);
+		ingredientsOnScreen.remove(f);
+		//selectedItem = null;
 
 		if (activeBlender == 1) {
 			blender1Fruit = f;
-			ingredientsOnScreen.remove(f);
 			blender1Progress = 0;
+			//ingredientsOnScreen.remove(f);
+			blender1FinishedFruit = f.getFruitType();
+
+			blend1State = "unblended1";
 			actionBar.setValue(0);
 			actionBar.setVisible(true);
 			blend1Timer.start();
@@ -929,11 +1000,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 
 		if (activeBlender == 2) {
-			blender2Fruit = f;
-			ingredientsOnScreen.remove(f);
-			blender2Progress = 0;
+			 blender2Fruit = f;
+		        blender2Progress = 0;
+		        blender2FinishedFruit = f.getFruitType();
+		        blend2State = "unblended1";
+			
 			actionBar.setValue(0);
-			actionBar.setVisible(true);
 			blend2Timer.start();
 			repaint();
 		}
@@ -950,7 +1022,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 		catch(FileNotFoundException e) {
-			//!v-IDK WHAT TO DO HERE
 		}
 		Collections.sort(scoreList);
 	}
@@ -961,7 +1032,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 		catch(FileNotFoundException e) {
-			//!v-IDK
 		}
 	}
 
