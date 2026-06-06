@@ -29,6 +29,14 @@ public class Pearl extends Item{
 		}	
 	}
 	
+	public void setCooked() {
+		if (cookable) {//check if cook() can even be done
+			isCooked=true;
+			this.img=cookedImg;
+			this.cookable=false;
+		}
+	}
+	
 	//getter
 	public boolean isCooked() {
 		return isCooked;
