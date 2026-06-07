@@ -22,6 +22,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 	private ArrayList<Score> scoreList=new ArrayList<>();
+	private JList<String> scoreDisplayList;
+	private DefaultListModel<String> scoreListModel;
+	private JScrollPane scoreScrollPane;
 	private String scoreFile="highscores.txt";
 	private Cup currentCup;
 	private ArrayList<Cup> trayDrinks;
@@ -44,9 +47,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 	private Image emptyBlender1, emptyBlender2, blendingMango1, blendingMango2, blendingLychee1, blendingLychee2;
-
 	private Image emptyPot, uncookedPearl1, uncookedPearl2, pearlPot;
 
+	private Image pudding;
+	
 	private String potState = "empty";
 	private Image mangoBlender;
 	private Image lycheeBlender;
@@ -94,7 +98,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image pearlUncooked, pearlCooked;
 
 
-	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
+	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory, highScoreBg;
 	// Screen States
 	// 0 - Home
 	// 1 - Instructions (slide 1)
@@ -140,6 +144,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		ingredientsOnScreen.add(p);
 		repaint();
 	}
+	
+	public void spawnPudding() {
+		Pudding p = new Pudding (pudding);
+		p.setPosition(x-31, y-22);
+		ingredientsOnScreen.add(p);
+		repaint();
+	}
 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
@@ -174,12 +185,20 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		usernameField = new JTextField(10); 
 		usernameField.setBounds(66, 300, 258, 21); 
-		usernameField.setText("user xxxxxxx");
+		usernameField.setText("Enter username: ");
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
 
 		loadHighScore();
+
+		scoreListModel=new DefaultListModel<>();
+		scoreDisplayList=new JList<>(scoreListModel);
+		scoreScrollPane=new JScrollPane(scoreDisplayList);
+		scoreScrollPane.setBounds(50,150,290,400);
+		scoreScrollPane.setVisible(false);
+		this.add(scoreScrollPane);
+
 
 		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
@@ -274,7 +293,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			actionBar.setValue(blender2Progress);
 			if (blender2Progress >= 100) {
 				blend2Timer.stop();
-
+				actionBar.setVisible(false);
 				if (blender2Fruit != null) {
 					blender2Fruit.setBlended();
 					ingredientsOnScreen.add(blender2Fruit);
@@ -333,8 +352,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 
-
-
+		else if(e.getSource()==roundTimer&&gameOn) {
+			timeLeft--;
+			if(timeLeft<=0) {
+				endGame();
+			}
+			repaint();
+		}
 	}
 
 	public void paintComponent(Graphics g) {
@@ -396,11 +420,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (blend1State.equals("empty")) {
 				g.drawImage(emptyBlender1, 45, 544, 100, 100, this);
 			}
+			//<<<<<<< HEAD
 			else if (blend1State.equals("unblended1")) {
 				if ("mango".equals(blender1FinishedFruit)) {
 					g.drawImage(blendingMango1, 45, 544, 100, 100, this);
-					if (blendingMango1 == null) 
-						System.out.println("MANGO1 NOT LOADED");
+					
 				}
 				else if ("lychee".equals(blender1FinishedFruit)) {
 					g.drawImage(blendingLychee1, 45, 544, 100, 100, this);
@@ -424,6 +448,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 
+
 			// Blender 2
 			if (blend2State.equals("empty")) {
 				g.drawImage(emptyBlender2, 100, 544, 100, 100, this);
@@ -432,7 +457,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if ("mango".equals(blender2FinishedFruit)) {
 					g.drawImage(blendingMango1, 100, 544, 100, 100, this);
 				}
-				else if ("lychee".equals(blender1FinishedFruit)) {
+				else if ("lychee".equals(blender2FinishedFruit)) {
 					g.drawImage(blendingLychee1, 100, 544, 100, 100, this);
 				}
 			}
@@ -453,6 +478,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
 				}
 			}
+
 
 
 
@@ -489,6 +515,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 
 		}
+	
 
 
 		if (screenState == 10) {
@@ -496,10 +523,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 11) {
 		}
 		if (screenState == 12) {
+			g.drawImage(highScoreBg, 0, 0, 390, 700, this);
+			scoreScrollPane.setVisible(true);
+			usernameField.setVisible(false);
+			return;
 		}
 		if (screenState == 13) {
 		}
 	}
+
 
 	public void handleAction(int x, int y) {
 		System.out.println("x: " + x + " y: " + y);
@@ -508,12 +540,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 0) {
 
 			// Level 1 Play screen
-			if (x >= 126 && x <= 266 && y >= 338 && y <= 394) {
+			if (x >= 95 && x <= 298 && y >= 343 && y <= 401) {
 				screenState = 9;
+				if(!gameOn) {
+					gameOn=true;
+					roundTimer=new Timer(1000,this);
+					roundTimer.start();
+				}
 			}
 
 			// Instructions slide 1
-			else if (x >= 126 && x <= 266 && y >= 413 && y <= 469) {
+			else if (x >= 332 && x <= 384 && y >= 434 && y <= 503) {
 				screenState = 1;
 			}
 
@@ -587,7 +624,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 9) {
 			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
 				spawnMango();
-				System.out.println("spanwed mango");
 			}
 
 			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
@@ -597,7 +633,18 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
 				spawnPearl();
 			}
+			
+			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
+				spawnPudding();
+			}
 
+		}
+		
+		else if (screenState == 12) {
+			if (x >= 10 && x <= 85 && y >= 13 && y <= 46) {
+				scoreScrollPane.setVisible(false);
+				screenState = 0;
+			}
 		}
 		repaint(); 
 	}
@@ -620,6 +667,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 		}
+		
+		if (e.getKeyCode() == KeyEvent.VK_E) {
+			endGame();
+	        screenState = 12; 
+	        repaint();
+	    }
 
 	}
 
@@ -691,10 +744,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 		//COOKING PEARL
-		if (selectedItem.type.equals("pearl")) {
+		if (selectedItem != null && selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
-
-
 			// cook
 			if (cookingStation.contains(mx, my)){
 				if (!p.isCooked() && cookingPearl == null) {
@@ -728,7 +779,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				ingredientsOnScreen.add(p);
 			}
 		}
-		if (selectedItem != null && selectedItem.type.equals("fruit")){
+		
+		// PROCESS FOOD
+		else if (selectedItem != null && selectedItem.type.equals("fruit")){
 			Fruit f=(Fruit) selectedItem;
 			f.setOnChopStation(false);//default
 
@@ -813,6 +866,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				ingredientsOnScreen.add(f);
 			}
 		}
+		
+		
 		else if(selectedItem != null && selectedItem.type.equals("pearl")) {
 			Pearl p=(Pearl) selectedItem;
 			if (cupStation.contains(mx,my)) {
@@ -968,8 +1023,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
 		tracker.addImage(uncookedPearl2, 23);
 
+		// high score background
+		highScoreBg = Toolkit.getDefaultToolkit().getImage("highScoreBg.png");
+		tracker.addImage(highScoreBg, 24);
 
-
+		// pudding
+		pudding = Toolkit.getDefaultToolkit().getImage("pudding.png");
+		tracker.addImage(pudding, 25);
+		
+		pudding = pudding.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+		
 		try {
 			tracker.waitForAll();
 
@@ -983,14 +1046,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private void startBlendingAnimation(Fruit f) {
 
 		actionBar.setVisible(true);
+
 		ingredientsOnScreen.remove(f);
 		//selectedItem = null;
 
 		if (activeBlender == 1) {
 			blender1Fruit = f;
+			blender1FinishedFruit = f.getFruitType();
 			blender1Progress = 0;
 			//ingredientsOnScreen.remove(f);
-			blender1FinishedFruit = f.getFruitType();
 
 			blend1State = "unblended1";
 			actionBar.setValue(0);
@@ -1000,11 +1064,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 
 		if (activeBlender == 2) {
-			 blender2Fruit = f;
-		        blender2Progress = 0;
-		        blender2FinishedFruit = f.getFruitType();
-		        blend2State = "unblended1";
-			
+			blender2Fruit = f;
+			blender2FinishedFruit = f.getFruitType();
+			blender2Progress = 0;
+			blend2State = "unblended1";
+
 			actionBar.setValue(0);
 			blend2Timer.start();
 			repaint();
@@ -1023,7 +1087,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		catch(FileNotFoundException e) {
 		}
-		Collections.sort(scoreList);
+	//	Collections.sort(scoreList);
+	//	refreshScoreList();
 	}
 	void saveScore() {
 		try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
@@ -1046,16 +1111,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		//add a score to scores
 		String name=usernameField.getText().trim();
-		if(name.isEmpty())
+		if(name.equals("Enter username:"))
 			name="Anonymous";
 		scoreList.add(new Score(name,score));
-		//	Collections.sort(highScores);
-		//saveHighScores();
+		Collections.sort(scoreList);
+		//saveScores();
+		refreshScoreList();
 		screenState=12;
 		repaint();
+	}
 
 
-
+	private void refreshScoreList() {
+		scoreListModel.clear();
+		for(Score s: scoreList) {
+			scoreListModel.addElement(String.format("%-15s%45d", s.username, s.points));
+		}
 	}
 
 
