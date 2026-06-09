@@ -11,11 +11,13 @@ public class Cup extends Item {
 	private Image pearlImg;
 	private Image puddingImg;
 
-	public Cup (Image baseCup, Image pearl, Image pudding) {
+	public Cup (Image baseCup
+			//, Image pearl, Image pudding
+			) {
 		super (baseCup, "cup");
 		this.baseCupImg=baseCup;
-		this.pearlImg=pearl;
-		this.puddingImg =pudding;
+		//this.pearlImg=pearl;
+		//this.puddingImg =pudding;
 		fruits=new ArrayList<>();
 		toppings=new ArrayList<>();
 		//cups cant do any of these actions, its still an item tho so must.
