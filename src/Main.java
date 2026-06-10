@@ -45,8 +45,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
-	HashMap<String, Image> fruitImages = new HashMap<>();
-	HashMap<String, Image> toppingImages = new HashMap<>();
+	private HashMap <String, Image> cupImages;
 
 	private Image emptyBlender1, emptyBlender2, blendingMango1, blendingMango2, blendingLychee1, blendingLychee2;
 	private Image emptyPot, uncookedPearl1, uncookedPearl2, pearlPot;
@@ -180,13 +179,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						if (fruit.getFruitType().equals("mango") && !cup.getFruits().contains("mango")) {
 							cup.getFruits().add("mango");
 							cup.addFruit("mango", mangoJuiceCup);
-							cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+							cup.refreshImage(cupImages);
 							//cup.setJuiceImage(mangoJuiceCup);
 
 						} else if (fruit.getFruitType().equals("lychee")  && !cup.getFruits().contains("lychee")) {
 							cup.getFruits().add("lychee");
 							cup.addFruit("lychee", lycheeJuiceCup);
-							cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+							cup.refreshImage(cupImages);
 							//cup.setJuiceImage(lycheeJuiceCup);
 
 						}
@@ -231,7 +230,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if (!cup.getToppings().contains("pearl")) {
 					cup.getToppings().add("pearl");
 					cup.addTopping("pearl", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-					cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+					cup.refreshImage(cupImages);
 					//cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 				}
 				else {
@@ -265,7 +264,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if (!cup.getToppings().contains("pudding")) {
 					cup.getToppings().add("pudding");
 					cup.addTopping("pudding", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-					cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+					cup.refreshImage(cupImages);
 					//cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 				}
 				else {
@@ -286,6 +285,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
+		cupImages = new HashMap<>();
 		loadAllImages();//btw this is only for in game images
 		MediaTracker tracker = new MediaTracker (this);
 		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
@@ -1226,31 +1226,42 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		// cup
 		emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
 		tracker.addImage(emptyCup, 28);
-
+		
 		mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
 		tracker.addImage(mangoJuiceCup, 29);
+		cupImages.put("mangoJuice", mangoJuiceCup);
 
 		lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
 		tracker.addImage(lycheeJuiceCup, 30);
+		cupImages.put("lycheeJuice", lycheeJuiceCup);
 
 		mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
 		tracker.addImage(mangoPearlCup, 31);
+		cupImages.put("mangoPearl", mangoPearlCup);
 
 		lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
 		tracker.addImage(lycheePearlCup, 32);
+		cupImages.put("lycheePearl", lycheePearlCup);
 
 		mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
 		tracker.addImage(mangoPuddingCup, 33);
+		cupImages.put("mangoPudding", mangoPuddingCup);
 
 		lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
 		tracker.addImage(lycheePuddingCup, 34);
+		cupImages.put("lycheePudding", lycheePuddingCup);
 
 		mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
 		tracker.addImage(mangoPearlPuddingCup, 35);
+		cupImages.put("mangoPearlPudding", mangoPearlPuddingCup);
+
 
 		lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
 		tracker.addImage(lycheePearlPuddingCup, 36);
+		cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
 
+		
+		
 		try {
 			tracker.waitForAll();
 		}

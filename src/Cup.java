@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Cup extends Item {
 	private ArrayList<String> fruits;//(max 2)
@@ -11,14 +12,12 @@ public class Cup extends Item {
 	private Image baseCupImg;
 	private Image pearlImg;
 	private Image puddingImg;
+	
+	private HashMap <String, Image> cupImages = new HashMap <> ();
 
-	public Cup (Image baseCup
-			//, Image pearl, Image pudding
-			) {
+	public Cup (Image baseCup) {
 		super (baseCup, "cup");
 		this.baseCupImg=baseCup;
-		//this.pearlImg=pearl;
-		//this.puddingImg =pudding;
 		fruits=new ArrayList<>();
 		toppings=new ArrayList<>();
 		//cups cant do any of these actions, its still an item tho so must.
@@ -27,28 +26,28 @@ public class Cup extends Item {
 		this.cookable=false;
 	}
 
-	public void refreshImage( Image mangoJuice, Image lycheeJuice,Image mangoPearl, Image lycheePearl,Image mangoPudding, Image lycheePudding, Image mangoPearlPudding, Image lycheePearlPudding) {
+	public void refreshImage(HashMap <String, Image> cupImages) {
 		    if (fruits.contains("mango")) {
 		        if (toppings.contains("pearl") && toppings.contains("pudding")) {
-		            img = mangoPearlPudding;
+		            img = cupImages.get("mangoPearlPudding");
 		        } else if (toppings.contains("pearl")) {
-		            img = mangoPearl;
+		            img = cupImages.get("mangoPearl");
 		        } else if (toppings.contains("pudding")) {
-		            img = mangoPudding;
+		            img = cupImages.get("mangoPudding");
 		        } else {
-		            img = mangoJuice;
+		            img = cupImages.get("mangoJuice");
 		        }
 		    }
 
 		    if (fruits.contains("lychee")) {
 		        if (toppings.contains("pearl") && toppings.contains("pudding")) {
-		            img = lycheePearlPudding;
+		            img = cupImages.get("lycheePearlPudding");;
 		        } else if (toppings.contains("pearl")) {
-		            img = lycheePearl;
+		            img =  cupImages.get("lycheePearl");;
 		        } else if (toppings.contains("pudding")) {
-		            img = lycheePudding;
+		            img =  cupImages.get("lycheePudding");;
 		        } else {
-		            img = lycheeJuice;
+		            img =  cupImages.get("lycheeJuice");;
 		        }
 		    }
 		}
@@ -63,30 +62,34 @@ public class Cup extends Item {
 		}
 	}
 	
-	public void setToppingImage(Image mangoPearl, Image lycheePearl, Image mangoPudding, Image lycheePudding, Image mangoPearlPudding, Image lycheePearlPudding) {
+	/*
+	public void setToppingImage( HashMap <String, Image> cupImages){
+			
+			//Image mangoPearl, Image lycheePearl, Image mangoPudding, Image lycheePudding, Image mangoPearlPudding, Image lycheePearlPudding) {
 		if (fruits.contains("mango")) {
 			if (toppings.contains("pearl") && toppings.contains("pudding")) {
-				this.currentCupImg = mangoPearlPudding;
+				this.currentCupImg = cupImages.get("mangoPearlPudding");
 			}
 			else if (toppings.contains("pearl")) {
-				this.currentCupImg = mangoPearl;
+				this.currentCupImg =cupImages.get("mangoPearl");
 			}
 			else if (toppings.contains("pudding")) {
-				this.currentCupImg = mangoPudding;
+				this.currentCupImg = cupImages.get("mangoPudding");
 			}
 		}
 		else if (fruits.contains("lychee")) {
 			if (toppings.contains("pearl") && toppings.contains("pudding")) {
-				this.currentCupImg = lycheePearlPudding;
+				this.currentCupImg = cupImages.get("lycheePearlPudding");
 			}
 			else if (toppings.contains("pearl")) {
-				this.currentCupImg = lycheePearl;
+				this.currentCupImg = cupImages.get("lycheePearl");
 			}
 			else if (toppings.contains("pudding")) {
-				this.currentCupImg = lycheePudding;
+				this.currentCupImg = cupImages.get("lycheePudding");
 			}
 		}
 	}
+	*/
 
 	public boolean addFruit(String fruitType, Image juiceImage) {
 		if (fruits.size()>=1)//max 1 fruit can be added
