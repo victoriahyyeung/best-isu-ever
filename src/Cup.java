@@ -7,6 +7,7 @@ public class Cup extends Item {
 	private ArrayList<String> fruits;//(max 2)
 	private ArrayList<String> toppings;//(max 2)
 
+	private Image currentCupImg;
 	private Image baseCupImg;
 	private Image pearlImg;
 	private Image puddingImg;
@@ -26,16 +27,78 @@ public class Cup extends Item {
 		this.cookable=false;
 	}
 
-	public boolean addFruit(String fruitType) {
+	public void refreshImage( Image mangoJuice, Image lycheeJuice,Image mangoPearl, Image lycheePearl,Image mangoPudding, Image lycheePudding, Image mangoPearlPudding, Image lycheePearlPudding) {
+		    if (fruits.contains("mango")) {
+		        if (toppings.contains("pearl") && toppings.contains("pudding")) {
+		            img = mangoPearlPudding;
+		        } else if (toppings.contains("pearl")) {
+		            img = mangoPearl;
+		        } else if (toppings.contains("pudding")) {
+		            img = mangoPudding;
+		        } else {
+		            img = mangoJuice;
+		        }
+		    }
+
+		    if (fruits.contains("lychee")) {
+		        if (toppings.contains("pearl") && toppings.contains("pudding")) {
+		            img = lycheePearlPudding;
+		        } else if (toppings.contains("pearl")) {
+		            img = lycheePearl;
+		        } else if (toppings.contains("pudding")) {
+		            img = lycheePudding;
+		        } else {
+		            img = lycheeJuice;
+		        }
+		    }
+		}
+	
+	public void setJuiceImage(Image juiceImg) {
+		this.currentCupImg = juiceImg;
+		this.img = juiceImg; // Update the displayed image
+		// Update dimensions for the new image
+		if (juiceImg != null) {
+			this.width = juiceImg.getWidth(null);
+			this.height = juiceImg.getHeight(null);
+		}
+	}
+	
+	public void setToppingImage(Image mangoPearl, Image lycheePearl, Image mangoPudding, Image lycheePudding, Image mangoPearlPudding, Image lycheePearlPudding) {
+		if (fruits.contains("mango")) {
+			if (toppings.contains("pearl") && toppings.contains("pudding")) {
+				this.currentCupImg = mangoPearlPudding;
+			}
+			else if (toppings.contains("pearl")) {
+				this.currentCupImg = mangoPearl;
+			}
+			else if (toppings.contains("pudding")) {
+				this.currentCupImg = mangoPudding;
+			}
+		}
+		else if (fruits.contains("lychee")) {
+			if (toppings.contains("pearl") && toppings.contains("pudding")) {
+				this.currentCupImg = lycheePearlPudding;
+			}
+			else if (toppings.contains("pearl")) {
+				this.currentCupImg = lycheePearl;
+			}
+			else if (toppings.contains("pudding")) {
+				this.currentCupImg = lycheePudding;
+			}
+		}
+	}
+
+	public boolean addFruit(String fruitType, Image juiceImage) {
 		if (fruits.size()>=2)//max 2 fruits can be added
 			return false;
 		if (!fruits.contains(fruitType)) {//avoid duplicate fruit
 			fruits.add(fruitType);
+			//setJuiceImage(juiceImage);
 			return true;
 		}
 		return false;
 	}
-	public boolean addTopping (String toppingType) {
+	public boolean addTopping (String toppingType, Image mangoPearl, Image lycheePearl, Image mangoPudding, Image lycheePudding, Image mangoPearlPudding, Image lycheePearlPudding) {
 		if (toppings.size()>=2)//max 2 toppings can be added
 			return false;
 		if (!toppings.contains(toppingType)) {
@@ -43,6 +106,7 @@ public class Cup extends Item {
 			return true;
 		}
 		return false;
+		
 	}
 
 
@@ -65,6 +129,7 @@ public class Cup extends Item {
 	public boolean hasTopping(String topping) {
 		return toppings.contains(topping);
 	}
+
 
 
 }

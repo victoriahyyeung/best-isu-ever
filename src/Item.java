@@ -5,14 +5,14 @@ import java.awt.*;
 
 abstract class Item {
     
-    int x, y, width, height;
-    Image img;
-    boolean isHeld; //true when being dragged
+    protected int x, y, width, height;
+    protected Image img;
+    protected boolean isHeld; //true when being dragged
     
-    boolean blendable;
-    boolean cuttable;
-    boolean cookable;
-    String type;//fruit, pearl, cup, etc
+    protected boolean blendable;
+    protected boolean cuttable;
+    protected boolean cookable;
+    protected String type;//fruit, pearl, cup, etc
     
    
    protected boolean isFruit;
@@ -39,6 +39,13 @@ abstract class Item {
         this.y = newY;
     }
     
+    public int getX() {
+    	return this.x;
+    }
+    
+    public int getY() {
+    	return this.y;
+    }
     public boolean isFruit() {
     	return isFruit;
     }
@@ -73,5 +80,6 @@ abstract class Item {
     	}
     	
     }
+    
     
 }
