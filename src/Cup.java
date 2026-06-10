@@ -89,7 +89,7 @@ public class Cup extends Item {
 	}
 
 	public boolean addFruit(String fruitType, Image juiceImage) {
-		if (fruits.size()>=2)//max 2 fruits can be added
+		if (fruits.size()>=1)//max 1 fruit can be added
 			return false;
 		if (!fruits.contains(fruitType)) {//avoid duplicate fruit
 			fruits.add(fruitType);

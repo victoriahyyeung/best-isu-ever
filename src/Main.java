@@ -172,29 +172,36 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (item.type.equals("cup") && item.contains(mouseX, mouseY)) {
 				Cup cup = (Cup) item;
 
-				// Check if fruit is blended
-				if (fruit.isBlended()) {
-					// Add fruit to cup
-					if (fruit.getFruitType().equals("mango") && !cup.getFruits().contains("mango")) {
-						cup.getFruits().add("mango");
-						cup.addFruit("mango", mangoJuiceCup);
-						cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-						cup.setJuiceImage(mangoJuiceCup);
-						
-					} else if (fruit.getFruitType().equals("lychee")  && !cup.getFruits().contains("lychee")) {
-						cup.getFruits().add("lychee");
-						cup.addFruit("lychee", lycheeJuiceCup);
-						cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-						cup.setJuiceImage(lycheeJuiceCup);
-						
-					}
+				// Check if there is already fruit in cup
+				if (cup.getFruits().size() == 0) {
+					// Check if fruit is blended
+					if (fruit.isBlended()) {
+						// Add fruit to cup
+						if (fruit.getFruitType().equals("mango") && !cup.getFruits().contains("mango")) {
+							cup.getFruits().add("mango");
+							cup.addFruit("mango", mangoJuiceCup);
+							cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+							//cup.setJuiceImage(mangoJuiceCup);
 
-					// Remove the fruit from screen
-					ingredientsOnScreen.remove(fruit);
-					selectedItem = null;
-					return true;
-				} else {
-					JOptionPane.showMessageDialog(this, "Blend the fruit first!");
+						} else if (fruit.getFruitType().equals("lychee")  && !cup.getFruits().contains("lychee")) {
+							cup.getFruits().add("lychee");
+							cup.addFruit("lychee", lycheeJuiceCup);
+							cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+							//cup.setJuiceImage(lycheeJuiceCup);
+
+						}
+
+						// Remove the fruit from screen
+						ingredientsOnScreen.remove(fruit);
+						selectedItem = null;
+						return true;
+					} else {
+						JOptionPane.showMessageDialog(this, "Blend the fruit first!");
+						return true;
+					}
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "There is already a fruit in this cup");
 					return true;
 				}
 			}
@@ -202,7 +209,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 		return false;
 	}
-	
+
 	private boolean checkPearlCupCollision(Pearl pearl, int mouseX, int mouseY) {
 		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
 			Item item = ingredientsOnScreen.get(i);
@@ -221,11 +228,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					return true;
 				}
 				// prevent duplicate pearls if you want
-				if (!cup.getToppings().contains("pearls")) {
-					cup.getToppings().add("pearls");
-					cup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+				if (!cup.getToppings().contains("pearl")) {
+					cup.getToppings().add("pearl");
+					cup.addTopping("pearl", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 					cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-					cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+					//cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "You already added pearls to cup!");
+					return true;
 				}
 				// remove pearl from screen
 				ingredientsOnScreen.remove(pearl);
@@ -237,6 +248,41 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		return false;
 	}
+	
+	private boolean checkPuddingCupCollision(Pudding pudding, int mouseX, int mouseY) {
+		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
+			Item item = ingredientsOnScreen.get(i);
+
+			// check if dropped on a cup
+			if (item.type.equals("cup") && item.contains(mouseX, mouseY)) {
+				Cup cup = (Cup) item;
+				// cup must already contain juice
+				if (cup.getFruits().isEmpty()) {
+					JOptionPane.showMessageDialog(this, "Add juice to the cup first!");
+					return true;
+				}
+				// prevent duplicate puddings
+				if (!cup.getToppings().contains("pudding")) {
+					cup.getToppings().add("pudding");
+					cup.addTopping("pudding", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+					cup.refreshImage(mangoJuiceCup, lycheeJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+					//cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "You already added pudding to cup!");
+					return true;
+				}
+				// remove pudding from screen
+				ingredientsOnScreen.remove(pudding);
+				selectedItem = null;
+				repaint();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
@@ -848,15 +894,21 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int mx=e.getX();
 		int my=e.getY();
 
-
+		if (selectedItem != null && selectedItem.type.equals("pudding")) {
+			Pudding pu = (Pudding) selectedItem;
+			if (checkPuddingCupCollision(pu, mx, my)) {
+				return;
+			}
+		}
+		
 		//COOKING PEARL
 		if (selectedItem != null && selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
-			
+
 			if (checkPearlCupCollision(p, mx, my)) {
 				return;
 			}
-			
+
 			// cook
 			if (cookingStation.contains(mx, my)){
 				if (!p.isCooked() && cookingPearl == null) {
@@ -969,9 +1021,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			//cup station (add components to cup)
 			else if (cupStation.contains (mx,my)) {
 				if (f.isBlended()) {
-				//	if (currentCup==null) {
-				//		currentCup=new Cup (cupBase);
-				//	}
+					//	if (currentCup==null) {
+					//		currentCup=new Cup (cupBase);
+					//	}
 					//currentCup.addFruit(f.getFruitType());
 				}else {
 					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
@@ -1001,13 +1053,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (trayStation.contains(mx,my)) {
 				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
 					trayDrinks.add(cup);
-				//	currentCup=new Cup(cupBase);
+					//	currentCup=new Cup(cupBase);
 					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
 
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "empty cup...");
-				//	currentCup=cup;
+					//	currentCup=cup;
 				}
 			}
 			else if(servingStation.contains(mx,my)) {
@@ -1180,22 +1232,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
 		tracker.addImage(lycheeJuiceCup, 30);
-		
+
 		mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
 		tracker.addImage(mangoPearlCup, 31);
-		
+
 		lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
 		tracker.addImage(lycheePearlCup, 32);
-		
+
 		mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
 		tracker.addImage(mangoPuddingCup, 33);
-		
+
 		lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
 		tracker.addImage(lycheePuddingCup, 34);
-		
+
 		mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
 		tracker.addImage(mangoPearlPuddingCup, 35);
-		
+
 		lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
 		tracker.addImage(lycheePearlPuddingCup, 36);
 
