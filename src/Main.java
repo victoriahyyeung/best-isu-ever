@@ -165,6 +165,63 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
+	/*
+	private void resetGame() {
+		// stop all timers
+		if (roundTimer != null) 
+			roundTimer.stop();
+		if (blend1Timer != null) 
+			blend1Timer.stop();
+		if (blend2Timer != null) 
+			blend2Timer.stop();
+		if (cookTimer != null) 
+			cookTimer.stop();
+		if (customerSpawnTimer != null) 
+			customerSpawnTimer.stop();
+
+
+		gameOn = false;
+		timeLeft = 120;
+		score = 0;
+
+		// remove everything on screen
+		ingredientsOnScreen.clear();
+		trayDrinks.clear();
+		customers.clear();
+		customers.add(new Customer(50, 300, customerImg));
+
+		// reset blenders
+		blender1Fruit = null;
+		blender2Fruit = null;
+		blender1Progress = 0;
+		blender2Progress = 0;
+		blend1State = "empty";
+		blend2State = "empty";
+		blender1FinishedFruit = "";
+		blender2FinishedFruit = "";
+		previousBlended1 = null;
+		previousBlended2 = null;
+		activeBlender = 0;
+		actionBar.setVisible(false);
+
+		// reset cooking
+		cookingPearl = null;
+		cookingProgress = 0;
+		potState = "empty";
+		cookBar.setVisible(false);
+
+		// reset selected objects
+		selectedItem = null;
+		selectedFruit = null;
+		spacePressed = false;
+
+		//restart spawning timer
+		customerSpawnTimer = new Timer(8000, this);
+		customerSpawnTimer.start();
+		repaint();
+	}
+	*/
+
 	private boolean checkFruitCupCollision(Fruit fruit, int mouseX, int mouseY) {
 		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
 			Item item = ingredientsOnScreen.get(i);
@@ -247,7 +304,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		return false;
 	}
-	
+
 	private boolean checkPuddingCupCollision(Pudding pudding, int mouseX, int mouseY) {
 		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
 			Item item = ingredientsOnScreen.get(i);
@@ -900,7 +957,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				return;
 			}
 		}
-		
+
 		//COOKING PEARL
 		if (selectedItem != null && selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
@@ -1226,7 +1283,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		// cup
 		emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
 		tracker.addImage(emptyCup, 28);
-		
+
 		mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
 		tracker.addImage(mangoJuiceCup, 29);
 		cupImages.put("mangoJuice", mangoJuiceCup);
@@ -1260,8 +1317,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		tracker.addImage(lycheePearlPuddingCup, 36);
 		cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
 
-		
-		
+
+
 		try {
 			tracker.waitForAll();
 		}
@@ -1332,10 +1389,57 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
 			return;
 		gameOn=false;//so no more gaming can happen
-		if (roundTimer!=null)//cuz incase roundTimer doesnt exist
+		// stop all timers
+		if (roundTimer != null) 
 			roundTimer.stop();
-		blend1Timer.stop();
-		blend2Timer.stop();
+		if (blend1Timer != null) 
+			blend1Timer.stop();
+		if (blend2Timer != null) 
+			blend2Timer.stop();
+		if (cookTimer != null) 
+			cookTimer.stop();
+		if (customerSpawnTimer != null) 
+			customerSpawnTimer.stop();
+
+		gameOn = false;
+		timeLeft = 120;
+		score = 0;
+
+		// remove everything on screen
+		ingredientsOnScreen.clear();
+		trayDrinks.clear();
+		customers.clear();
+		customers.add(new Customer(50, 300, customerImg));
+
+		// reset blenders
+		blender1Fruit = null;
+		blender2Fruit = null;
+		blender1Progress = 0;
+		blender2Progress = 0;
+		blend1State = "empty";
+		blend2State = "empty";
+		blender1FinishedFruit = "";
+		blender2FinishedFruit = "";
+		previousBlended1 = null;
+		previousBlended2 = null;
+		activeBlender = 0;
+		actionBar.setVisible(false);
+
+		// reset cooking
+		cookingPearl = null;
+		cookingProgress = 0;
+		potState = "empty";
+		cookBar.setVisible(false);
+
+		// reset selected objects
+		selectedItem = null;
+		selectedFruit = null;
+		spacePressed = false;
+
+		//restart spawning timer
+		customerSpawnTimer = new Timer(8000, this);
+		customerSpawnTimer.start();
+
 
 		//add a score to scores
 		String name=usernameField.getText().trim();

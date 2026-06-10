@@ -51,7 +51,7 @@ public class Cup extends Item {
 		        }
 		    }
 		}
-	
+	/*
 	public void setJuiceImage(Image juiceImg) {
 		this.currentCupImg = juiceImg;
 		this.img = juiceImg; // Update the displayed image
@@ -61,6 +61,7 @@ public class Cup extends Item {
 			this.height = juiceImg.getHeight(null);
 		}
 	}
+	*/
 	
 	/*
 	public void setToppingImage( HashMap <String, Image> cupImages){
