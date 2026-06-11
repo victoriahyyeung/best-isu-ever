@@ -79,8 +79,7 @@ public class Customer {
 	public void decreasePatience() {
 		if (state==null||!state.equals("WAITING"))
 			return;
-		if(!state.equals("WAITING"))
-			return;
+		
 		else if (!isActive) {
 			return;
 		}
