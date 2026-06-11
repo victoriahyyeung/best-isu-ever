@@ -62,7 +62,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image blendedMango, blendedLychee;
 
 	private Image orangeCatHappy, orangeCatImpatient, orangeCatNeutral, orangeCatAngry;
-	
+
 	private int activeBlender = 0; 
 
 	private String blend1State = "empty";
@@ -397,7 +397,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//bar for blend/cook/cut
 
 		//customers.add(new Customer(50, 300, customerImages,orderingStation.x, orderingStation.y));
-		
+
 		//bar for blend
 		actionBar= new JProgressBar(0,100);
 		//actionBar.setBounds(144, 580, 100, 15);
@@ -680,9 +680,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// draw customers
 			for (Customer c : customers) {
-			    c.draw(g);
+				c.draw(g);
 			}
-			
+
 			// Countdown timer
 			int minutes = timeLeft / 60;
 			int seconds = timeLeft % 60;
@@ -1161,7 +1161,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			return;//so no multiple actions on same click.
 		}
 
-
+		/*
 		//COOKING PEARL
 		if (selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
@@ -1179,141 +1179,142 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						return;
 					}
 				}
+		 */
 
-				//COOKING PEARL
-				if (selectedItem != null && selectedItem.type.equals("pearl")) {
+		//COOKING PEARL
+		if (selectedItem != null && selectedItem.type.equals("pearl")) {
+			Pearl p = (Pearl) selectedItem;
+			if (checkPearlCupCollision(p, mx, my)) {
+				return;
+			}
 
-					if (checkPearlCupCollision(p, mx, my)) {
-						return;
-					}
+			// cook
+			if (cookingStation.contains(mx, my)){
+				if (!p.isCooked() && cookingPearl == null) {
+					ingredientsOnScreen.remove(p);
+					cookingPearl = p;
+					cookingProgress = 0;
+					potState = "uncooked1";
+					cookBar.setValue(0);
+					cookBar.setBounds(cookingStation.x, cookingStation.y - 15, cookingStation.width, 10);
+					cookBar.setVisible(true);
+					cookTimer.start();
+					selectedItem = null;
+					repaint();
+					return;
+				}
+				else if (cookingPearl != null) {
+					JOptionPane.showMessageDialog(this, "Already cooking!");
+					ingredientsOnScreen.add(p);
+					return;
+				}
+			}
 
-					// cook
-					if (cookingStation.contains(mx, my)){
-						if (!p.isCooked() && cookingPearl == null) {
-							ingredientsOnScreen.remove(p);
-							cookingPearl = p;
-							cookingProgress = 0;
-							potState = "uncooked1";
-							cookBar.setValue(0);
-							cookBar.setBounds(cookingStation.x, cookingStation.y - 15, cookingStation.width, 10);
-							cookBar.setVisible(true);
-							cookTimer.start();
-							selectedItem = null;
-							repaint();
-							return;
-						}
-						else if (cookingPearl != null) {
-							JOptionPane.showMessageDialog(this, "Already cooking!");
-							ingredientsOnScreen.add(p);
-							return;
-						}
-					}
+			else if (cupStation.contains(mx, my)) {
+				//if (currentCup == null) {
+				//	currentCup = new Cup(cupBase);
+				//}
+				//currentCup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+				cookFinishPearl = ""; // reset pot image
+			}
 
-					else if (cupStation.contains(mx, my)) {
-						//if (currentCup == null) {
-						//	currentCup = new Cup(cupBase);
-						//}
-						//currentCup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-						cookFinishPearl = ""; // reset pot image
-					}
+			else {
+				ingredientsOnScreen.add(p);
+			}
+		}
 
-					else {
-						ingredientsOnScreen.add(p);
-					}
+
+		// PROCESS FOOD
+		else if (selectedItem != null && selectedItem.type.equals("fruit")){
+			Fruit f=(Fruit) selectedItem;
+			f.setOnChopStation(false);//default
+
+			if (checkFruitCupCollision(f, mx, my)) {
+				return; 
+			}
+
+			//chopboard
+			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+				f.setOnChopStation(true);
+				//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
+				ingredientsOnScreen.add(f);
+				selectedItem=f;//keep selected
+				repaint();
+				return;
+			}
+
+			//blender
+			else if (blendStation1.contains(mx,my)) {
+				if (blender1Fruit != null || (previousBlended1 != null && remainsInBlender(previousBlended1, 1))) {
+					JOptionPane.showMessageDialog(this, "Blender is already in use!");
+					ingredientsOnScreen.add(f);
+					return;
 				}
 
 
-				// PROCESS FOOD
-				else if (selectedItem != null && selectedItem.type.equals("fruit")){
-					Fruit f=(Fruit) selectedItem;
-					f.setOnChopStation(false);//default
+				if (f.isCut()&& !f.isBlended()) {
+					ingredientsOnScreen.remove(f);
+					selectedItem = null;
+					activeBlender = 1;
+					actionBar.setBounds(blendStation1.x, blendStation1.y - 15, blendStation1.width, 10);
+					startBlendingAnimation(f);
+					repaint();
+					return;
 
-					if (checkFruitCupCollision(f, mx, my)) {
-						return; 
-					}
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+					ingredientsOnScreen.add(f);
+					return;
 
-					//chopboard
-					if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-						f.setOnChopStation(true);
-						//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
-						ingredientsOnScreen.add(f);
-						selectedItem=f;//keep selected
-						repaint();
-						return;
-					}
-
-					//blender
-					else if (blendStation1.contains(mx,my)) {
-						if (blender1Fruit != null || (previousBlended1 != null && remainsInBlender(previousBlended1, 1))) {
-							JOptionPane.showMessageDialog(this, "Blender is already in use!");
-							ingredientsOnScreen.add(f);
-							return;
-						}
-
-
-						if (f.isCut()&& !f.isBlended()) {
-							ingredientsOnScreen.remove(f);
-							selectedItem = null;
-							activeBlender = 1;
-							actionBar.setBounds(blendStation1.x, blendStation1.y - 15, blendStation1.width, 10);
-							startBlendingAnimation(f);
-							repaint();
-							return;
-
-						}
-						else {
-							JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-							ingredientsOnScreen.add(f);
-							return;
-
-						}
-					}
-					else if (blendStation2.contains(mx,my)) {
-						if (blender2Fruit != null ||  (previousBlended2 != null && remainsInBlender(previousBlended2, 2))) {
-							JOptionPane.showMessageDialog(this, "Blender is already in use!");
-							ingredientsOnScreen.add(f);
-							return;
-						}
-
-						if (f.isCut()&& !f.isBlended()) {
-							ingredientsOnScreen.remove(f);
-							selectedItem = null;
-							activeBlender = 2;
-							actionBar.setBounds(blendStation2.x, blendStation2.y - 15, blendStation2.width, 10);
-							startBlendingAnimation(f);
-							repaint();
-
-						}
-						else {
-							JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-							ingredientsOnScreen.add(f);
-							return;
-
-						}
-
-						// Collision with cup
-					}
-
-
-
-					//cup station (add components to cup)
-					else if (cupStation.contains (mx,my)) {
-						if (f.isBlended()) {
-							//	if (currentCup==null) {
-							//		currentCup=new Cup (cupBase);
-							//	}
-							//currentCup.addFruit(f.getFruitType());
-						}else {
-							JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
-							ingredientsOnScreen.add(f);
-						}
-					}
-					else {
-						ingredientsOnScreen.add(f);
-					}
+				}
+			}
+			else if (blendStation2.contains(mx,my)) {
+				if (blender2Fruit != null ||  (previousBlended2 != null && remainsInBlender(previousBlended2, 2))) {
+					JOptionPane.showMessageDialog(this, "Blender is already in use!");
+					ingredientsOnScreen.add(f);
+					return;
 				}
 
-				/*
+				if (f.isCut()&& !f.isBlended()) {
+					ingredientsOnScreen.remove(f);
+					selectedItem = null;
+					activeBlender = 2;
+					actionBar.setBounds(blendStation2.x, blendStation2.y - 15, blendStation2.width, 10);
+					startBlendingAnimation(f);
+					repaint();
+
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+					ingredientsOnScreen.add(f);
+					return;
+
+				}
+
+				// Collision with cup
+			}
+
+
+
+			//cup station (add components to cup)
+			else if (cupStation.contains (mx,my)) {
+				if (f.isBlended()) {
+					//	if (currentCup==null) {
+					//		currentCup=new Cup (cupBase);
+					//	}
+					//currentCup.addFruit(f.getFruitType());
+				}else {
+					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
+					ingredientsOnScreen.add(f);
+				}
+			}
+			else {
+				ingredientsOnScreen.add(f);
+			}
+		}
+
+		/*
 				else if(selectedItem != null && selectedItem.type.equals("pearl")) {
 					//Pearl p =(Pearl) selectedItem;
 					if (cupStation.contains(mx,my)) {
@@ -1326,447 +1327,447 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						ingredientsOnScreen.add(p);
 					}
 				}*/
-				else if (selectedItem != null && selectedItem.type.equals("cup")) {
-					Cup cup=(Cup) selectedItem;
-					if (trayStation.contains(mx,my)) {
-						if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
-							trayDrinks.add(cup);
-							//	currentCup=new Cup(cupBase);
-							JOptionPane.showMessageDialog(this, "Drink added to tray.");;
+		else if (selectedItem != null && selectedItem.type.equals("cup")) {
+			Cup cup=(Cup) selectedItem;
+			if (trayStation.contains(mx,my)) {
+				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
+					trayDrinks.add(cup);
+					//	currentCup=new Cup(cupBase);
+					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
 
-						}
-						else {
-							JOptionPane.showMessageDialog(this, "empty cup...");
-							//	currentCup=cup;
-						}
-					}
-					else if(servingStation.contains(mx,my)) {
-						boolean served=false;//default
-						for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
-							Customer c=customers.get(i);
-							if(c.getOrder().matches(trayDrinks)) {
-								c.setState("SERVED");
-								c.setTarget(servingStation.x, servingStation.y);
-								if(c.getWaitingSpotIndex()!=-1) 
-									spotOccupied[c.getWaitingSpotIndex()]=false;
-								trayDrinks.clear();
-								JOptionPane.showMessageDialog(this, "served!!!!!!!! +100 pts");
-								served=true;
-								score+=100;
-								break;
-							}
-						}
-						if(!served) {//not matching
-							JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
-							//currentCup=cup;//put last cup back into hand
-						}
-					}
-					//else
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "empty cup...");
 					//	currentCup=cup;
 				}
-
-
-				selectedItem=null;
-				repaint();
 			}
-		}
-	}
-
-
-
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		if (selectedItem != null) {
-			selectedItem.x = e.getX() - offsetX;
-			selectedItem.y = e.getY() - offsetY;
-
-			// check if blender 1 emptied
-			if (selectedItem == blender1Fruit && !blendStation1.intersects(new Rectangle(selectedItem.x,selectedItem.y,selectedItem.width,selectedItem.height))) {
-				blender1Fruit = null;
-				blender1FinishedFruit = "";
+			else if(servingStation.contains(mx,my)) {
+				boolean served=false;//default
+				for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
+					Customer c=customers.get(i);
+					if(c.getOrder().matches(trayDrinks)) {
+						c.setState("SERVED");
+						c.setTarget(servingStation.x, servingStation.y);
+						if(c.getWaitingSpotIndex()!=-1) 
+							spotOccupied[c.getWaitingSpotIndex()]=false;
+						trayDrinks.clear();
+						JOptionPane.showMessageDialog(this, "served!!!!!!!! +100 pts");
+						served=true;
+						score+=100;
+						break;
+					}
+				}
+				if(!served) {//not matching
+					JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
+					//currentCup=cup;//put last cup back into hand
+				}
 			}
-
-			// check if blender 2 emptied
-			if (selectedItem == blender2Fruit &&!blendStation2.intersects(new Rectangle(selectedItem.x, selectedItem.y,selectedItem.width,selectedItem.height))) {
-				blender2Fruit = null;
-				blender2FinishedFruit = "";
-			}
-
-			repaint();
+			//else
+			//	currentCup=cup;
 		}
 
 
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void loadAllImages() {
-
-		MediaTracker tracker = new MediaTracker (this);
-		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
-		tracker.addImage (home, 0);
-		instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
-		tracker.addImage (instructions1, 1);
-		instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
-		tracker.addImage (instructions2, 2);
-		instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
-		tracker.addImage (instructions3, 3);
-		instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
-		tracker.addImage (instructions4, 4);
-		lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
-		tracker.addImage (lockedLevels, 6);
-		unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
-		tracker.addImage (unlockedLevels, 7);
-		startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
-		tracker.addImage (startImg, 8);
-		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
-		tracker.addImage (gameLevel1, 9);
-		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
-		tracker.addImage (gameLevel2, 10);
-		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
-		tracker.addImage (highScore, 12);
-		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
-		tracker.addImage (victory, 13);
-
-		//////////MANGO
-		mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
-		tracker.addImage(mangoFresh, 14);
-		mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
-		tracker.addImage(mangoCut, 15);
-		mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
-		tracker.addImage(mangoBlended, 16);
-		//////////LYCHEE
-		lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
-		tracker.addImage(lycheeFresh, 17);
-		lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
-		tracker.addImage(lycheeCut, 18);
-		lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
-		tracker.addImage(lycheeBlended, 19);
-		//CUP and TOPPINGS
-		cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
-		tracker.addImage(cupBase, 20);
-		pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-		tracker.addImage(pearlIcon, 21);
-		puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
-		tracker.addImage(puddingIcon, 22);
-
-		//////////     CUSTOMER
-		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-		tracker.addImage(customerImg, 23);
-
-		///PEARLZ
-		pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
-		tracker.addImage(pearlUncooked, 24);
-		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
-		tracker.addImage(pearlCooked, 25);
-
-		// blender
-		emptyBlender1 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
-		tracker.addImage(emptyBlender1, 26);
-
-		emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
-		tracker.addImage(emptyBlender2, 27);
-
-		mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
-		tracker.addImage(mangoBlender, 28);
-
-		lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
-		tracker.addImage(lycheeBlender, 29);
-
-		blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
-		tracker.addImage(blendingMango1, 30);
-
-		blendingMango2 = Toolkit.getDefaultToolkit().getImage("blending_Mango2.png");
-		tracker.addImage(blendingMango2, 31);
-
-		blendingLychee1 = Toolkit.getDefaultToolkit().getImage("blending_Lychee1.png");
-		tracker.addImage(blendingLychee1, 32);
-
-		blendingLychee2 = Toolkit.getDefaultToolkit().getImage("blending_Lychee2.png");
-		tracker.addImage(blendingLychee2, 33);
-
-		blendedMango =  Toolkit.getDefaultToolkit().getImage("blendedMango.png");
-		blendedMango = blendedMango.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-		tracker.addImage(blendedMango, 34);
-
-
-		blendedLychee =  Toolkit.getDefaultToolkit().getImage("blendedLychee.png");
-		blendedLychee = blendedLychee.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-		tracker.addImage(blendedLychee, 35);
-
-
-		//Pot
-		emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
-		tracker.addImage(emptyPot, 36);
-
-		pearlPot = Toolkit.getDefaultToolkit().getImage("pearl_Pot.png");
-		tracker.addImage(pearlPot, 37);
-
-		uncookedPearl1 = Toolkit.getDefaultToolkit().getImage("uncookedPearl1_Pot.png");
-		tracker.addImage(uncookedPearl1, 38);
-
-		uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
-		tracker.addImage(uncookedPearl2, 39);
-
-		// high score background
-		highScoreBg = Toolkit.getDefaultToolkit().getImage("highScoreBg.png");
-		tracker.addImage(highScoreBg, 40);
-
-		// pudding
-		pudding = Toolkit.getDefaultToolkit().getImage("pudding.png");
-		tracker.addImage(pudding, 41);
-
-		// All cups + add to HashMap
-		emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
-		tracker.addImage(emptyCup, 42);
-
-		mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
-		tracker.addImage(mangoJuiceCup, 43);
-		cupImages.put("mangoJuice", mangoJuiceCup);
-
-		lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
-		tracker.addImage(lycheeJuiceCup, 44);
-		cupImages.put("lycheeJuice", lycheeJuiceCup);
-
-		mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
-		tracker.addImage(mangoPearlCup, 45);
-		cupImages.put("mangoPearl", mangoPearlCup);
-
-		lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
-		tracker.addImage(lycheePearlCup, 46);
-		cupImages.put("lycheePearl", lycheePearlCup);
-
-		mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
-		tracker.addImage(mangoPuddingCup, 47);
-		cupImages.put("mangoPudding", mangoPuddingCup);
-
-		lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
-		tracker.addImage(lycheePuddingCup, 48);
-		cupImages.put("lycheePudding", lycheePuddingCup);
-
-		mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
-		tracker.addImage(mangoPearlPuddingCup, 49);
-		cupImages.put("mangoPearlPudding", mangoPearlPuddingCup);
-
-
-		lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
-		tracker.addImage(lycheePearlPuddingCup, 50);
-		cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
-
-
-		// Credits screen
-		credits1 = Toolkit.getDefaultToolkit().getImage("credits1.png");
-		tracker.addImage(credits1, 51);
-		credits2 = Toolkit.getDefaultToolkit().getImage("credits2.png");
-		tracker.addImage(credits2, 52);
-
-		// Levels screens
-		lockedLevels = Toolkit.getDefaultToolkit().getImage("lockedLevels.png");
-		tracker.addImage(lockedLevels, 53);
-		unlockedLevels = Toolkit.getDefaultToolkit().getImage("unlockedLevels.png");
-		tracker.addImage(unlockedLevels, 54);
-		
-		// Customers (Orange Cat)
-		orangeCatHappy = Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png");
-		tracker.addImage(orangeCatHappy, 55);
-		
-		orangeCatNeutral = Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png");
-		tracker.addImage(orangeCatNeutral, 56);
-		
-		orangeCatImpatient = Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png");
-		tracker.addImage(orangeCatImpatient, 57);
-		
-		orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
-		tracker.addImage(orangeCatAngry, 58);
-
-		try {
-			tracker.waitForAll();
-		}
-		catch(InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		HashMap<String,Image>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
-		orangeCatEmotions.put("happy", orangeCatHappy);
-		orangeCatEmotions.put("neutral", orangeCatNeutral);
-		orangeCatEmotions.put("impatient", orangeCatImpatient);
-		orangeCatEmotions.put("angry", orangeCatAngry);
-		customerImages.put("orangeCat", orangeCatEmotions);
-		
-		System.out.println("Customer images loaded: " + customerImages);
-		System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
-		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
-
-	}
-
-	private void startBlendingAnimation(Fruit f) {
-
-		actionBar.setVisible(true);
-
-		ingredientsOnScreen.remove(f);
-		//selectedItem = null;
-
-		if (activeBlender == 1) {
-			blender1Fruit = f;
-			blender1FinishedFruit = f.getFruitType();
-			blender1Progress = 0;
-			//ingredientsOnScreen.remove(f);
-
-			blend1State = "unblended1";
-			actionBar.setValue(0);
-			actionBar.setVisible(true);
-			blend1Timer.start();
-			repaint();
-		}
-
-		if (activeBlender == 2) {
-			blender2Fruit = f;
-			blender2FinishedFruit = f.getFruitType();
-			blender2Progress = 0;
-			blend2State = "unblended1";
-
-			actionBar.setValue(0);
-			blend2Timer.start();
-			repaint();
-		}
-	}
-
-
-	private void loadHighScore() {
-		try(Scanner scanner=new Scanner(new File(scoreFile))){
-			while(scanner.hasNextLine()) {
-				String line=scanner.nextLine();
-				String[]parts=line.split(",");
-				if (parts.length==2)   //usrname ////////points
-					scoreList.add(new Score(parts[0],Integer.parseInt(parts[1])));
-			}
-		}
-		catch(FileNotFoundException e) {
-		}
-		//	Collections.sort(scoreList);
-		//	refreshScoreList();
-	}
-	void saveScore() {
-		try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
-			for (Score s: scoreList) {
-				inFile.println(s.username+","+s.points);
-			}
-		}
-		catch(FileNotFoundException e) {
-		}
-	}
-
-	private void endGame() {
-		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
-			return;
-		gameOn=false;//so no more gaming can happen
-		// stop all timers
-		if (roundTimer != null) 
-			roundTimer.stop();
-		if (blend1Timer != null) 
-			blend1Timer.stop();
-		if (blend2Timer != null) 
-			blend2Timer.stop();
-		if (cookTimer != null) 
-			cookTimer.stop();
-		if (customerSpawnTimer != null) 
-			customerSpawnTimer.stop();
-
-		gameOn = false;
-		timeLeft = 120;
-		score = 0;
-
-		// remove everything on screen
-		ingredientsOnScreen.clear();
-		trayDrinks.clear();
-		customers.clear();
-		//customers.add(new Customer(50, 300, customerImg));
-
-		// reset blenders
-		blender1Fruit = null;
-		blender2Fruit = null;
-		blender1Progress = 0;
-		blender2Progress = 0;
-		blend1State = "empty";
-		blend2State = "empty";
-		blender1FinishedFruit = "";
-		blender2FinishedFruit = "";
-		previousBlended1 = null;
-		previousBlended2 = null;
-		activeBlender = 0;
-		actionBar.setVisible(false);
-
-		// reset cooking
-		cookingPearl = null;
-		cookingProgress = 0;
-		potState = "empty";
-		cookBar.setVisible(false);
-
-		// reset selected objects
-		selectedItem = null;
-		selectedFruit = null;
-		spacePressed = false;
-
-		//restart spawning timer
-		customerSpawnTimer = new Timer(8000, this);
-		customerSpawnTimer.start();
-
-
-		//add a score to scores
-		String name=usernameField.getText().trim();
-		if(name.equals("Enter username:"))
-			name="Anonymous";
-		scoreList.add(new Score(name,score));
-		Collections.sort(scoreList);
-
-		//saveScore();
-
-		refreshScoreList();
-		screenState=12;
+		selectedItem=null;
 		repaint();
 	}
 
-	private int getFreeWaitingSpot() {//find free waiting spots
-		for(int i=0;i<spotOccupied.length;i++) {
-			if (!spotOccupied[i])//if unoccupied, can be occupied!
-				return i;
+
+
+
+
+
+@Override
+public void mouseEntered(MouseEvent e) {
+	// TODO Auto-generated method stub
+
+}
+
+@Override
+public void mouseExited(MouseEvent e) {
+
+}
+
+@Override
+public void mouseDragged(MouseEvent e) {
+	if (selectedItem != null) {
+		selectedItem.x = e.getX() - offsetX;
+		selectedItem.y = e.getY() - offsetY;
+
+		// check if blender 1 emptied
+		if (selectedItem == blender1Fruit && !blendStation1.intersects(new Rectangle(selectedItem.x,selectedItem.y,selectedItem.width,selectedItem.height))) {
+			blender1Fruit = null;
+			blender1FinishedFruit = "";
 		}
-		return -1;//if no spots avail
-	}
-	private void shiftLineForward() {
-		int ind=0;
-		for(Customer c:orderLine) {//do each customer in the line
-			if(ind<lineSpotsCount) {
-				c.setTarget(lineSpots[ind].x, lineSpots[ind].y);
-			}
-			ind++;//next
+
+		// check if blender 2 emptied
+		if (selectedItem == blender2Fruit &&!blendStation2.intersects(new Rectangle(selectedItem.x, selectedItem.y,selectedItem.width,selectedItem.height))) {
+			blender2Fruit = null;
+			blender2FinishedFruit = "";
 		}
+
+		repaint();
 	}
 
-	private void refreshScoreList() {
-		if(scoreListModel==null)
-			return;
-		scoreListModel.clear();
-		for(Score s: scoreList) {
-			scoreListModel.addElement(String.format("%-15s%45d", s.username, s.points));
+
+}
+
+@Override
+public void mouseMoved(MouseEvent e) {
+	// TODO Auto-generated method stub
+
+}
+
+private void loadAllImages() {
+
+	MediaTracker tracker = new MediaTracker (this);
+	home = Toolkit.getDefaultToolkit ().getImage ("home.png");
+	tracker.addImage (home, 0);
+	instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
+	tracker.addImage (instructions1, 1);
+	instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
+	tracker.addImage (instructions2, 2);
+	instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
+	tracker.addImage (instructions3, 3);
+	instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
+	tracker.addImage (instructions4, 4);
+	lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
+	tracker.addImage (lockedLevels, 6);
+	unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
+	tracker.addImage (unlockedLevels, 7);
+	startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
+	tracker.addImage (startImg, 8);
+	gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
+	tracker.addImage (gameLevel1, 9);
+	gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
+	tracker.addImage (gameLevel2, 10);
+	highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
+	tracker.addImage (highScore, 12);
+	victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
+	tracker.addImage (victory, 13);
+
+	//////////MANGO
+	mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
+	tracker.addImage(mangoFresh, 14);
+	mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
+	tracker.addImage(mangoCut, 15);
+	mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
+	tracker.addImage(mangoBlended, 16);
+	//////////LYCHEE
+	lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
+	tracker.addImage(lycheeFresh, 17);
+	lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
+	tracker.addImage(lycheeCut, 18);
+	lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
+	tracker.addImage(lycheeBlended, 19);
+	//CUP and TOPPINGS
+	cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
+	tracker.addImage(cupBase, 20);
+	pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+	tracker.addImage(pearlIcon, 21);
+	puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
+	tracker.addImage(puddingIcon, 22);
+
+	//////////     CUSTOMER
+	customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+	tracker.addImage(customerImg, 23);
+
+	///PEARLZ
+	pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
+	tracker.addImage(pearlUncooked, 24);
+	pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
+	tracker.addImage(pearlCooked, 25);
+
+	// blender
+	emptyBlender1 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
+	tracker.addImage(emptyBlender1, 26);
+
+	emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
+	tracker.addImage(emptyBlender2, 27);
+
+	mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
+	tracker.addImage(mangoBlender, 28);
+
+	lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
+	tracker.addImage(lycheeBlender, 29);
+
+	blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
+	tracker.addImage(blendingMango1, 30);
+
+	blendingMango2 = Toolkit.getDefaultToolkit().getImage("blending_Mango2.png");
+	tracker.addImage(blendingMango2, 31);
+
+	blendingLychee1 = Toolkit.getDefaultToolkit().getImage("blending_Lychee1.png");
+	tracker.addImage(blendingLychee1, 32);
+
+	blendingLychee2 = Toolkit.getDefaultToolkit().getImage("blending_Lychee2.png");
+	tracker.addImage(blendingLychee2, 33);
+
+	blendedMango =  Toolkit.getDefaultToolkit().getImage("blendedMango.png");
+	blendedMango = blendedMango.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+	tracker.addImage(blendedMango, 34);
+
+
+	blendedLychee =  Toolkit.getDefaultToolkit().getImage("blendedLychee.png");
+	blendedLychee = blendedLychee.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+	tracker.addImage(blendedLychee, 35);
+
+
+	//Pot
+	emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
+	tracker.addImage(emptyPot, 36);
+
+	pearlPot = Toolkit.getDefaultToolkit().getImage("pearl_Pot.png");
+	tracker.addImage(pearlPot, 37);
+
+	uncookedPearl1 = Toolkit.getDefaultToolkit().getImage("uncookedPearl1_Pot.png");
+	tracker.addImage(uncookedPearl1, 38);
+
+	uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
+	tracker.addImage(uncookedPearl2, 39);
+
+	// high score background
+	highScoreBg = Toolkit.getDefaultToolkit().getImage("highScoreBg.png");
+	tracker.addImage(highScoreBg, 40);
+
+	// pudding
+	pudding = Toolkit.getDefaultToolkit().getImage("pudding.png");
+	tracker.addImage(pudding, 41);
+
+	// All cups + add to HashMap
+	emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
+	tracker.addImage(emptyCup, 42);
+
+	mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
+	tracker.addImage(mangoJuiceCup, 43);
+	cupImages.put("mangoJuice", mangoJuiceCup);
+
+	lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
+	tracker.addImage(lycheeJuiceCup, 44);
+	cupImages.put("lycheeJuice", lycheeJuiceCup);
+
+	mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
+	tracker.addImage(mangoPearlCup, 45);
+	cupImages.put("mangoPearl", mangoPearlCup);
+
+	lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
+	tracker.addImage(lycheePearlCup, 46);
+	cupImages.put("lycheePearl", lycheePearlCup);
+
+	mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
+	tracker.addImage(mangoPuddingCup, 47);
+	cupImages.put("mangoPudding", mangoPuddingCup);
+
+	lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
+	tracker.addImage(lycheePuddingCup, 48);
+	cupImages.put("lycheePudding", lycheePuddingCup);
+
+	mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
+	tracker.addImage(mangoPearlPuddingCup, 49);
+	cupImages.put("mangoPearlPudding", mangoPearlPuddingCup);
+
+
+	lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
+	tracker.addImage(lycheePearlPuddingCup, 50);
+	cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
+
+
+	// Credits screen
+	credits1 = Toolkit.getDefaultToolkit().getImage("credits1.png");
+	tracker.addImage(credits1, 51);
+	credits2 = Toolkit.getDefaultToolkit().getImage("credits2.png");
+	tracker.addImage(credits2, 52);
+
+	// Levels screens
+	lockedLevels = Toolkit.getDefaultToolkit().getImage("lockedLevels.png");
+	tracker.addImage(lockedLevels, 53);
+	unlockedLevels = Toolkit.getDefaultToolkit().getImage("unlockedLevels.png");
+	tracker.addImage(unlockedLevels, 54);
+
+	// Customers (Orange Cat)
+	orangeCatHappy = Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png");
+	tracker.addImage(orangeCatHappy, 55);
+
+	orangeCatNeutral = Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png");
+	tracker.addImage(orangeCatNeutral, 56);
+
+	orangeCatImpatient = Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png");
+	tracker.addImage(orangeCatImpatient, 57);
+
+	orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
+	tracker.addImage(orangeCatAngry, 58);
+
+	try {
+		tracker.waitForAll();
+	}
+	catch(InterruptedException e) {
+		e.printStackTrace();
+	}
+
+	HashMap<String,Image>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
+	orangeCatEmotions.put("happy", orangeCatHappy);
+	orangeCatEmotions.put("neutral", orangeCatNeutral);
+	orangeCatEmotions.put("impatient", orangeCatImpatient);
+	orangeCatEmotions.put("angry", orangeCatAngry);
+	customerImages.put("orangeCat", orangeCatEmotions);
+
+	System.out.println("Customer images loaded: " + customerImages);
+	System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
+	System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
+
+}
+
+private void startBlendingAnimation(Fruit f) {
+
+	actionBar.setVisible(true);
+
+	ingredientsOnScreen.remove(f);
+	//selectedItem = null;
+
+	if (activeBlender == 1) {
+		blender1Fruit = f;
+		blender1FinishedFruit = f.getFruitType();
+		blender1Progress = 0;
+		//ingredientsOnScreen.remove(f);
+
+		blend1State = "unblended1";
+		actionBar.setValue(0);
+		actionBar.setVisible(true);
+		blend1Timer.start();
+		repaint();
+	}
+
+	if (activeBlender == 2) {
+		blender2Fruit = f;
+		blender2FinishedFruit = f.getFruitType();
+		blender2Progress = 0;
+		blend2State = "unblended1";
+
+		actionBar.setValue(0);
+		blend2Timer.start();
+		repaint();
+	}
+}
+
+
+private void loadHighScore() {
+	try(Scanner scanner=new Scanner(new File(scoreFile))){
+		while(scanner.hasNextLine()) {
+			String line=scanner.nextLine();
+			String[]parts=line.split(",");
+			if (parts.length==2)   //usrname ////////points
+				scoreList.add(new Score(parts[0],Integer.parseInt(parts[1])));
 		}
 	}
+	catch(FileNotFoundException e) {
+	}
+	//	Collections.sort(scoreList);
+	//	refreshScoreList();
+}
+void saveScore() {
+	try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
+		for (Score s: scoreList) {
+			inFile.println(s.username+","+s.points);
+		}
+	}
+	catch(FileNotFoundException e) {
+	}
+}
+
+private void endGame() {
+	if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
+		return;
+	gameOn=false;//so no more gaming can happen
+	// stop all timers
+	if (roundTimer != null) 
+		roundTimer.stop();
+	if (blend1Timer != null) 
+		blend1Timer.stop();
+	if (blend2Timer != null) 
+		blend2Timer.stop();
+	if (cookTimer != null) 
+		cookTimer.stop();
+	if (customerSpawnTimer != null) 
+		customerSpawnTimer.stop();
+
+	gameOn = false;
+	timeLeft = 120;
+	score = 0;
+
+	// remove everything on screen
+	ingredientsOnScreen.clear();
+	trayDrinks.clear();
+	customers.clear();
+	//customers.add(new Customer(50, 300, customerImg));
+
+	// reset blenders
+	blender1Fruit = null;
+	blender2Fruit = null;
+	blender1Progress = 0;
+	blender2Progress = 0;
+	blend1State = "empty";
+	blend2State = "empty";
+	blender1FinishedFruit = "";
+	blender2FinishedFruit = "";
+	previousBlended1 = null;
+	previousBlended2 = null;
+	activeBlender = 0;
+	actionBar.setVisible(false);
+
+	// reset cooking
+	cookingPearl = null;
+	cookingProgress = 0;
+	potState = "empty";
+	cookBar.setVisible(false);
+
+	// reset selected objects
+	selectedItem = null;
+	selectedFruit = null;
+	spacePressed = false;
+
+	//restart spawning timer
+	customerSpawnTimer = new Timer(8000, this);
+	customerSpawnTimer.start();
+
+
+	//add a score to scores
+	String name=usernameField.getText().trim();
+	if(name.equals("Enter username:"))
+		name="Anonymous";
+	scoreList.add(new Score(name,score));
+	Collections.sort(scoreList);
+
+	//saveScore();
+
+	refreshScoreList();
+	screenState=12;
+	repaint();
+}
+
+private int getFreeWaitingSpot() {//find free waiting spots
+	for(int i=0;i<spotOccupied.length;i++) {
+		if (!spotOccupied[i])//if unoccupied, can be occupied!
+			return i;
+	}
+	return -1;//if no spots avail
+}
+private void shiftLineForward() {
+	int ind=0;
+	for(Customer c:orderLine) {//do each customer in the line
+		if(ind<lineSpotsCount) {
+			c.setTarget(lineSpots[ind].x, lineSpots[ind].y);
+		}
+		ind++;//next
+	}
+}
+
+private void refreshScoreList() {
+	if(scoreListModel==null)
+		return;
+	scoreListModel.clear();
+	for(Score s: scoreList) {
+		scoreListModel.addElement(String.format("%-15s%45d", s.username, s.points));
+	}
+}
 
 
 }
