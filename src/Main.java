@@ -81,6 +81,19 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image cupBase, pearlIcon, puddingIcon;
 	private Image customerImg;
 	private Image pearlUncooked, pearlCooked;
+	private HashMap<String,HashMap<String, ImageIcon>>customerImages=new HashMap<>();
+
+
+	private Queue<Customer>orderLine=new LinkedList<>();//FIFO queue for waiting to order
+	private Customer orderingCustomer=null;
+	private Point[] lineSpots;//Point stores x and y coordinates
+	private int lineSpotsCount=5;//max # of customers in line
+	private Rectangle orderingStation=new Rectangle(200,400,50,50);//!v-NEEDA CHANGE COORDS!!!!!!
+	private int orderingFrames=0;//will be >0 when bubble visible
+
+	private Point[]waitingSpots;//waiting spots
+	private boolean[]spotOccupied;//true is occupied false is free
+	private HashSet<Integer>occupiedSpots=new HashSet<>();
 
 
 	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory;
@@ -133,6 +146,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
 		loadAllImages();//btw this is only for in game images
+
+
 		MediaTracker tracker = new MediaTracker (this);
 		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
 		tracker.addImage (home, 0);
@@ -167,21 +182,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
-
-		loadHighScore();
-
 		scoreListModel=new DefaultListModel<>();
 		scoreDisplayList=new JList<>(scoreListModel);
 		scoreScrollPane=new JScrollPane(scoreDisplayList);
 		scoreScrollPane.setBounds(50,150,290,400);
 		scoreScrollPane.setVisible(false);
 		this.add(scoreScrollPane);
+		
+		loadHighScore();
 
 
 		currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
-		customers.add(new Customer(50, 300, this.customerImg));
-
+Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y);
+firstCust.setState("IN_LINE");
+customers.add(firstCust);
+orderLine.add(firstCust);
 		//bar for blend/cook/cut
 		actionBar= new JProgressBar(0,100);
 		//actionBar.setBounds(144, 580, 100, 15);
@@ -199,6 +215,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		patienceTimer=new Timer( 1000, this);
 		patienceTimer.start();
 
+		lineSpots=new Point[lineSpotsCount];
+		lineSpots[0]=new Point(orderingStation.x,orderingStation.y);
+		for(int i=1;i<lineSpotsCount;i++) {
+			lineSpots[i]=new Point(orderingStation.x-(i*40),orderingStation.y);
+		}
+		//AFTER orderingg
+		waitingSpots=new Point[3];
+		waitingSpots[0]=new Point(100,500);
+		waitingSpots[1]=new Point(150,500);
+		waitingSpots[2]=new Point(200,500);
+		spotOccupied=new boolean[waitingSpots.length];
 
 		blend1Timer= new Timer(30, this);
 		blend1Timer.stop();//not initially running
@@ -220,6 +247,41 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource()==gameTimer) {//maybe do dif method?
+			for(int i=customers.size()-1;i>=0;i--) {
+				Customer c=customers.get(i);
+				c.updateMovement();
+				if(c.hasArrived()) {
+					String state=c.getState();
+					if(state.equals("SERVED")) {
+						if(c.getWaitingSpotIndex()!=-1) {
+							spotOccupied[c.getWaitingSpotIndex()]=false;
+						}
+						customers.remove(i);
+					}
+					else if(state.equals("LEAVING")) 
+						customers.remove(i);
+					
+				}
+			}
+			if(orderingCustomer!=null&&orderingFrames>0) {
+				orderingFrames--;
+				orderingCustomer.updateBubble();
+				if(orderingFrames==0) {
+					orderingCustomer.setState("WAITING");
+					orderLine.poll();
+					shiftLineForward();
+					int freeSpot=getFreeWaitingSpot();
+					if(freeSpot!=-1) {
+						Point spot=waitingSpots[freeSpot];
+						orderingCustomer.setTarget(spot.x, spot.y);
+						orderingCustomer.setWaitingSpotIndex(freeSpot);
+						spotOccupied[freeSpot]=true;
+					}
+					else
+						orderingCustomer.setTarget(100, 500);
+					orderingCustomer=null;
+				}
+			}
 			repaint();
 		}
 		//CUSOTMER PATIENCE
@@ -271,8 +333,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
 			if(screenState==9) {
-				customers.add(new Customer(300,10,customerImg));
-				repaint();
+				if(orderLine.size()<lineSpotsCount) {
+					int backInd=orderLine.size();
+					Point backSpot=lineSpots[backInd];
+					Customer newC=new Customer(300,10,customerImages,backSpot.x,backSpot.y);
+					newC.setState("IN_LINE");
+					customers.add(newC);
+					orderLine.add(newC);
+					repaint();
+				}
 			}
 		}
 		else if(e.getSource()==roundTimer&&gameOn) {
@@ -590,7 +659,24 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int mx=e.getX();
 		int my=e.getY();
 
-
+		if(orderingStation.contains(mx,my)) {
+			if(!orderLine.isEmpty()) {
+				Customer front=orderLine.peek();
+				if(front.getState().equals("IN_LINE")&&front.hasArrived()) {
+					orderingCustomer=front;
+					orderingFrames=30;//1.5 secs
+					front.startBubble();
+					front.setState("ORDERING");
+				}
+				else
+					JOptionPane.showMessageDialog(this, "No customer at front of line.");
+			}
+			else
+				JOptionPane.showMessageDialog(this, "No customers in line.");
+			return;//so no multiple actions on same click.
+		}
+		
+		
 		//COOKING PEARL
 		if (selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
@@ -719,9 +805,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
 					Customer c=customers.get(i);
 					if(c.getOrder().matches(trayDrinks)) {
-						customers.remove(i);
-						trayDrinks.clear(); //next tray!
-						JOptionPane.showMessageDialog(this, "served! +100 points");
+						c.setState("SERVED");
+						c.setTarget(servingStation.x, servingStation.y);
+						if(c.getWaitingSpotIndex()!=-1) 
+							spotOccupied[c.getWaitingSpotIndex()]=false;
+						trayDrinks.clear();
+						JOptionPane.showMessageDialog(this, "served!!!!!!!! +100 pts");
 						served=true;
 						score+=100;
 						break;
@@ -830,6 +919,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			e.printStackTrace();
 		}
 
+		HashMap<String,ImageIcon>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
+		orangeCatEmotions.put("happy", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png")));
+		orangeCatEmotions.put("neutral", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png")));
+		orangeCatEmotions.put("impatient", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png")));
+		orangeCatEmotions.put("angry", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png")));
+		customerImages.put("orangeCat", orangeCatEmotions);
+
 	}
 
 	private void startBlendingAnimation(Fruit f) {
@@ -899,14 +995,32 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			name="Anonymous";
 		scoreList.add(new Score(name,score));
 		Collections.sort(scoreList);
-		saveScores();
+		saveScore();
 		refreshScoreList();
 		screenState=12;
 		repaint();
 	}
 
+	private int getFreeWaitingSpot() {//find free waiting spots
+		for(int i=0;i<spotOccupied.length;i++) {
+			if (!spotOccupied[i])//if unoccupied, can be occupied!
+				return i;
+		}
+		return -1;//if no spots avail
+	}
+	private void shiftLineForward() {
+		int ind=0;
+		for(Customer c:orderLine) {//do each customer in the line
+			if(ind<lineSpotsCount) {
+				c.setTarget(lineSpots[ind].x, lineSpots[ind].y);
+			}
+			ind++;//next
+		}
+	}
 
 	private void refreshScoreList() {
+		if(scoreListModel==null)
+			return;
 		scoreListModel.clear();
 		for(Score s: scoreList) {
 			scoreListModel.addElement(s.username+" ; "+s.points);
