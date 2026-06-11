@@ -1,0 +1,19 @@
+import java.awt.*;
+
+import javax.swing.JProgressBar;
+public class Pudding extends Item{
+
+	private Image puddingImg;
+	int width;
+	int  height;
+	JProgressBar cookBar;
+
+	public Pudding (Image puddingImg) {
+		super (puddingImg, "pudding");
+		this.puddingImg = puddingImg;
+		width = 50;
+		height = 50;
+		isTopping = true;
+	}
+
+}
