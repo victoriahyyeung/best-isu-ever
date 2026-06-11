@@ -104,19 +104,19 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image pearlUncooked, pearlCooked;
 
 
-	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits, highScore, victory, highScoreBg;
+	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits1, credits2, highScore, victory, highScoreBg;
 	// Screen States
 	// 0 - Home
 	// 1 - Instructions (slide 1)
 	// 2 – Instructions (slide 2)
 	// 3 – Instructions (slide 3)
 	// 4 – Instructions (slide 4)
-	// 6 – Locked Levels
+	// 6 – Credits Slide 2
 	// 7 – Unlocked Levels
 	// 8 – Start Screen
 	// 9 – Game Level 1
 	// 10 – Game Level 2
-	// 11 – Credits
+	// 11 – Credits Slide 1
 	// 12 – High Score
 	// 13 – Victory Screen
 	int screenState = 0;
@@ -129,6 +129,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	int offsetY;
 
 	Fruit selectedFruit;
+
+	Polygon slantedCreditsButton = new Polygon();
+	Polygon slantedScoreButton = new Polygon();
+
 
 	public void spawnMango() {
 		Fruit m=new Fruit("mango", mangoFresh,mangoCut,blendedMango);
@@ -220,7 +224,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		customerSpawnTimer.start();
 		repaint();
 	}
-	*/
+	 */
 
 	private boolean checkFruitCupCollision(Fruit fruit, int mouseX, int mouseY) {
 		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
@@ -344,33 +348,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		setPreferredSize (new Dimension (390, 700));
 		cupImages = new HashMap<>();
 		loadAllImages();//btw this is only for in game images
-		MediaTracker tracker = new MediaTracker (this);
-		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
-		tracker.addImage (home, 0);
-		instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
-		tracker.addImage (instructions1, 1);
-		instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
-		tracker.addImage (instructions2, 2);
-		instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
-		tracker.addImage (instructions3, 3);
-		instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
-		tracker.addImage (instructions4, 4);
-		lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
-		tracker.addImage (lockedLevels, 6);
-		unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
-		tracker.addImage (unlockedLevels, 7);
-		startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
-		tracker.addImage (startImg, 8);
-		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
-		tracker.addImage (gameLevel1, 9);
-		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
-		tracker.addImage (gameLevel2, 10);
-		credits = Toolkit.getDefaultToolkit ().getImage ("credits.png");
-		tracker.addImage (credits, 11);
-		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
-		tracker.addImage (highScore, 12);
-		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
-		tracker.addImage (victory, 13);
+
 
 		usernameField = new JTextField(10); 
 		usernameField.setBounds(66, 300, 258, 21); 
@@ -428,11 +406,19 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		customerSpawnTimer=new Timer(8000,this);
 		customerSpawnTimer.start();
 
-		try
-		{
-			tracker.waitForAll ();
-		}  
-		catch (InterruptedException e){}
+		// Credits button slanted rectangle
+		slantedCreditsButton.addPoint(36, 601);
+		slantedCreditsButton.addPoint(110, 564);
+		slantedCreditsButton.addPoint(125, 591);
+		slantedCreditsButton.addPoint(45, 627);
+
+		// Scoreboard button slanted rectangle
+		slantedScoreButton.addPoint(246, 622);
+		slantedScoreButton.addPoint(285, 625);
+		slantedScoreButton.addPoint(252, 680);
+		slantedScoreButton.addPoint(294, 675);
+
+
 
 	}
 
@@ -595,6 +581,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 5) {
 		}
 		if (screenState == 6) {
+			g.drawImage(credits2, 0, 0, 390, 700, this);
 		}
 		if (screenState == 7) {
 		}
@@ -602,9 +589,27 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		if (screenState == 9) {
 
+
 			// game screen
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
 
+			// Countdown timer
+			int minutes = timeLeft / 60;
+			int seconds = timeLeft % 60;
+
+			g.setFont(new Font("Arial", Font.BOLD, 18));
+			g.setColor(Color.BLACK);
+
+			// bottom-right corner
+			String timerText = String.format("%02d:%02d", minutes, seconds);
+			FontMetrics fm = g.getFontMetrics();
+
+			int x = getWidth() - fm.stringWidth(timerText) - 10;
+			int y = getHeight() - 10;
+
+			if (timeLeft <= 10) 
+				g.setColor(Color.RED);
+			g.drawString(timerText, 323, 680);
 
 			// Cooking pot
 			if (potState.equals("empty")) {
@@ -726,6 +731,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if (screenState == 10) {
 		}
 		if (screenState == 11) {
+			g.drawImage(credits1,0, 0, 390, 700, this);
 		}
 		if (screenState == 12) {
 			g.drawImage(highScoreBg, 0, 0, 390, 700, this);
@@ -757,6 +763,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			// Instructions slide 1
 			else if (x >= 332 && x <= 384 && y >= 434 && y <= 503) {
 				screenState = 1;
+			}
+
+			// Credits slide 1
+			else if (slantedCreditsButton.contains(x, y)) {
+				screenState = 11;
+			}
+
+			// High score
+			else if (slantedScoreButton.contains(x, y)) {
+				screenState = 12;
 			}
 
 		}
@@ -826,6 +842,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		}
 
+
+		// Game Screen
 		else if (screenState == 9) {
 			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
 				spawnMango();
@@ -849,7 +867,33 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		}
 
+		// Credits Slide 1
+		else if (screenState == 11) {
+			// home
+			if (x >= 11 && x <= 84 && y >= 14 && y <= 47) {
+				screenState = 0;
+			}
+			// credits slide 2
+			else if (x >= 352 && x <= 377 && y  >= 295 && y <= 323) {
+				screenState = 6;
+			}
+		}
+
+		// Credits Slide 2
+		else if (screenState == 6) {
+			// home
+			if (x >= 11 && x <= 84 && y >= 14 && y <= 47) {
+				screenState = 0;
+			}
+			// credits slide 1
+			else if (x >= 19 && x <= 47 && y >= 297 && y <= 324) {
+				screenState = 11;
+			}
+		}
+
+		// High Score Screen
 		else if (screenState == 12) {
+			// home
 			if (x >= 10 && x <= 85 && y >= 13 && y <= 46) {
 				scoreScrollPane.setVisible(false);
 				screenState = 0;
@@ -1191,133 +1235,164 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	private void loadAllImages() {
-		MediaTracker tracker=new MediaTracker(this);
+
+		MediaTracker tracker = new MediaTracker (this);
+		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
+		tracker.addImage (home, 0);
+		instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
+		tracker.addImage (instructions1, 1);
+		instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
+		tracker.addImage (instructions2, 2);
+		instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
+		tracker.addImage (instructions3, 3);
+		instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
+		tracker.addImage (instructions4, 4);
+		lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
+		tracker.addImage (lockedLevels, 6);
+		unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
+		tracker.addImage (unlockedLevels, 7);
+		startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
+		tracker.addImage (startImg, 8);
+		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
+		tracker.addImage (gameLevel1, 9);
+		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
+		tracker.addImage (gameLevel2, 10);
+		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
+		tracker.addImage (highScore, 12);
+		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
+		tracker.addImage (victory, 13);
+
 		//////////MANGO
 		mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
-		tracker.addImage(mangoFresh, 0);
+		tracker.addImage(mangoFresh, 14);
 		mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
-		tracker.addImage(mangoCut, 1);
+		tracker.addImage(mangoCut, 15);
 		mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
-		tracker.addImage(mangoBlended, 2);
+		tracker.addImage(mangoBlended, 16);
 		//////////LYCHEE
 		lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
-		tracker.addImage(lycheeFresh, 3);
+		tracker.addImage(lycheeFresh, 17);
 		lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
-		tracker.addImage(lycheeCut, 4);
+		tracker.addImage(lycheeCut, 18);
 		lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
-		tracker.addImage(lycheeBlended, 5);
+		tracker.addImage(lycheeBlended, 19);
 		//CUP and TOPPINGS
 		cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
-		tracker.addImage(cupBase, 6);
+		tracker.addImage(cupBase, 20);
 		pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-		tracker.addImage(pearlIcon, 7);
+		tracker.addImage(pearlIcon, 21);
 		puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
-		tracker.addImage(puddingIcon, 8);
+		tracker.addImage(puddingIcon, 22);
 
 		//////////     CUSTOMER
 		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-		tracker.addImage(customerImg, 9);
+		tracker.addImage(customerImg, 23);
 
 		///PEARLZ
 		pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
-		tracker.addImage(pearlUncooked, 10);
+		tracker.addImage(pearlUncooked, 24);
 		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
-		tracker.addImage(pearlCooked, 11);
+		tracker.addImage(pearlCooked, 25);
 
 		// blender
 		emptyBlender1 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
-		tracker.addImage(emptyBlender1, 12);
+		tracker.addImage(emptyBlender1, 26);
 
 		emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
-		tracker.addImage(emptyBlender2, 13);
+		tracker.addImage(emptyBlender2, 27);
 
 		mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
-		tracker.addImage(mangoBlender, 14);
+		tracker.addImage(mangoBlender, 28);
 
 		lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
-		tracker.addImage(lycheeBlender, 15);
+		tracker.addImage(lycheeBlender, 29);
 
 		blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
-		tracker.addImage(blendingMango1, 16);
+		tracker.addImage(blendingMango1, 30);
 
 		blendingMango2 = Toolkit.getDefaultToolkit().getImage("blending_Mango2.png");
-		tracker.addImage(blendingMango2, 17);
+		tracker.addImage(blendingMango2, 31);
 
 		blendingLychee1 = Toolkit.getDefaultToolkit().getImage("blending_Lychee1.png");
-		tracker.addImage(blendingLychee1, 18);
+		tracker.addImage(blendingLychee1, 32);
 
 		blendingLychee2 = Toolkit.getDefaultToolkit().getImage("blending_Lychee2.png");
-		tracker.addImage(blendingLychee2, 19);
+		tracker.addImage(blendingLychee2, 33);
 
 		blendedMango =  Toolkit.getDefaultToolkit().getImage("blendedMango.png");
 		blendedMango = blendedMango.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-		tracker.addImage(blendedMango, 20);
+		tracker.addImage(blendedMango, 34);
 
 
 		blendedLychee =  Toolkit.getDefaultToolkit().getImage("blendedLychee.png");
 		blendedLychee = blendedLychee.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-		tracker.addImage(blendedLychee, 21);
+		tracker.addImage(blendedLychee, 35);
 
 
 		//Pot
 		emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
-		tracker.addImage(emptyPot, 22);
+		tracker.addImage(emptyPot, 36);
 
 		pearlPot = Toolkit.getDefaultToolkit().getImage("pearl_Pot.png");
-		tracker.addImage(pearlPot, 23);
+		tracker.addImage(pearlPot, 37);
 
 		uncookedPearl1 = Toolkit.getDefaultToolkit().getImage("uncookedPearl1_Pot.png");
-		tracker.addImage(uncookedPearl1, 24);
+		tracker.addImage(uncookedPearl1, 38);
 
 		uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
-		tracker.addImage(uncookedPearl2, 25);
+		tracker.addImage(uncookedPearl2, 39);
 
 		// high score background
 		highScoreBg = Toolkit.getDefaultToolkit().getImage("highScoreBg.png");
-		tracker.addImage(highScoreBg, 26);
+		tracker.addImage(highScoreBg, 40);
 
 		// pudding
 		pudding = Toolkit.getDefaultToolkit().getImage("pudding.png");
-		tracker.addImage(pudding, 27);
+		tracker.addImage(pudding, 41);
 
-		// cup
+		// All cups + add to HashMap
 		emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
-		tracker.addImage(emptyCup, 28);
+		tracker.addImage(emptyCup, 42);
 
 		mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
-		tracker.addImage(mangoJuiceCup, 29);
+		tracker.addImage(mangoJuiceCup, 43);
 		cupImages.put("mangoJuice", mangoJuiceCup);
 
 		lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
-		tracker.addImage(lycheeJuiceCup, 30);
+		tracker.addImage(lycheeJuiceCup, 44);
 		cupImages.put("lycheeJuice", lycheeJuiceCup);
 
 		mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
-		tracker.addImage(mangoPearlCup, 31);
+		tracker.addImage(mangoPearlCup, 45);
 		cupImages.put("mangoPearl", mangoPearlCup);
 
 		lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
-		tracker.addImage(lycheePearlCup, 32);
+		tracker.addImage(lycheePearlCup, 46);
 		cupImages.put("lycheePearl", lycheePearlCup);
 
 		mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
-		tracker.addImage(mangoPuddingCup, 33);
+		tracker.addImage(mangoPuddingCup, 47);
 		cupImages.put("mangoPudding", mangoPuddingCup);
 
 		lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
-		tracker.addImage(lycheePuddingCup, 34);
+		tracker.addImage(lycheePuddingCup, 48);
 		cupImages.put("lycheePudding", lycheePuddingCup);
 
 		mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
-		tracker.addImage(mangoPearlPuddingCup, 35);
+		tracker.addImage(mangoPearlPuddingCup, 49);
 		cupImages.put("mangoPearlPudding", mangoPearlPuddingCup);
 
 
 		lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
-		tracker.addImage(lycheePearlPuddingCup, 36);
+		tracker.addImage(lycheePearlPuddingCup, 50);
 		cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
 
 
+		// Credits screen
+		credits1 = Toolkit.getDefaultToolkit().getImage("credits1.png");
+		tracker.addImage(credits1, 51);
+		credits2 = Toolkit.getDefaultToolkit().getImage("credits2.png");
+		tracker.addImage(credits2, 52);
 
 		try {
 			tracker.waitForAll();
