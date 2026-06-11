@@ -91,7 +91,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private String blender1FinishedFruit = "";
 	private String blender2FinishedFruit = "";
 
-
+	boolean level1Passed = false;
 
 	private Timer cookTimer;
 	private String cookFinishPearl = "";
@@ -119,6 +119,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// 11 – Credits Slide 1
 	// 12 – High Score
 	// 13 – Victory Screen
+	// 14 - Locked Levels
 	int screenState = 0;
 
 	JTextField usernameField;
@@ -584,6 +585,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			g.drawImage(credits2, 0, 0, 390, 700, this);
 		}
 		if (screenState == 7) {
+			g.drawImage(unlockedLevels,  0, 0, 390, 700, this);
+		}
+
+		if (screenState == 14) {
+			g.drawImage(lockedLevels,  0, 0, 390, 700, this);
 		}
 		if (screenState == 8) {
 		}
@@ -752,12 +758,24 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// Level 1 Play screen
 			if (x >= 95 && x <= 298 && y >= 343 && y <= 401) {
+
+				if (!level1Passed) {
+					// locked levels screen
+					screenState = 14;
+				}
+				else {
+					// unlocked levels screen
+					screenState = 7;
+				}
+				// SUPER IMPORTANT FOR LATER
+				/*
 				screenState = 9;
 				if(!gameOn) {
 					gameOn=true;
 					roundTimer=new Timer(1000,this);
 					roundTimer.start();
 				}
+				 */
 			}
 
 			// Instructions slide 1
@@ -842,6 +860,52 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		}
 
+		// Locked Levels Screen
+		else if (screenState == 14) {
+			// Home screen
+			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				screenState = 0;
+			}
+			// Level 2 Selection
+			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
+				JOptionPane.showMessageDialog(this, "Pass Level 1 first to unlock level 2!");
+			}
+			// Level 1 Selection
+			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
+				screenState = 9;
+				if(!gameOn) {
+					gameOn=true;
+					roundTimer=new Timer(1000,this);
+					roundTimer.start();
+				}
+			}
+
+		}
+		// Unlocked Levels Screen
+		else if (screenState == 7) {
+			// Home screen
+			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				screenState = 0;
+			}
+			// Level 2 Selection
+			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
+				screenState = 10;
+				if(!gameOn) {
+					gameOn=true;
+					roundTimer=new Timer(1000,this);
+					roundTimer.start();
+				}
+			}
+
+			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
+				screenState = 9;
+				if(!gameOn) {
+					gameOn=true;
+					roundTimer=new Timer(1000,this);
+					roundTimer.start();
+				}
+			}
+		}
 
 		// Game Screen
 		else if (screenState == 9) {
@@ -1393,6 +1457,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		tracker.addImage(credits1, 51);
 		credits2 = Toolkit.getDefaultToolkit().getImage("credits2.png");
 		tracker.addImage(credits2, 52);
+
+		// Levels screens
+		lockedLevels = Toolkit.getDefaultToolkit().getImage("lockedLevels.png");
+		tracker.addImage(lockedLevels, 53);
+		unlockedLevels = Toolkit.getDefaultToolkit().getImage("unlockedLevels.png");
+		tracker.addImage(unlockedLevels, 54);
 
 		try {
 			tracker.waitForAll();
