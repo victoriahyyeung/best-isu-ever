@@ -208,7 +208,7 @@ orderLine.add(firstCust);
 		setFocusable(true);
 		this.setLayout(null); // Use absolute positioning for the box
 		this.add(usernameField);
-
+System.out.print("DELETE THIS");
 		gameTimer=new Timer (50, this);
 		gameTimer.start();
 
