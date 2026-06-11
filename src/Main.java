@@ -61,6 +61,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	private Image blendedMango, blendedLychee;
 
+	private Image orangeCatHappy, orangeCatImpatient, orangeCatNeutral, orangeCatAngry;
+	
 	private int activeBlender = 0; 
 
 	private String blend1State = "empty";
@@ -102,7 +104,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Image cupBase, pearlIcon, puddingIcon;
 	private Image customerImg;
 	private Image pearlUncooked, pearlCooked;
-	private HashMap<String,HashMap<String, ImageIcon>>customerImages=new HashMap<>();
+	private HashMap<String,HashMap<String, Image>>customerImages=new HashMap<>();
 
 
 	private Queue<Customer>orderLine=new LinkedList<>();//FIFO queue for waiting to order
@@ -363,37 +365,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		cupImages = new HashMap<>();
 		loadAllImages();//btw this is only for in game images
 
-<<<<<<< HEAD
 
-		MediaTracker tracker = new MediaTracker (this);
-		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
-		tracker.addImage (home, 0);
-		instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
-		tracker.addImage (instructions1, 1);
-		instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
-		tracker.addImage (instructions2, 2);
-		instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
-		tracker.addImage (instructions3, 3);
-		instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
-		tracker.addImage (instructions4, 4);
-		lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
-		tracker.addImage (lockedLevels, 6);
-		unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
-		tracker.addImage (unlockedLevels, 7);
-		startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
-		tracker.addImage (startImg, 8);
-		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
-		tracker.addImage (gameLevel1, 9);
-		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
-		tracker.addImage (gameLevel2, 10);
-		credits = Toolkit.getDefaultToolkit ().getImage ("credits.png");
-		tracker.addImage (credits, 11);
-		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
-		tracker.addImage (highScore, 12);
-		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
-		tracker.addImage (victory, 13);
-=======
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 
 		usernameField = new JTextField(10); 
 		usernameField.setBounds(66, 300, 258, 21); 
@@ -407,23 +379,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		scoreScrollPane.setBounds(50,150,290,400);
 		scoreScrollPane.setVisible(false);
 		this.add(scoreScrollPane);
-		
+
 		loadHighScore();
 
 
 		//currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
-<<<<<<< HEAD
-Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y);
-firstCust.setState("IN_LINE");
-customers.add(firstCust);
-orderLine.add(firstCust);
-		//bar for blend/cook/cut
-=======
-		customers.add(new Customer(50, 300, this.customerImg));
 
+		Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y);
+		firstCust.setState("IN_LINE");
+		customers.add(firstCust);
+		orderLine.add(firstCust);
+		System.out.println("First customer created at: " + firstCust.getX() + ", " + firstCust.getY());
+		System.out.println("Customer images map: " + customerImages);
+		System.out.println("Orange cat images: " + customerImages.get("orangeCat"));
+		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
+		//bar for blend/cook/cut
+
+		//customers.add(new Customer(50, 300, customerImages,orderingStation.x, orderingStation.y));
+		
 		//bar for blend
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 		actionBar= new JProgressBar(0,100);
 		//actionBar.setBounds(144, 580, 100, 15);
 		actionBar.setVisible(false);//not visible til action is doing
@@ -438,7 +413,7 @@ orderLine.add(firstCust);
 		setFocusable(true);
 		this.setLayout(null); // Use absolute positioning for the box
 		this.add(usernameField);
-System.out.print("DELETE THIS");
+		System.out.print("DELETE THIS");
 		gameTimer=new Timer (50, this);
 		gameTimer.start();
 
@@ -510,7 +485,7 @@ System.out.print("DELETE THIS");
 					}
 					else if(state.equals("LEAVING")) 
 						customers.remove(i);
-					
+
 				}
 			}
 			if(orderingCustomer!=null&&orderingFrames>0) {
@@ -539,6 +514,7 @@ System.out.print("DELETE THIS");
 			for (int i=customers.size()-1;i>=0;i--) {
 				Customer c=customers.get(i);
 				c.decreasePatience();
+				c.updateEmotion(customerImages);
 				if (c.isAngry()) {
 					customers.remove(i);
 				}
@@ -699,10 +675,14 @@ System.out.print("DELETE THIS");
 		}
 		if (screenState == 9) {
 
-
 			// game screen
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
 
+			// draw customers
+			for (Customer c : customers) {
+			    c.draw(g);
+			}
+			
 			// Countdown timer
 			int minutes = timeLeft / 60;
 			int seconds = timeLeft % 60;
@@ -1163,7 +1143,7 @@ System.out.print("DELETE THIS");
 		int mx=e.getX();
 		int my=e.getY();
 
-<<<<<<< HEAD
+		//<<<<<<< HEAD
 		if(orderingStation.contains(mx,my)) {
 			if(!orderLine.isEmpty()) {
 				Customer front=orderLine.peek();
@@ -1180,8 +1160,8 @@ System.out.print("DELETE THIS");
 				JOptionPane.showMessageDialog(this, "No customers in line.");
 			return;//so no multiple actions on same click.
 		}
-		
-		
+
+
 		//COOKING PEARL
 		if (selectedItem.type.equals("pearl")) {
 			Pearl p = (Pearl) selectedItem;
@@ -1192,204 +1172,204 @@ System.out.print("DELETE THIS");
 					repaint();
 					return;//stop from going further.
 				}
-=======
-		if (selectedItem != null && selectedItem.type.equals("pudding")) {
-			Pudding pu = (Pudding) selectedItem;
-			if (checkPuddingCupCollision(pu, mx, my)) {
-				return;
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
-			}
-		}
 
-		//COOKING PEARL
-		if (selectedItem != null && selectedItem.type.equals("pearl")) {
-			Pearl p = (Pearl) selectedItem;
-
-			if (checkPearlCupCollision(p, mx, my)) {
-				return;
-			}
-
-			// cook
-			if (cookingStation.contains(mx, my)){
-				if (!p.isCooked() && cookingPearl == null) {
-					ingredientsOnScreen.remove(p);
-					cookingPearl = p;
-					cookingProgress = 0;
-					potState = "uncooked1";
-					cookBar.setValue(0);
-					cookBar.setBounds(cookingStation.x, cookingStation.y - 15, cookingStation.width, 10);
-					cookBar.setVisible(true);
-					cookTimer.start();
-					selectedItem = null;
-					repaint();
-					return;
-				}
-				else if (cookingPearl != null) {
-					JOptionPane.showMessageDialog(this, "Already cooking!");
-					ingredientsOnScreen.add(p);
-					return;
-				}
-			}
-
-			else if (cupStation.contains(mx, my)) {
-				//if (currentCup == null) {
-				//	currentCup = new Cup(cupBase);
-				//}
-				//currentCup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-				cookFinishPearl = ""; // reset pot image
-			}
-
-			else {
-				ingredientsOnScreen.add(p);
-			}
-		}
-
-
-		// PROCESS FOOD
-		else if (selectedItem != null && selectedItem.type.equals("fruit")){
-			Fruit f=(Fruit) selectedItem;
-			f.setOnChopStation(false);//default
-
-			if (checkFruitCupCollision(f, mx, my)) {
-				return; 
-			}
-
-			//chopboard
-			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-				f.setOnChopStation(true);
-				//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
-				ingredientsOnScreen.add(f);
-				selectedItem=f;//keep selected
-				repaint();
-				return;
-			}
-
-			//blender
-			else if (blendStation1.contains(mx,my)) {
-				if (blender1Fruit != null || (previousBlended1 != null && remainsInBlender(previousBlended1, 1))) {
-					JOptionPane.showMessageDialog(this, "Blender is already in use!");
-					ingredientsOnScreen.add(f);
-					return;
-				}
-
-
-				if (f.isCut()&& !f.isBlended()) {
-					ingredientsOnScreen.remove(f);
-					selectedItem = null;
-					activeBlender = 1;
-					actionBar.setBounds(blendStation1.x, blendStation1.y - 15, blendStation1.width, 10);
-					startBlendingAnimation(f);
-					repaint();
-					return;
-
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					ingredientsOnScreen.add(f);
-					return;
-
-				}
-			}
-			else if (blendStation2.contains(mx,my)) {
-				if (blender2Fruit != null ||  (previousBlended2 != null && remainsInBlender(previousBlended2, 2))) {
-					JOptionPane.showMessageDialog(this, "Blender is already in use!");
-					ingredientsOnScreen.add(f);
-					return;
-				}
-
-				if (f.isCut()&& !f.isBlended()) {
-					ingredientsOnScreen.remove(f);
-					selectedItem = null;
-					activeBlender = 2;
-					actionBar.setBounds(blendStation2.x, blendStation2.y - 15, blendStation2.width, 10);
-					startBlendingAnimation(f);
-					repaint();
-
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					ingredientsOnScreen.add(f);
-					return;
-
-				}
-
-				// Collision with cup
-			}
-
-
-
-			//cup station (add components to cup)
-			else if (cupStation.contains (mx,my)) {
-				if (f.isBlended()) {
-					//	if (currentCup==null) {
-					//		currentCup=new Cup (cupBase);
-					//	}
-					//currentCup.addFruit(f.getFruitType());
-				}else {
-					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
-					ingredientsOnScreen.add(f);
-				}
-			}
-			else {
-				ingredientsOnScreen.add(f);
-			}
-		}
-
-
-		else if(selectedItem != null && selectedItem.type.equals("pearl")) {
-			Pearl p=(Pearl) selectedItem;
-			if (cupStation.contains(mx,my)) {
-				//if (currentCup==null) {
-				//	currentCup=new Cup(cupBase);
-				//}
-				//currentCup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
-			}
-			else {
-				ingredientsOnScreen.add(p);
-			}
-		}
-		else if (selectedItem != null && selectedItem.type.equals("cup")) {
-			Cup cup=(Cup) selectedItem;
-			if (trayStation.contains(mx,my)) {
-				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
-					trayDrinks.add(cup);
-					//	currentCup=new Cup(cupBase);
-					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
-
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "empty cup...");
-					//	currentCup=cup;
-				}
-			}
-			else if(servingStation.contains(mx,my)) {
-				boolean served=false;//default
-				for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
-					Customer c=customers.get(i);
-					if(c.getOrder().matches(trayDrinks)) {
-						c.setState("SERVED");
-						c.setTarget(servingStation.x, servingStation.y);
-						if(c.getWaitingSpotIndex()!=-1) 
-							spotOccupied[c.getWaitingSpotIndex()]=false;
-						trayDrinks.clear();
-						JOptionPane.showMessageDialog(this, "served!!!!!!!! +100 pts");
-						served=true;
-						score+=100;
-						break;
+				if (selectedItem != null && selectedItem.type.equals("pudding")) {
+					Pudding pu = (Pudding) selectedItem;
+					if (checkPuddingCupCollision(pu, mx, my)) {
+						return;
 					}
 				}
-				if(!served) {//not matching
-					JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
-					//currentCup=cup;//put last cup back into hand
+
+				//COOKING PEARL
+				if (selectedItem != null && selectedItem.type.equals("pearl")) {
+
+					if (checkPearlCupCollision(p, mx, my)) {
+						return;
+					}
+
+					// cook
+					if (cookingStation.contains(mx, my)){
+						if (!p.isCooked() && cookingPearl == null) {
+							ingredientsOnScreen.remove(p);
+							cookingPearl = p;
+							cookingProgress = 0;
+							potState = "uncooked1";
+							cookBar.setValue(0);
+							cookBar.setBounds(cookingStation.x, cookingStation.y - 15, cookingStation.width, 10);
+							cookBar.setVisible(true);
+							cookTimer.start();
+							selectedItem = null;
+							repaint();
+							return;
+						}
+						else if (cookingPearl != null) {
+							JOptionPane.showMessageDialog(this, "Already cooking!");
+							ingredientsOnScreen.add(p);
+							return;
+						}
+					}
+
+					else if (cupStation.contains(mx, my)) {
+						//if (currentCup == null) {
+						//	currentCup = new Cup(cupBase);
+						//}
+						//currentCup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+						cookFinishPearl = ""; // reset pot image
+					}
+
+					else {
+						ingredientsOnScreen.add(p);
+					}
 				}
+
+
+				// PROCESS FOOD
+				else if (selectedItem != null && selectedItem.type.equals("fruit")){
+					Fruit f=(Fruit) selectedItem;
+					f.setOnChopStation(false);//default
+
+					if (checkFruitCupCollision(f, mx, my)) {
+						return; 
+					}
+
+					//chopboard
+					if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
+						f.setOnChopStation(true);
+						//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
+						ingredientsOnScreen.add(f);
+						selectedItem=f;//keep selected
+						repaint();
+						return;
+					}
+
+					//blender
+					else if (blendStation1.contains(mx,my)) {
+						if (blender1Fruit != null || (previousBlended1 != null && remainsInBlender(previousBlended1, 1))) {
+							JOptionPane.showMessageDialog(this, "Blender is already in use!");
+							ingredientsOnScreen.add(f);
+							return;
+						}
+
+
+						if (f.isCut()&& !f.isBlended()) {
+							ingredientsOnScreen.remove(f);
+							selectedItem = null;
+							activeBlender = 1;
+							actionBar.setBounds(blendStation1.x, blendStation1.y - 15, blendStation1.width, 10);
+							startBlendingAnimation(f);
+							repaint();
+							return;
+
+						}
+						else {
+							JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+							ingredientsOnScreen.add(f);
+							return;
+
+						}
+					}
+					else if (blendStation2.contains(mx,my)) {
+						if (blender2Fruit != null ||  (previousBlended2 != null && remainsInBlender(previousBlended2, 2))) {
+							JOptionPane.showMessageDialog(this, "Blender is already in use!");
+							ingredientsOnScreen.add(f);
+							return;
+						}
+
+						if (f.isCut()&& !f.isBlended()) {
+							ingredientsOnScreen.remove(f);
+							selectedItem = null;
+							activeBlender = 2;
+							actionBar.setBounds(blendStation2.x, blendStation2.y - 15, blendStation2.width, 10);
+							startBlendingAnimation(f);
+							repaint();
+
+						}
+						else {
+							JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+							ingredientsOnScreen.add(f);
+							return;
+
+						}
+
+						// Collision with cup
+					}
+
+
+
+					//cup station (add components to cup)
+					else if (cupStation.contains (mx,my)) {
+						if (f.isBlended()) {
+							//	if (currentCup==null) {
+							//		currentCup=new Cup (cupBase);
+							//	}
+							//currentCup.addFruit(f.getFruitType());
+						}else {
+							JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
+							ingredientsOnScreen.add(f);
+						}
+					}
+					else {
+						ingredientsOnScreen.add(f);
+					}
+				}
+
+				/*
+				else if(selectedItem != null && selectedItem.type.equals("pearl")) {
+					//Pearl p =(Pearl) selectedItem;
+					if (cupStation.contains(mx,my)) {
+						//if (currentCup==null) {
+						//	currentCup=new Cup(cupBase);
+						//}
+						//currentCup.addTopping("pearls", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
+					}
+					else {
+						ingredientsOnScreen.add(p);
+					}
+				}*/
+				else if (selectedItem != null && selectedItem.type.equals("cup")) {
+					Cup cup=(Cup) selectedItem;
+					if (trayStation.contains(mx,my)) {
+						if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
+							trayDrinks.add(cup);
+							//	currentCup=new Cup(cupBase);
+							JOptionPane.showMessageDialog(this, "Drink added to tray.");;
+
+						}
+						else {
+							JOptionPane.showMessageDialog(this, "empty cup...");
+							//	currentCup=cup;
+						}
+					}
+					else if(servingStation.contains(mx,my)) {
+						boolean served=false;//default
+						for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
+							Customer c=customers.get(i);
+							if(c.getOrder().matches(trayDrinks)) {
+								c.setState("SERVED");
+								c.setTarget(servingStation.x, servingStation.y);
+								if(c.getWaitingSpotIndex()!=-1) 
+									spotOccupied[c.getWaitingSpotIndex()]=false;
+								trayDrinks.clear();
+								JOptionPane.showMessageDialog(this, "served!!!!!!!! +100 pts");
+								served=true;
+								score+=100;
+								break;
+							}
+						}
+						if(!served) {//not matching
+							JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
+							//currentCup=cup;//put last cup back into hand
+						}
+					}
+					//else
+					//	currentCup=cup;
+				}
+
+
+				selectedItem=null;
+				repaint();
 			}
-			//else
-			//	currentCup=cup;
 		}
-
-
-		selectedItem=null;
-		repaint();
 	}
 
 
@@ -1601,6 +1581,19 @@ System.out.print("DELETE THIS");
 		tracker.addImage(lockedLevels, 53);
 		unlockedLevels = Toolkit.getDefaultToolkit().getImage("unlockedLevels.png");
 		tracker.addImage(unlockedLevels, 54);
+		
+		// Customers (Orange Cat)
+		orangeCatHappy = Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png");
+		tracker.addImage(orangeCatHappy, 55);
+		
+		orangeCatNeutral = Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png");
+		tracker.addImage(orangeCatNeutral, 56);
+		
+		orangeCatImpatient = Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png");
+		tracker.addImage(orangeCatImpatient, 57);
+		
+		orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
+		tracker.addImage(orangeCatAngry, 58);
 
 		try {
 			tracker.waitForAll();
@@ -1609,12 +1602,16 @@ System.out.print("DELETE THIS");
 			e.printStackTrace();
 		}
 
-		HashMap<String,ImageIcon>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
-		orangeCatEmotions.put("happy", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png")));
-		orangeCatEmotions.put("neutral", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png")));
-		orangeCatEmotions.put("impatient", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png")));
-		orangeCatEmotions.put("angry", new ImageIcon(Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png")));
+		HashMap<String,Image>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
+		orangeCatEmotions.put("happy", orangeCatHappy);
+		orangeCatEmotions.put("neutral", orangeCatNeutral);
+		orangeCatEmotions.put("impatient", orangeCatImpatient);
+		orangeCatEmotions.put("angry", orangeCatAngry);
 		customerImages.put("orangeCat", orangeCatEmotions);
+		
+		System.out.println("Customer images loaded: " + customerImages);
+		System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
+		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
 
 	}
 
@@ -1699,7 +1696,7 @@ System.out.print("DELETE THIS");
 		ingredientsOnScreen.clear();
 		trayDrinks.clear();
 		customers.clear();
-		customers.add(new Customer(50, 300, customerImg));
+		//customers.add(new Customer(50, 300, customerImg));
 
 		// reset blenders
 		blender1Fruit = null;
@@ -1737,11 +1734,9 @@ System.out.print("DELETE THIS");
 			name="Anonymous";
 		scoreList.add(new Score(name,score));
 		Collections.sort(scoreList);
-<<<<<<< HEAD
-		saveScore();
-=======
-		//saveScores();
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+
+		//saveScore();
+
 		refreshScoreList();
 		screenState=12;
 		repaint();

@@ -25,13 +25,13 @@ public class Customer {
 	private static final String[] FRUITS = {"mango", "lychee"};
 	private static final String[] TOPPINGS = {"pearls", "pudding"};
 
-	public Customer(int startX, int startY, HashMap<String,HashMap<String,ImageIcon>>images, int orderX, int orderY) {
+	public Customer(int startX, int startY, HashMap<String,HashMap<String,Image>>images, int orderX, int orderY) {
 		this.x=startX;
 		this.y=startY;
 		Random rand=new Random();
 		this.customerType=TYPES[rand.nextInt(TYPES.length)];
 		this.currentEmotion="neutral";
-		this.avatar=images.get(customerType).get(currentEmotion).getImage();
+		this.avatar=images.get(customerType).get(currentEmotion);
 		this.state="SPAWN";
 		setTarget(orderX,orderY);
 		int numDrinks=(int)(Math.random()*6)+1;
@@ -92,7 +92,7 @@ public class Customer {
 		}
 	}
 
-	public void updateEmotion(HashMap<String, HashMap<String,ImageIcon>>images) {
+	public void updateEmotion(HashMap<String, HashMap<String,Image>>images) {
 		String newEmo;
 		if(currentPatience>50)
 			newEmo="happy";
@@ -104,7 +104,7 @@ public class Customer {
 			newEmo="angry";
 		if(!(newEmo.equals(currentEmotion))) {
 			currentEmotion=newEmo;
-			this.avatar=images.get(customerType).get(currentEmotion).getImage();
+			this.avatar=images.get(customerType).get(currentEmotion);
 		}
 	}
 	public void updateBubble() {
