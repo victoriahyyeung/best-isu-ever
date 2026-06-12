@@ -35,6 +35,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Ticket selectedTicket=null;//da tix being dragged
 	private int ticketOffsetX;
 	private int ticketOffsetY;//this if for when like mouse doesnt click exactly the exact point we want but its still the ticket so its like a range that it can be dragged for ykwiM?
+	private HashMap<String,Image>ticketIcons=new HashMap<>();//for mini icons on ticket
 	private Point[] trayPositions;//where trays r
 	private Ticket[] trayTickets;
 	private Timer gameTimer;//for REPAINT
@@ -459,7 +460,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					}
 					else
 						orderingCustomer.setTarget(100, 500);
-					Ticket newTicket=new Ticket(orderingCustomer,20,100+tickets.size()*70);
+					Ticket newTicket=new Ticket(orderingCustomer,20,100+tickets.size()*80,ticketIcons);
 					tickets.add(newTicket);
 					orderingCustomer=null;
 				}
@@ -1600,6 +1601,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		System.out.println("Customer images loaded: " + customerImages);
 		System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
 		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
+
+		
+		Image smallMango=mangoFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+		Image smallLychee=lycheeFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+		Image smallPearl=pearlCooked.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+		Image smallPudding=pudding.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+ticketIcons.put("mango", smallMango);
+ticketIcons.put("lychee", smallLychee);
+ticketIcons.put("pearl", smallPearl);
+ticketIcons.put("pudding", smallPudding);
+
 
 	}
 

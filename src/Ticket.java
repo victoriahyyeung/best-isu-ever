@@ -1,18 +1,21 @@
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.HashMap;
 public class Ticket {
 	private Customer customer;
 	private Order order;
 	private int x,y;
-	private int width=120;
+	private int width=140;
 	private int height=60;
 	private boolean isSelected=false;//FOR DRAGGING
+	private HashMap<String, Image>icons;
 	
-	public Ticket(Customer customer,int boardX,int boardY) {
+	public Ticket(Customer customer,int boardX,int boardY, HashMap<String,Image>icons) {
 		this.customer=customer;
 		this.order=customer.getOrder();
 		this.x=boardX;
 		this.y=boardY;//where on tix board
+		this.icons=icons;
 	}
 	
 	public Rectangle getBorders() {//to check cliciking
@@ -44,13 +47,47 @@ public class Ticket {
 		d.fill(new RoundRectangle2D.Float(x,y,width,height,15,15));
 		d.setColor(Color.BLACK);
 		d.draw(new RoundRectangle2D.Float(x,y,width,height,15,15));
-		d.setFont(new Font("Times New Roman",Font.PLAIN,10));
-		String orderText="Order: "+order.getDrinks().size()+ " drink(s)";
-		d.drawString(orderText,x+5,y+15);
-		if( isSelected) {
-			d.setColor(Color.CYAN);
+		if (isSelected) {//WOWOWOWOW CHANGES COLOR WHEN SELECTED!!!
+			d.setColor(Color.PINK);
 			d.fill(new RoundRectangle2D.Float(x,y,width,height,15,15));
 		}
+		
+		d.setFont(new Font("Times New Roman",Font.BOLD,10));
+		d.setColor(Color.BLACK);
+		String orderText="Order: "+order.getDrinks().size()+ " drink(s)";
+		d.drawString(orderText,x+10,y+10);
+		
+		int rowY=y+30;//each row
+		int iconSize=20;
+		for(Drink drink:order.getDrinks()) {
+			int currentX=x+10;
+			//FRUITS
+			for(String fruit:drink.getFruits()) {
+				Image icon=icons.get(fruit);
+				if(icon!=null) {
+					d.drawImage(icon, currentX, rowY, iconSize, iconSize, null);
+					currentX+=iconSize+5;
+				}
+				else
+					System.out.print("dawg upload the imgs");
+			}
+			if(drink.getFruits().isEmpty()) {//idk just incase theres an error
+				d.setColor(Color.RED);
+				d.fillRect(currentX, rowY, iconSize, iconSize);
+				currentX+=iconSize+5;
+			}
+			//TOPINGS
+			for (String topping:drink.getToppings()) {
+				Image icon=icons.get(topping);
+				if(icon!=null) {
+					d.drawImage(icon, currentX, rowY, iconSize, iconSize, null);
+					currentX+=iconSize+5;
+				}
+			}
+			rowY+=30;//shift down
+		}
+		
+		
 	}
 	
 }
