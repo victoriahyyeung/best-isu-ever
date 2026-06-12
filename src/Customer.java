@@ -79,7 +79,7 @@ public class Customer {
 	public void decreasePatience() {
 		if (state==null||!state.equals("WAITING"))
 			return;
-		
+
 		else if (!isActive) {
 			return;
 		}
@@ -128,31 +128,47 @@ public class Customer {
 	public void updateMovement() {
 		if(!moving)
 			return;//not moving so done
+
 		int dx=targetX-x;//difference
 		int dy=targetY-y;
 		if(Math.abs(dx)<=SPEED&&Math.abs(dy)<=SPEED) {//for when its like p close, dont waste more frames on moving so just snap tp the target
 			x=targetX;
 			y=targetY;
 			moving=false;
+			System.out.println("Customer arrived at target:("+x+","+y+")");
+			return;
 		}
-		else {
-			if(dx!=0) {
-				if(dx>0) {//Rihgt
-					x+=SPEED;
-				}
-				else {//L
+
+		if(dx!=0) {
+			if(dx>0) {//Rihgt
+				if (dx<SPEED) 
+					x=targetX;//smap
+				else
+					x+=SPEED;//NO snapp!
+			}
+			else {//L (dx<0) Samenthing jsut differnt dir
+				if (-dx<SPEED) 
+					x=targetX;
+
+				else
 					x-=SPEED;
-				}
-			}
-			if(dy!=0) {
-				if(dy>0) {//D
-					y+=SPEED;
-				}
-				else {//Up, but idk if we need this>????
-					y-=SPEED;
-				}
 			}
 		}
+		if(dy!=0) {
+			if(dy>0) {//D
+				if(dy<SPEED)
+					y=targetY;
+				else
+					y+=SPEED;
+			}
+			else {//Up
+				if (-dy<SPEED)
+					y=targetY;
+				else
+					y-=SPEED;
+			}
+		}
+
 
 	}
 

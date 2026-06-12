@@ -29,6 +29,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Cup currentCup;
 	private ArrayList<Cup> trayDrinks;
 	private ArrayList<Customer> customers=new ArrayList<>();
+	private ArrayList<Ticket> tickets=new ArrayList<>();
+	private ArrayList<ArrayList<Cup>>trayCounters;
+	private int trayCount=3;
+	private Ticket selectedTicket=null;//da tix being dragged
+	private int ticketOffsetX;
+	private int ticketOffsetY;//this if for when like mouse doesnt click exactly the exact point we want but its still the ticket so its like a range that it can be dragged for ykwiM?
+	private Point[] trayPositions;//where trays r
+	private Ticket[] trayTickets;
 	private Timer gameTimer;//for REPAINT
 	private Timer roundTimer;//timer for each ROUND
 	private int timeLeft=120; //120 seconds = 2 mins
@@ -370,6 +378,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		waitingSpots[2]=new Point(200,500);
 		spotOccupied=new boolean[waitingSpots.length];
 
+		trayCounters=new ArrayList<>();
+		trayPositions=new Point[trayCount];
+		for(int i=0;i<trayCount;i++) {//trays r basically lists!
+			trayCounters.add(new ArrayList<>());
+			trayPositions[i]=new Point(50+i*100,600);
+		}
+		trayTickets=new Ticket[trayCount];
+
+
 		blend1Timer= new Timer(30, this);
 		blend1Timer.stop();//not initially running
 
@@ -442,6 +459,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					}
 					else
 						orderingCustomer.setTarget(100, 500);
+					Ticket newTicket=new Ticket(orderingCustomer,20,100+tickets.size()*70);
+					tickets.add(newTicket);
 					orderingCustomer=null;
 				}
 			}
@@ -717,7 +736,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 
-
+			for(Ticket t:tickets) {
+				t.draw(g);
+				g.setColor(Color.GREEN);
+				for(int i=0;i<trayCount;i++) {
+					g.fillRect(trayPositions[i].x, trayPositions[i].y, 80, 80);
+					g.setColor(Color.WHITE);
+					g.drawString("Tray "+(i+1),trayPositions[i].x+10,trayPositions[i].y+20);
+					g.setColor(Color.GREEN);
+				}
+			}
 
 
 			g.setColor(Color.BLACK);
@@ -1042,7 +1070,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 			if (!itemSelected) 
-				handleAction(x,y);
+				for(int i=tickets.size()-1;i>=0;i--) {
+					Ticket t=tickets.get(i);
+					if (t.contains(x, y)) {
+						selectedTicket=t;
+						ticketOffsetX=x-t.getBorders().x;
+						ticketOffsetY=y-t.getBorders().y;
+						t.setSelected(true);
+						repaint();
+						return;
+					}
+				}
 		}
 		else
 			handleAction(x,y);
@@ -1050,16 +1088,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (selectedItem==null)
-			return;
 
 		int mx=e.getX();
 		int my=e.getY();
 
 		if(orderingStation.contains(mx,my)) {
+			System.out.println("Ordering station clicked");
 			if(!orderLine.isEmpty()) {
 				Customer front=orderLine.peek();
 				if(front.getState().equals("IN_LINE")&&front.hasArrived()) {
+					//DELETE!!!
+					System.out.println("Front customer state: " + front.getState() + ", hasArrived: " + front.hasArrived());
 					orderingCustomer=front;
 					orderingFrames=30;//1.5 secs
 					front.startBubble();
@@ -1072,6 +1111,33 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				JOptionPane.showMessageDialog(this, "No customers in line.");
 			return;//so no multiple actions on same click.
 		}
+		for(int i=0;i<trayCount;i++) {
+			Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,80,80);
+			if (trayRect.contains(mx,my)) {
+				if(trayTickets[i]!=null) {
+					if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
+						Customer served=trayTickets[i].getCustomer();
+						served.setState("SERVED");
+						served.setTarget(servingStation.x, servingStation.y);
+						if(served.getWaitingSpotIndex()!=-1)
+							spotOccupied[served.getWaitingSpotIndex()]=false;
+						trayCounters.get(i).clear();
+						trayTickets[i]=null;
+						score+=100;
+						JOptionPane.showMessageDialog(this, "SERVED YIPPE!! +100 pts");
+					}
+					else 
+						JOptionPane.showMessageDialog(this,"DIRNKS DONT MATCH!");
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "No ticket assigned to tray yet!!!");
+					return;
+				}
+			}
+		}
+
+		if (selectedItem==null)
+			return;
 
 		if (selectedItem != null && selectedItem.type.equals("pudding")) {
 			Pudding pu = (Pudding) selectedItem;
@@ -1213,15 +1279,27 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (selectedItem != null && selectedItem.type.equals("cup")) {
 			Cup cup=(Cup) selectedItem;
 			if (trayStation.contains(mx,my)) {
-				if (!cup.getFruits().isEmpty()|| !cup.getToppings().isEmpty()) {
-					trayDrinks.add(cup);
-					//	currentCup=new Cup(cupBase);
-					JOptionPane.showMessageDialog(this, "Drink added to tray.");;
+				int targetTray=-1;
+				for(int i=0;i<trayCount;i++) {
+					if(trayTickets[i]!=null) {
+						targetTray=i;
+						break;
+					}
+				}
+				if(targetTray!=-1) {
+					if(!cup.getFruits().isEmpty()||!cup.getToppings().isEmpty()) {
+						trayCounters.get(targetTray).add(cup);
+						JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
 
+					}
+					else {
+						JOptionPane.showMessageDialog(this, "empty cup bro...");
+						currentCup=cup;
+					}
 				}
 				else {
-					JOptionPane.showMessageDialog(this, "empty cup...");
-					//	currentCup=cup;
+					JOptionPane.showMessageDialog(this, "No Active tray!! assign a ticket first");
+					currentCup=cup;
 				}
 			}
 			else if(servingStation.contains(mx,my)) {
@@ -1252,6 +1330,29 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		selectedItem=null;
 		repaint();
+
+		if(selectedTicket!=null) {
+			boolean droppedOnTraySpot=false;//tray spot valid?
+			for(int i=0;i<trayCount;i++) {
+				Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,80,80);
+				if(trayRect.contains(mx,my)) {
+					if (trayTickets[i]==null) {
+						trayTickets[i]=selectedTicket;
+						tickets.remove(selectedTicket);
+						JOptionPane.showMessageDialog(this,"Ticket assigned to tray "+(i+1));
+					}
+					else
+						JOptionPane.showMessageDialog(this, "TRAY ALREADY HAS TICKET BROTHER!!!");
+
+					droppedOnTraySpot=true;
+					break;
+				}
+			}
+			if(!droppedOnTraySpot) {
+				tickets.remove(selectedTicket);
+			}
+			selectedTicket=null;
+		}
 	}
 
 
@@ -1290,7 +1391,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			repaint();
 		}
-
+		if (selectedTicket!=null) {
+			selectedTicket.setPosition(e.getX()-ticketOffsetX, e.getY()-ticketOffsetY);
+			repaint();
+		}
 
 	}
 
@@ -1543,7 +1647,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		catch(FileNotFoundException e) {
 		}
-	Collections.sort(scoreList);
+		Collections.sort(scoreList);
 		refreshScoreList();
 	}
 	void saveScore() {
@@ -1663,7 +1767,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		for(int i=0;i<spotOccupied.length;i++) {
 			spotOccupied[i]=false;
 		}
-	
+
 		//now can start timer cuz this method is called when game starts
 		roundTimer=new Timer(1000,this);
 		roundTimer.start();
