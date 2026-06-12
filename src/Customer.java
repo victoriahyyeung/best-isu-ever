@@ -23,7 +23,7 @@ public class Customer {
 
 	private static final String[]TYPES= {"orangeCat"};
 	private static final String[] FRUITS = {"mango", "lychee"};
-	private static final String[] TOPPINGS = {"pearls", "pudding"};
+	private static final String[] TOPPINGS = {"pearl", "pudding"};
 
 	public Customer(int startX, int startY, HashMap<String,HashMap<String,Image>>images, int orderX, int orderY) {
 		this.x=startX;
@@ -34,24 +34,22 @@ public class Customer {
 		this.avatar=images.get(customerType).get(currentEmotion);
 		this.state="SPAWN";
 		setTarget(orderX,orderY);
-		int numDrinks=(int)(Math.random()*6)+1;
+		int numDrinks=(int)(Math.random()*3)+1;
 		ArrayList<Drink> drinks=new ArrayList<>();
 		for(int i=0; i<numDrinks;i++) {
-			//FRUIT GENERATE
-			int fruitCount=(int)(Math.random()*2)+1;//1 to 2 for now (later can change
+			
+			// FRUIT GENERATE
 			ArrayList<String> fruits =new ArrayList<>();
-			for (int f=0;f<fruitCount;f++) {
-				String fruit;
-				if (Math.random()<0.5) {
-					fruit="mango";
-				}
-				else {
-					fruit="lychee";
-				}
-				if (!fruits.contains(fruit)) {
-					fruits.add(fruit);
-				}
+			int fruitType = (int) (Math.random() * 2);
+			String fruit;
+			if (fruitType == 0) {
+				fruit="mango";
 			}
+			else {
+				fruit="lychee";
+			}
+
+			fruits.add(fruit);
 
 			//TOPPING GENERATE
 			int toppingCount=(int)(Math.random()*3);
@@ -59,7 +57,7 @@ public class Customer {
 			for (int t=0; t<toppingCount;t++) {
 				String topping;
 				if (Math.random()<0.5) {
-					topping="pearls";
+					topping="pearl";
 				}
 				else {
 					topping="pudding";
@@ -79,8 +77,7 @@ public class Customer {
 	public void decreasePatience() {
 		if (state==null||!state.equals("WAITING"))
 			return;
-		if(!state.equals("WAITING"))
-			return;
+
 		else if (!isActive) {
 			return;
 		}
@@ -129,31 +126,47 @@ public class Customer {
 	public void updateMovement() {
 		if(!moving)
 			return;//not moving so done
+
 		int dx=targetX-x;//difference
 		int dy=targetY-y;
 		if(Math.abs(dx)<=SPEED&&Math.abs(dy)<=SPEED) {//for when its like p close, dont waste more frames on moving so just snap tp the target
 			x=targetX;
 			y=targetY;
 			moving=false;
+			System.out.println("Customer arrived at target:("+x+","+y+")");
+			return;
 		}
-		else {
-			if(dx!=0) {
-				if(dx>0) {//Rihgt
-					x+=SPEED;
-				}
-				else {//L
+
+		if(dx!=0) {
+			if(dx>0) {//Rihgt
+				if (dx<SPEED) 
+					x=targetX;//smap
+				else
+					x+=SPEED;//NO snapp!
+			}
+			else {//L (dx<0) Samenthing jsut differnt dir
+				if (-dx<SPEED) 
+					x=targetX;
+
+				else
 					x-=SPEED;
-				}
-			}
-			if(dy!=0) {
-				if(dy>0) {//D
-					y+=SPEED;
-				}
-				else {//Up, but idk if we need this>????
-					y-=SPEED;
-				}
 			}
 		}
+		if(dy!=0) {
+			if(dy>0) {//D
+				if(dy<SPEED)
+					y=targetY;
+				else
+					y+=SPEED;
+			}
+			else {//Up
+				if (-dy<SPEED)
+					y=targetY;
+				else
+					y-=SPEED;
+			}
+		}
+
 
 	}
 

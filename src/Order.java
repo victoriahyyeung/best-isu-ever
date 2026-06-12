@@ -9,9 +9,22 @@ public class Order {
     }
 
     public boolean matches(ArrayList<Cup> trayCups) {
-        if (trayCups.size() != drinks.size())
+    	
+    	System.out.println("\n=== MATCHING ORDER ===");
+        System.out.println("Expected drinks: " + drinks.size());
+        System.out.println("Actual cups: " + trayCups.size());
+        
+        
+        if (trayCups.size() != drinks.size()) {
+        	System.out.println("wrong num");
             return false; //first check correct number of drinks
-
+        }
+        
+        for(int i = 0; i < drinks.size(); i++) {
+            System.out.println("Order drink " + i + ": fruits=" + drinks.get(i).getFruits() + ", toppings=" + drinks.get(i).getToppings());
+            System.out.println("Tray cup " + i + ": fruits=" + trayCups.get(i).getFruits() + ", toppings=" + trayCups.get(i).getToppings());
+        }
+        
         // Make a copy of the drinks list to match against
         ArrayList<Drink> remainingDrinks = new ArrayList<>(drinks);
 
