@@ -935,25 +935,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		// Game Screen
 		else if (screenState == 9) {
-			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
-				spawnMango();
-			}
-
-			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
-				spawnLychee();
-			}
-
-			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
-				spawnPearl();
-			}
-
-			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
-				spawnPudding();
-			}
-
-			if (x >= 175 && x <= 226 && y >= 439 && y <= 493) {
-				spawnCup();
-			}
+			//gotmoved to mousepressed
+			//			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
+			//				spawnMango();
+			//			}
+			//
+			//			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
+			//				spawnLychee();
+			//			}
+			//
+			//			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
+			//				spawnPearl();
+			//			}
+			//
+			//			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
+			//				spawnPudding();
+			//			}
+			//
+			//			if (x >= 175 && x <= 226 && y >= 439 && y <= 493) {
+			//				spawnCup();
+			//			}
 
 		}
 
@@ -1052,36 +1053,81 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		x = e.getX();
 		y = e.getY();
 		if (screenState == 9) {
-			boolean itemSelected=false;//default
-			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
-				Item item = ingredientsOnScreen.get(i);
-				if (item.contains(x, y)) {
-					selectedItem = item;
-					offsetX=x- item.x;
-					offsetY =y - item.y;
+			boolean itemSelected=false;//select and EXISTING item first always
+			for(int i=ingredientsOnScreen.size()-1;i>=0;i--) {
+				Item item=ingredientsOnScreen.get(i);
+				if(item.contains(x, y)) {
+					selectedItem=item;
+					offsetX=x-item.x;
+					offsetY=y-item.y;
 					if(selectedItem.isFruit()) {
-						Fruit f=(Fruit) selectedItem;
-						if(f.isOnChopStation()&& !f.isCut()) {
+						Fruit f=(Fruit)selectedItem;
+						if(f.isOnChopStation()&&!f.isCut()) {
 							f.cut();
 							repaint();
 						}
 					}
 					itemSelected=true;
-					return; 
+					return;
 				}
 			}
-			if (!itemSelected) 
-				for(int i=tickets.size()-1;i>=0;i--) {
-					Ticket t=tickets.get(i);
-					if (t.contains(x, y)) {
-						selectedTicket=t;
-						ticketOffsetX=x-t.getBorders().x;
-						ticketOffsetY=y-t.getBorders().y;
-						t.setSelected(true);
-						repaint();
-						return;
-					}
+			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
+				spawnMango();
+				return;
+			}
+
+			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
+				spawnLychee();
+				return;
+
+			}
+
+			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
+				spawnPearl();
+				return;
+
+			}
+
+			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
+				spawnPudding();
+				return;
+
+			}
+
+			if (x >= 175 && x <= 226 && y >= 439 && y <= 493) {
+				spawnCup();
+				return;
+
+			}
+			//I THINK SHOULD DELETE
+			//			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
+			//				Item item = ingredientsOnScreen.get(i);
+			//				if (item.contains(x, y)) {
+			//					selectedItem = item;
+			//					offsetX=x- item.x;
+			//					offsetY =y - item.y;
+			//					ingredientsOnScreen.remove(i);
+			//					if(selectedItem.isFruit()) {
+			//						Fruit f=(Fruit) selectedItem;
+			//						if(f.isOnChopStation()&& !f.isCut()) {
+			//							f.cut();
+			//							repaint();
+			//						}
+			//					}
+			//					return; 
+			//				}
+			//			}
+			for(int i=tickets.size()-1;i>=0;i--) {
+				Ticket t=tickets.get(i);
+				if (t.contains(x, y)) {
+					selectedTicket=t;
+					ticketOffsetX=x-t.getBorders().x;
+					ticketOffsetY=y-t.getBorders().y;
+					t.setSelected(true);
+					repaint();
+					return;
 				}
+			}
 		}
 		else
 			handleAction(x,y);
@@ -1171,8 +1217,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 				else if (cookingPearl != null) {
 					JOptionPane.showMessageDialog(this, "Already cooking!");
-					ingredientsOnScreen.add(p);
-					return;
+selectedItem=null;
+return;
 				}
 			}
 
@@ -1181,7 +1227,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 
 			else {
-				ingredientsOnScreen.add(p);
+//				ingredientsOnScreen.add(p);
 			}
 		}
 
@@ -1198,8 +1244,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			//chopboard
 			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
 				f.setOnChopStation(true);
-				//if (!f.isCut()) {//NOT CALLING cut() here, do in keyPressed so that it doesnt auto cut for placign down ykwim!????
-				ingredientsOnScreen.add(f);
 				selectedItem=f;//keep selected
 				repaint();
 				return;
@@ -1249,7 +1293,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					ingredientsOnScreen.add(f);
+					selectedItem=null;
 					return;
 
 				}
@@ -1268,12 +1312,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					//currentCup.addFruit(f.getFruitType());
 				}else {
 					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
-					ingredientsOnScreen.add(f);
 				}
+				selectedItem=null;
+				return;
 			}
 			else {
-				ingredientsOnScreen.add(f);
-			}
+				selectedItem=null;
+				return;
+				}
 		}
 
 
@@ -1329,6 +1375,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 
 
+		
 		selectedItem=null;
 		repaint();
 
@@ -1602,15 +1649,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
 		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
 
-		
+
 		Image smallMango=mangoFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
 		Image smallLychee=lycheeFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
 		Image smallPearl=pearlCooked.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
 		Image smallPudding=pudding.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-ticketIcons.put("mango", smallMango);
-ticketIcons.put("lychee", smallLychee);
-ticketIcons.put("pearl", smallPearl);
-ticketIcons.put("pudding", smallPudding);
+		ticketIcons.put("mango", smallMango);
+		ticketIcons.put("lychee", smallLychee);
+		ticketIcons.put("pearl", smallPearl);
+		ticketIcons.put("pudding", smallPudding);
 
 
 	}

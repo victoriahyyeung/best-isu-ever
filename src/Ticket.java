@@ -6,7 +6,7 @@ public class Ticket {
 	private Order order;
 	private int x,y;
 	private int width=140;
-	private int height=60;
+	private int height=160;
 	private boolean isSelected=false;//FOR DRAGGING
 	private HashMap<String, Image>icons;
 	
@@ -47,6 +47,7 @@ public class Ticket {
 		d.fill(new RoundRectangle2D.Float(x,y,width,height,15,15));
 		d.setColor(Color.BLACK);
 		d.draw(new RoundRectangle2D.Float(x,y,width,height,15,15));
+	
 		if (isSelected) {//WOWOWOWOW CHANGES COLOR WHEN SELECTED!!!
 			d.setColor(Color.PINK);
 			d.fill(new RoundRectangle2D.Float(x,y,width,height,15,15));
@@ -59,32 +60,31 @@ public class Ticket {
 		
 		int rowY=y+30;//each row
 		int iconSize=20;
-		for(Drink drink:order.getDrinks()) {
-			int currentX=x+10;
-			//FRUITS
-			for(String fruit:drink.getFruits()) {
-				Image icon=icons.get(fruit);
-				if(icon!=null) {
-					d.drawImage(icon, currentX, rowY, iconSize, iconSize, null);
-					currentX+=iconSize+5;
+		int drinkInd=0;
+		int totalDrinks=order.getDrinks().size();
+		for(int row=0;row<6;row++) {
+			if(drinkInd<totalDrinks) {
+				Drink drink=order.getDrinks().get(drinkInd);
+				int currentX=x+10;
+				//FRUITS
+				for(String fruit:drink.getFruits()) {
+					Image img=icons.get(fruit);
+					if(img!=null) {
+						d.drawImage(img, currentX, rowY, iconSize, iconSize, null);
+						currentX+=iconSize+5;
+					}
 				}
-				else
-					System.out.print("dawg upload the imgs");
-			}
-			if(drink.getFruits().isEmpty()) {//idk just incase theres an error
-				d.setColor(Color.RED);
-				d.fillRect(currentX, rowY, iconSize, iconSize);
-				currentX+=iconSize+5;
-			}
-			//TOPINGS
-			for (String topping:drink.getToppings()) {
-				Image icon=icons.get(topping);
-				if(icon!=null) {
-					d.drawImage(icon, currentX, rowY, iconSize, iconSize, null);
-					currentX+=iconSize+5;
+				//TOPPINGS
+				for(String topping:drink.getToppings()) {
+					Image img=icons.get(topping);
+					if (img!=null) {
+						d.drawImage(img, currentX, rowY, iconSize, iconSize, null);
+						currentX+=iconSize+5;
+					}
 				}
+				drinkInd++;
 			}
-			rowY+=30;//shift down
+			rowY+=22;
 		}
 		
 		
