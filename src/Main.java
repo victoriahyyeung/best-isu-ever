@@ -336,13 +336,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		firstCust.setState("IN_LINE");
 		customers.add(firstCust);
 		orderLine.add(firstCust);
-		System.out.println("First customer created at: " + firstCust.getX() + ", " + firstCust.getY());
-		System.out.println("Customer images map: " + customerImages);
-		System.out.println("Orange cat images: " + customerImages.get("orangeCat"));
-		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
-		//bar for blend/cook/cut
-
-		//customers.add(new Customer(50, 300, customerImages,orderingStation.x, orderingStation.y));
+		
 
 		//bar for blend
 		actionBar= new JProgressBar(0,100);
