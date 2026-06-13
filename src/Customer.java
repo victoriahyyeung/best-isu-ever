@@ -1,9 +1,14 @@
 import java.awt.*;
+import java.io.File;
 import java.util.*;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 
 public class Customer {
+	private boolean soundPlayed = false;
 	private int x,y;
 	private Image avatar;
 	private Order order;
@@ -19,13 +24,15 @@ public class Customer {
 	private int waitingSpotIndex=-1;//FOR AFTEr they order and then they are waitng to be served
 
 	private int bubbleFrames;//bubble will show when >0;
-
+	private Clip thinking;
 
 	private static final String[]TYPES= {"orangeCat"};
 	private static final String[] FRUITS = {"mango", "lychee"};
 	private static final String[] TOPPINGS = {"pearl", "pudding"};
 
-	public Customer(int startX, int startY, HashMap<String,HashMap<String,Image>>images, int orderX, int orderY) {
+	public Customer(int startX, int startY, HashMap<String,HashMap<String,Image>>images, int orderX, int orderY, Clip thinkingSound) {
+
+		this.thinking = thinkingSound; 
 		this.x=startX;
 		this.y=startY;
 		Random rand=new Random();
@@ -37,7 +44,7 @@ public class Customer {
 		int numDrinks=(int)(Math.random()*3)+1;
 		ArrayList<Drink> drinks=new ArrayList<>();
 		for(int i=0; i<numDrinks;i++) {
-			
+
 			// FRUIT GENERATE
 			ArrayList<String> fruits =new ArrayList<>();
 			int fruitType = (int) (Math.random() * 2);
@@ -109,6 +116,7 @@ public class Customer {
 			bubbleFrames--;//evrey frame do this
 	}
 	public void startBubble() {
+		soundPlayed = false;
 		bubbleFrames=30; //for 1.5 seconds its 30 frames, each 50 ms.
 	}
 	public boolean isBubbleVisible() {
@@ -214,10 +222,16 @@ public class Customer {
 		g.setColor(Color.BLACK);
 		g.drawRect(x, y-12, barWidth, barHeight);
 		if (bubbleFrames>0) {
+			if (!soundPlayed) {
+				thinking.setFramePosition(0);
+				thinking.start();
+				soundPlayed = true;
+			}
 			g.setColor(Color.WHITE);
 			g.fillRoundRect(x-20, y-40, 50, 30, 10, 10);
 			g.setColor(Color.BLACK);
 			g.drawRoundRect(x-20, y-40, 60, 30, 10, 10);
+			g.setFont(new Font("Arial", Font.BOLD, 10));
 			g.drawString("Ordering...",x-15,y-20);
 		}
 	}

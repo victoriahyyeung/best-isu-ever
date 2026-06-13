@@ -18,9 +18,8 @@ import javax.swing.*;
 import javax.sound.sampled.FloatControl;
 public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
 
-	int x, y;
-
-
+	private int x, y;
+	private AudioInputStream sound;
 	private ArrayList<Score> scoreList=new ArrayList<>();
 	private JList<String> scoreDisplayList;
 	private DefaultListModel<String> scoreListModel;
@@ -57,7 +56,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
 	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
+	private Clip buttonClick, fruitSpawn, fruitBlend, fruitCut, boilingPearl, pourJuice, toppingSpawn, cupSpawn, addTopping, successOrderSubmit, failedOrderSubmit, ding, decline, warningSound, thinking, victorySound, homeBackground, gameBackground;
+
+	boolean lessThan10 = false;
+
 	private HashMap <String, Image> cupImages;
+
+	private Image orderReceipt;
 
 	private Image emptyBlender1, emptyBlender2, blendingMango1, blendingMango2, blendingLychee1, blendingLychee2;
 	private Image emptyPot, uncookedPearl1, uncookedPearl2, pearlPot;
@@ -145,7 +150,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// 10 – Game Level 2
 	// 11 – Credits Slide 1
 	// 12 – High Score
-	// 13 – Victory Screen
 	// 14 - Locked Levels
 	int screenState = 0;
 
@@ -163,6 +167,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 	public void spawnMango() {
+		fruitSpawn.setFramePosition (0); 
+		fruitSpawn.start ();
 		Fruit m=new Fruit("mango", mangoFresh,mangoCut,blendedMango);
 		m.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(m);
@@ -170,6 +176,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void spawnLychee() {
+		fruitSpawn.setFramePosition (0); 
+		fruitSpawn.start ();
 		Fruit l=new Fruit("lychee", lycheeFresh,lycheeCut,blendedLychee);
 		l.setPosition(x-32, y-27);
 		ingredientsOnScreen.add(l);
@@ -177,6 +185,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void spawnPearl() {
+		toppingSpawn.setFramePosition (0); 
+		toppingSpawn.start ();
 		Pearl p = new Pearl(pearlUncooked, pearlCooked);
 		p.setPosition(x-31, y - 22);
 		ingredientsOnScreen.add(p);
@@ -184,6 +194,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void spawnPudding() {
+		toppingSpawn.setFramePosition (0); 
+		toppingSpawn.start ();
 		Pudding pu = new Pudding (pudding);
 		pu.setPosition(x - (pu.width / 2), y - (pu.height / 2));
 		ingredientsOnScreen.add(pu);
@@ -191,6 +203,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void spawnCup () {
+		cupSpawn.setFramePosition (0); 
+		cupSpawn.start ();
 		Cup c = new Cup (emptyCup);
 		c.setPosition(x - (c.width / 2), y - (c.height / 2));
 		ingredientsOnScreen.add(c);
@@ -209,7 +223,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					// Check if fruit is blended
 					if (fruit.isBlended()) {
 						// Add fruit to cup
-						if (fruit.getFruitType().equals("mango") && !cup.getFruits().contains("mango")) {
+						if (fruit.getFruitType().equals("mango")) {
+							pourJuice.setFramePosition (0); 
+							pourJuice.start ();
 							cup.getFruits().add("mango");
 							cup.addFruit("mango", mangoJuiceCup);
 							cup.refreshImage(cupImages);
@@ -217,7 +233,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 							ingredientsOnScreen.remove(fruit);
 							//cup.setJuiceImage(mangoJuiceCup);
 
-						} else if (fruit.getFruitType().equals("lychee")  && !cup.getFruits().contains("lychee")) {
+						} else if (fruit.getFruitType().equals("lychee")) {
+							pourJuice.setFramePosition (0); 
+							pourJuice.start ();
 							cup.getFruits().add("lychee");
 							cup.addFruit("lychee", lycheeJuiceCup);
 							cup.refreshImage(cupImages);
@@ -230,12 +248,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						selectedItem = null;
 						return true;
 					} else {
+						decline.setFramePosition (0); 
+						decline.start ();
 						JOptionPane.showMessageDialog(this, "Blend the fruit first!");
-					selectedItem=null;
+						selectedItem=null;
 						return true;
 					}
 				}
 				else {
+					decline.setFramePosition (0); 
+					decline.start ();
 					JOptionPane.showMessageDialog(this, "There is already a fruit in this cup");
 					selectedItem=null;
 					return true;
@@ -255,22 +277,29 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				Cup cup = (Cup) item;
 				// must be cooked first
 				if (!pearl.isCooked()) {
+					decline.setFramePosition (0); 
+					decline.start ();
 					JOptionPane.showMessageDialog(this, "Cook the pearls first!");
 					return true;
 				}
 				// cup must already contain juice
 				if (cup.getFruits().isEmpty()) {
+					decline.setFramePosition (0); 
+					decline.start ();
 					JOptionPane.showMessageDialog(this, "Add juice to the cup first!");
 					return true;
 				}
 				// prevent duplicate pearls if you want
 				if (!cup.getToppings().contains("pearl")) {
+					addTopping.setFramePosition (0); 
+					addTopping.start ();
 					cup.getToppings().add("pearl");
 					cup.addTopping("pearl", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 					cup.refreshImage(cupImages);
-					//cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 				}
 				else {
+					decline.setFramePosition (0); 
+					decline.start ();
 					JOptionPane.showMessageDialog(this, "You already added pearls to cup!");
 					return true;
 				}
@@ -294,17 +323,23 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				Cup cup = (Cup) item;
 				// cup must already contain juice
 				if (cup.getFruits().isEmpty()) {
+					decline.setFramePosition (0); 
+					decline.start ();
 					JOptionPane.showMessageDialog(this, "Add juice to the cup first!");
 					return true;
 				}
 				// prevent duplicate puddings
 				if (!cup.getToppings().contains("pudding")) {
+					addTopping.setFramePosition (0); 
+					addTopping.start ();
 					cup.getToppings().add("pudding");
 					cup.addTopping("pudding", mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 					cup.refreshImage(cupImages);
 					//cup.setToppingImage(mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup);
 				}
 				else {
+					decline.setFramePosition (0); 
+					decline.start ();
 					JOptionPane.showMessageDialog(this, "You already added pudding to cup!");
 					return true;
 				}
@@ -323,8 +358,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
 		cupImages = new HashMap<>();
-		loadAllImages();//btw this is only for in game images
-
+		loadAllImages();
+		loadAllAudio();
 
 
 		usernameField = new JTextField(10); 
@@ -347,7 +382,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		trayDrinks=new ArrayList<>();
 
 		//<<<<<<< HEAD
-		Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y);
+		Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y, thinking);
 		firstCust.setState("IN_LINE");
 		customers.add(firstCust);
 		orderLine.add(firstCust);
@@ -441,6 +476,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void actionPerformed(ActionEvent e) {
+
+
 		if (e.getSource()==gameTimer) {//maybe do dif method?
 			for(int i=customers.size()-1;i>=0;i--) {
 				Customer c=customers.get(i);
@@ -549,6 +586,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 
 		else if (e.getSource() == cookTimer){
+
+			boilingPearl.setFramePosition (0); 
+			boilingPearl.start ();
+
+
 			cookingProgress += 3;
 			cookBar.setValue(cookingProgress);
 
@@ -587,7 +629,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if(orderLine.size()<lineSpotsCount) {
 					int backInd=orderLine.size();
 					Point backSpot=lineSpots[backInd];
-					Customer newC=new Customer(280,60,customerImages,backSpot.x,backSpot.y);
+					Customer newC=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
 					newC.setState("IN_LINE");
 					customers.add(newC);
 					orderLine.add(newC);
@@ -669,8 +711,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			int x = getWidth() - fm.stringWidth(timerText) - 10;
 			int y = getHeight() - 10;
 
-			if (timeLeft <= 10) 
+
+
+			if (timeLeft <= 10) {
+				lessThan10 = true;
+				//warning.setFramePosition (0); 
+				//warning.start ();
 				g.setColor(Color.RED);
+			}
 			g.drawString(timerText, 323, 680);
 
 			// Cooking pot
@@ -751,18 +799,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 			}
 
-			/*
-			for(Ticket t:tickets) {
-				t.draw(g);
-				g.setColor(Color.GREEN);
-				for(int i=0;i<trayCount;i++) {
-					g.fillRect(trayPositions[i].x, trayPositions[i].y, 60, 60);
-					g.setColor(Color.WHITE);
-					g.drawString("Tray "+(i+1),trayPositions[i].x+10,trayPositions[i].y+20);
-					g.setColor(Color.GREEN);
-				}
-			}
-			 */
 			for(Ticket t : tickets) {
 				t.draw(g);
 			}
@@ -830,10 +866,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		// Home screen
 		if (screenState == 0) {
-
+			homeBackground.setFramePosition (0); 
+			homeBackground.start ();
+			homeBackground.loop(Clip.LOOP_CONTINUOUSLY);
 			// Level 1 Play screen
 			if (x >= 95 && x <= 298 && y >= 343 && y <= 401) {
-
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				if (!level1Passed) {
 					// locked levels screen
 					screenState = 14;
@@ -846,16 +885,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// Instructions slide 1
 			else if (x >= 332 && x <= 384 && y >= 434 && y <= 503) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 1;
 			}
 
 			// Credits slide 1
 			else if (slantedCreditsButton.contains(x, y)) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 11;
 			}
 
 			// High score
 			else if (slantedScoreButton.contains(x, y)) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 12;
 			}
 
@@ -866,11 +911,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// Home screen
 			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 
 			// Instructions slide 2
 			else if (x >= 357 && x <= 382 && y >= 337 && y <= 364) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 2;
 			}
 		}
@@ -880,16 +929,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// Home screen
 			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 
 			// Instructions slide 1
 			else if (x >= 9 && x <= 34 && y >= 333 && y <= 365) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 1;
 			}
 
 			// Instructions slide 3
 			else if (x >= 357 && x <= 382 && y >= 337 && y <= 364) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 3;
 			}
 		}
@@ -898,16 +953,22 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 3) {
 			// Home screen
 			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 
 			// Instructions slide 2
 			else if (x >= 9 && x <= 34 && y >= 333 && y <= 365) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 2;
 			}
 
 			// Instructions slide 4
 			else if (x >= 357 && x <= 382 && y >= 337 && y <= 364) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 4;
 			}
 		}
@@ -916,11 +977,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 4) {
 			// Home screen
 			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 
 			// Instructions slide 3
 			else if (x >= 9 && x <= 34 && y >= 333 && y <= 365) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 3;
 			}
 
@@ -930,14 +995,20 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 14) {
 			// Home screen
 			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 			// Level 2 Selection
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
+				decline.setFramePosition (0); 
+				decline.start ();
 				JOptionPane.showMessageDialog(this, "Pass Level 1 first to unlock level 2!");
 			}
 			// Level 1 Selection
 			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				resetGame();
 				screenState=9;
 			}
@@ -947,15 +1018,21 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 7) {
 			// Home screen
 			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 			// Level 2 Selection
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				resetGame();
 				screenState=10;
 			}
 
 			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				resetGame();
 				screenState=9;
 			}
@@ -963,37 +1040,30 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		// Game Screen
 		else if (screenState == 9) {
-			//gotmoved to mousepressed
-			//			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
-			//				spawnMango();
-			//			}
-			//
-			//			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
-			//				spawnLychee();
-			//			}
-			//
-			//			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
-			//				spawnPearl();
-			//			}
-			//
-			//			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
-			//				spawnPudding();
-			//			}
-			//
-			//			if (x >= 175 && x <= 226 && y >= 439 && y <= 493) {
-			//				spawnCup();
-			//			}
+			if (homeBackground.isRunning()) {
+				homeBackground.stop();
+			}
+			gameBackground.setFramePosition (0); 
+			gameBackground.start ();
 
+			if (lessThan10) {
+				warningSound.setFramePosition (0); 
+				warningSound.start ();
+			}
 		}
 
 		// Credits Slide 1
 		else if (screenState == 11) {
 			// home
 			if (x >= 11 && x <= 84 && y >= 14 && y <= 47) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 			// credits slide 2
 			else if (x >= 352 && x <= 377 && y  >= 295 && y <= 323) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 6;
 			}
 		}
@@ -1002,18 +1072,30 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else if (screenState == 6) {
 			// home
 			if (x >= 11 && x <= 84 && y >= 14 && y <= 47) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 0;
 			}
 			// credits slide 1
 			else if (x >= 19 && x <= 47 && y >= 297 && y <= 324) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				screenState = 11;
 			}
 		}
 
 		// High Score Screen
 		else if (screenState == 12) {
+			lessThan10 = false;
+			if (warningSound.isRunning())
+				warningSound.stop();
+			if (gameBackground.isRunning()) {
+				gameBackground.stop();
+			}
 			// home
 			if (x >= 10 && x <= 85 && y >= 13 && y <= 46) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
 				scoreScrollPane.setVisible(false);
 				screenState = 0;
 			}
@@ -1034,6 +1116,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					Fruit f=(Fruit) selectedItem;
 					if (f.isOnChopStation() && !f.isCut()) {
 						f.cut();
+						fruitCut.setFramePosition (0); 
+						fruitCut.start ();
 						repaint();
 					}
 				}
@@ -1050,7 +1134,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 	public static void main(String[] args) {
-		JFrame frame = new JFrame ("Bubble Cafe");
+		JFrame frame = new JFrame ("Bad Bubble Tea");
 		Main panel = new Main (); 
 		frame.add(panel);
 		frame.pack();
@@ -1095,6 +1179,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						Fruit f=(Fruit)selectedItem;
 						if(f.isOnChopStation()&&!f.isCut()) {
 							f.cut();
+							fruitCut.setFramePosition (0); 
+							fruitCut.start ();
 							repaint();
 						}
 					}
@@ -1224,17 +1310,28 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 							served.setTarget(servingStation.x, servingStation.y);
 							if(served.getWaitingSpotIndex()!=-1)
 								spotOccupied[served.getWaitingSpotIndex()]=false;
+							//	for (int j = 0; j < trayCounters.get(i).size(); j++) {
+							//		ingredientsOnScreen.remove(trayCounters.get(i).get(j));
+							//	}
 							trayCounters.get(i).clear();
 							trayTickets[i]=null;
 							score+=100;
-							JOptionPane.showMessageDialog(this, "SERVED! +_100pts");
+							successOrderSubmit.setFramePosition (0); 
+							successOrderSubmit.start ();
+							JOptionPane.showMessageDialog(this, "SERVED! + 100pts");
 						}
-						else
+						else {
+							failedOrderSubmit.setFramePosition (0); 
+							failedOrderSubmit.start ();
 							JOptionPane.showMessageDialog(this,"DRINKS DON'T MATCH THE ORDER!");
+						}
 					}
-					else
+					else {
+						decline.setFramePosition (0); 
+						decline.start ();
 						JOptionPane.showMessageDialog(this,"No ticket asigned to this tray yet!");
-					return;
+
+					}return;
 				}
 			}
 			return;
@@ -1258,10 +1355,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "Alr cooking!!");
-			selectedItem=null;
-			return;
+					selectedItem=null;
+					return;
 				}
-				}
+			}
 		}
 		else if(selectedItem.type.equals("fruit")) {
 			Fruit f=(Fruit)selectedItem;
@@ -1280,9 +1377,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (blendStation1.contains(mx,my)) {
 				if(blender1Fruit!=null||(previousBlended1!=null&&remainsInBlender(previousBlended1,1))) {
 					JOptionPane.showMessageDialog(this,"Blender is alr in use!");
-				selectedItem=null;
-				repaint();
-				return;
+					selectedItem=null;
+					repaint();
+					return;
 				}else if(f.isCut()&&!f.isBlended()) {
 					ingredientsOnScreen.remove(f);
 					selectedItem=null;
@@ -1292,17 +1389,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-				selectedItem=null;
+					selectedItem=null;
 					repaint();
-				return;
+					return;
 				}
 			}
 			if(blendStation2.contains(mx,my)) {
 				if(blender2Fruit!=null||(previousBlended2!=null&& remainsInBlender(previousBlended2,2))) {
 					JOptionPane.showMessageDialog(this, "Blender is alr in use!");
-				selectedItem=null;
-				repaint();
-				return;
+					selectedItem=null;
+					repaint();
+					return;
 				}
 				else if(f.isCut()&&!f.isBlended()) {
 					ingredientsOnScreen.remove(f);
@@ -1342,7 +1439,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				if(!cup.getFruits().isEmpty()||!cup.getToppings().isEmpty()) {
 					trayCounters.get(targetTray).add(cup);
 					ingredientsOnScreen.remove(cup);
-					JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
+					ding.setFramePosition (0); 
+					ding.start ();
+					//JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
 				}
 				else 
 					JOptionPane.showMessageDialog(this, "Empty cup! add juice/toppings");
@@ -1353,7 +1452,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			selectedItem=null;
 			repaint();
 			return;
-			
+
 		}
 
 		selectedItem=null;
@@ -1382,7 +1481,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	public void mouseDragged(MouseEvent e) {
 		int newX=e.getX();
 		int newY=e.getY();
-		
+
 		if(!isDragging&&selectedItem!=null) {
 			int dx=Math.abs(newX-pressX);
 			int dy=Math.abs(newY-pressY);
@@ -1419,6 +1518,92 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		// TODO Auto-generated method stub
 
 	}
+
+
+	private void loadAllAudio() {
+		try {
+
+			sound = AudioSystem.getAudioInputStream(new File ("buttonClick.wav"));
+			buttonClick = AudioSystem.getClip();
+			buttonClick.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("fruitSpawn.wav"));
+			fruitSpawn = AudioSystem.getClip();
+			fruitSpawn.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("fruitBlend.wav"));
+			fruitBlend = AudioSystem.getClip();
+			fruitBlend.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("fruitCut.wav"));
+			fruitCut = AudioSystem.getClip();
+			fruitCut.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("boilingPearl.wav"));
+			boilingPearl = AudioSystem.getClip();
+			boilingPearl.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("pourJuice.wav"));
+			pourJuice = AudioSystem.getClip();
+			pourJuice.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("toppingSpawn.wav"));
+			toppingSpawn = AudioSystem.getClip();
+			toppingSpawn.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("cupSpawn.wav"));
+			cupSpawn = AudioSystem.getClip();
+			cupSpawn.open(sound);
+
+			sound = AudioSystem.getAudioInputStream(new File ("addTopping.wav"));
+			addTopping = AudioSystem.getClip();
+			addTopping.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("successOrderSubmit.wav"));
+			successOrderSubmit = AudioSystem.getClip();
+			successOrderSubmit.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("failedOrderSubmit.wav"));
+			failedOrderSubmit = AudioSystem.getClip();
+			failedOrderSubmit.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("ding.wav"));
+			ding = AudioSystem.getClip();
+			ding.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("decline.wav"));
+			decline = AudioSystem.getClip();
+			decline.open(sound);	
+
+			//	sound = AudioSystem.getAudioInputStream(new File ("warning.wav"));
+			//	warning = AudioSystem.getClip();
+			//	warning.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("warningSound.wav"));
+			warningSound = AudioSystem.getClip();
+			warningSound.open(sound);	
+
+			sound = AudioSystem.getAudioInputStream(new File ("victorySound.wav"));
+			victorySound = AudioSystem.getClip();
+			victorySound.open(sound);
+
+			sound = AudioSystem.getAudioInputStream(new File ("thinking.wav"));
+			thinking = AudioSystem.getClip();
+			thinking.open(sound);
+
+			sound = AudioSystem.getAudioInputStream(new File ("homeBackground.wav"));
+			homeBackground = AudioSystem.getClip();
+			homeBackground.open(sound);
+
+			sound = AudioSystem.getAudioInputStream(new File ("gameBackground.wav"));
+			gameBackground = AudioSystem.getClip();
+			gameBackground.open(sound);
+
+		} 
+		catch (Exception e) {
+		}
+	}
+
 
 	private void loadAllImages() {
 
@@ -1599,6 +1784,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
 		tracker.addImage(orangeCatAngry, 58);
 
+		orderReceipt = Toolkit.getDefaultToolkit().getImage("orderReceipt.png");
+		tracker.addImage(orderReceipt, 59);
+
 		try {
 			tracker.waitForAll();
 		}
@@ -1632,17 +1820,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	private void startBlendingAnimation(Fruit f) {
 
+		fruitBlend.setFramePosition (0); 
+		fruitBlend.start ();
 		blendBar.setVisible(true);
-
 		ingredientsOnScreen.remove(f);
-		//selectedItem = null;
 
 		if (activeBlender == 1) {
 			blender1Fruit = f;
 			blender1FinishedFruit = f.getFruitType();
 			blender1Progress = 0;
-			//ingredientsOnScreen.remove(f);
-
 			blend1State = "unblended1";
 			blendBar.setValue(0);
 			blendBar.setVisible(true);
@@ -1688,6 +1874,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	private void endGame() {
+		
 		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
 			return;
 		gameOn=false;//so no more gaming can happen
@@ -1714,6 +1901,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		saveScore();
 
 		refreshScoreList();
+		victorySound.setFramePosition (0); 
+		victorySound.start ();
 		screenState=12;
 		repaint();
 	}
@@ -1762,6 +1951,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		orderLine.clear();
 		ingredientsOnScreen.clear();
 		trayDrinks.clear();
+		// RESET TICKETS
+		tickets.clear();
+		selectedTicket = null;
+		// RESET TRAYS
+		for (int i = 0; i < trayCount; i++) {
+			trayCounters.get(i).clear(); // remove drinks from tray
+			trayTickets[i] = null;       // remove assigned ticket
+		}
+		// RESET CUSTOMER
+		orderingCustomer = null;
+		orderingFrames = 0;
 		//RESET SCORING AND GAME STUFF
 		score=0;
 		timeLeft=120;//2 min
@@ -1803,7 +2003,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		if(orderLine.size()<lineSpotsCount) {
 			int backInd= orderLine.size();//should b 0;
 			Point backSpot=lineSpots[backInd];
-			Customer c=new Customer(280,60,customerImages,backSpot.x,backSpot.y);
+			Customer c=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
 			c.setState("IN_LINE");
 			customers.add(c);
 			orderLine.add(c);
