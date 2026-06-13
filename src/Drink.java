@@ -9,7 +9,8 @@ private ArrayList<String> toppings;
  
  
  //equals
- public boolean equals(Drink d) {
+ public boolean equals(Object o) {
+	 Drink d = (Drink) o;
 	 if (d==null)
 		 return false;
 	 return this.fruits.containsAll(d.fruits) && d.fruits.containsAll(this.fruits) && this.toppings.containsAll(d.toppings) && d.toppings.containsAll(this.toppings);
