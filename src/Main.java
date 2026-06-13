@@ -341,19 +341,19 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
 
-//<<<<<<< HEAD
+		//<<<<<<< HEAD
 		Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y);
 		firstCust.setState("IN_LINE");
 		customers.add(firstCust);
 		orderLine.add(firstCust);
-		
 
-//=======
+
+		//=======
 		//	System.out.println("First customer created at: " + firstCust.getX() + ", " + firstCust.getY());
 		System.out.println("Orange cat images: " + customerImages.get("orangeCat"));
 		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
 		//bars for blend/cook/cut
-//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+		//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 		//bar for blend
 		blendBar= new JProgressBar(0,100);
 		//blendBar.setBounds(144, 580, 100, 15);
@@ -757,18 +757,18 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					g.setColor(Color.GREEN);
 				}
 			}
-			*/
+			 */
 			for(Ticket t : tickets) {
-			    t.draw(g);
+				t.draw(g);
 			}
 
 			// THEN draw all trays (outside the ticket loop)
 			g.setColor(Color.GREEN);
 			for(int i = 0; i < trayCount; i++) {
-			    g.fillRect(trayPositions[i].x, trayPositions[i].y, 60, 60);
-			    g.setColor(Color.WHITE);
-			    g.drawString("Tray " + (i + 1), trayPositions[i].x + 10, trayPositions[i].y + 20);
-			    g.setColor(Color.GREEN);
+				g.fillRect(trayPositions[i].x, trayPositions[i].y, 60, 60);
+				g.setColor(Color.WHITE);
+				g.drawString("Tray " + (i + 1), trayPositions[i].x + 10, trayPositions[i].y + 20);
+				g.setColor(Color.GREEN);
 			}
 
 
@@ -1162,8 +1162,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		int mx=e.getX();
 		int my=e.getY();
 
-		
-		
+
+		//ORDERING STATION
 		if(orderingStation.contains(mx,my)) {
 			System.out.println("Ordering station clicked");
 			if(!orderLine.isEmpty()) {
@@ -1183,336 +1183,162 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				JOptionPane.showMessageDialog(this, "No customers in line.");
 			return;//so no multiple actions on same click.
 		}
-		
+
+		//		
 		if(selectedTicket != null) {
-	        boolean droppedOnTraySpot = false;
-	        for(int i = 0; i < trayCount; i++) {
-	            Rectangle trayRect = new Rectangle(trayPositions[i].x, trayPositions[i].y, 60, 60);
-	            if(trayRect.contains(mx, my)) {
-	                if (trayTickets[i] == null) {
-	                    trayTickets[i] = selectedTicket;
-	                    tickets.remove(selectedTicket);
-	                    JOptionPane.showMessageDialog(this, "Ticket assigned to tray " + (i+1));
-	                } else {
-	                    JOptionPane.showMessageDialog(this, "TRAY ALREADY HAS TICKET BROTHER!!!");
-	                }
-	                droppedOnTraySpot = true;
-	                break;
-	            }
-	        }
-	        selectedTicket = null;
-	        repaint();
-	        return;
-	    }
-		if(orderingStation.contains(mx, my)) {
-	        if(!orderLine.isEmpty()) {
-	            Customer front = orderLine.peek();
-	            if(front.getState().equals("IN_LINE") && front.hasArrived()) {
-	                orderingCustomer = front;
-	                orderingFrames = 30;
-	                front.startBubble();
-	                front.setState("ORDERING");
-	            } else {
-	                JOptionPane.showMessageDialog(this, "No customer at front of line.");
-	            }
-	        } else {
-	            JOptionPane.showMessageDialog(this, "No customers in line.");
-	        }
-	        return;
-	    }
-		for(int i = 0; i < trayCount; i++) {
-	        Rectangle trayRect = new Rectangle(trayPositions[i].x, trayPositions[i].y, 60, 60);
-	        if (trayRect.contains(mx, my)) {
-	            if(trayTickets[i] != null) {
-	                if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
-	                    // SUCCESSFUL SERVE!
-	                    Customer served = trayTickets[i].getCustomer();
-	                    served.setState("SERVED");
-	                    served.setTarget(servingStation.x, servingStation.y);
-	                    if(served.getWaitingSpotIndex() != -1) {
-	                        spotOccupied[served.getWaitingSpotIndex()] = false;
-	                    }
-	                    trayCounters.get(i).clear();
-	                    trayTickets[i] = null;
-	                    score += 100;
-	                    JOptionPane.showMessageDialog(this, "SERVED YIPPE!! +100 pts");
-	                } else {
-	                    JOptionPane.showMessageDialog(this, "DRINKS DONT MATCH THE ORDER!");
-	                }
-	            } else {
-	                JOptionPane.showMessageDialog(this, "No ticket assigned to this tray yet!");
-	            }
-	            return;
-	        }
-	    }
-
-	    // THEN: Check for ordering station
-	    if(orderingStation.contains(mx,my)) {
-	        // ... ordering logic ...
-	        return;
-	    }
-
-	    // THEN: Check for tray serving (only if no ticket is being dragged)
-	    for(int i = 0; i < trayCount; i++) {
-	        Rectangle trayRect = new Rectangle(trayPositions[i].x, trayPositions[i].y, 60, 60);
-	        if (trayRect.contains(mx, my)) {
-	            if(trayTickets[i] != null) {
-	                if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
-	                    // ... serving logic ...
-	                }
-	            }
-	            return;
-	        }
-	    }
-		
-		for(int i=0;i<trayCount;i++) {
-			Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
-			if (trayRect.contains(mx,my)) {
-				if(trayTickets[i]!=null) {
-					if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
-						Customer served=trayTickets[i].getCustomer();
-						served.setState("SERVED");
-						served.setTarget(servingStation.x, servingStation.y);
-						if(served.getWaitingSpotIndex()!=-1)
-							spotOccupied[served.getWaitingSpotIndex()]=false;
-						trayCounters.get(i).clear();
-						trayTickets[i]=null;
-						score+=100;
-						JOptionPane.showMessageDialog(this, "SERVED YIPPE!! +100 pts");
-					}
-					else 
-						JOptionPane.showMessageDialog(this,"DIRNKS DONT MATCH!");
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "No ticket assigned to tray yet!!!");
-					return;
-				}
-			}
-		}
-
-		if (selectedItem==null)
-			return;
-
-		if (selectedItem != null && selectedItem.type.equals("pudding")) {
-			Pudding pu = (Pudding) selectedItem;
-			if (checkPuddingCupCollision(pu, mx, my)) {
-				return; 
-			}
-		}
-
-		//COOKING PEARL
-		if (selectedItem != null && selectedItem.type.equals("pearl")) {
-			Pearl p = (Pearl) selectedItem;
-			if (checkPearlCupCollision(p, mx, my)) {
-				return;
-			}
-
-			// cook
-			if (cookingStation.contains(mx, my)){
-				if (!p.isCooked() && cookingPearl == null) {
-					ingredientsOnScreen.remove(p);
-					cookingPearl = p;
-					cookingProgress = 0;
-					potState = "uncooked1";
-					cookBar.setValue(0);
-					cookBar.setBounds(cookingStation.x, cookingStation.y - 15, cookingStation.width, 10);
-					cookBar.setVisible(true);
-					cookTimer.start();
-					selectedItem = null;
-					repaint();
-					return;
-				}
-				else if (cookingPearl != null) {
-					JOptionPane.showMessageDialog(this, "Already cooking!");
-selectedItem=null;
-return;
-				}
-			}
-
-			else if (cupStation.contains(mx, my)) {
-				cookFinishPearl = ""; // reset pot image
-			}
-
-			else {
-//				ingredientsOnScreen.add(p);
-			}
-		}
-
-
-		// PROCESS FOOD
-		else if (selectedItem != null && selectedItem.type.equals("fruit")){
-			Fruit f=(Fruit) selectedItem;
-			f.setOnChopStation(false);//default
-
-			if (checkFruitCupCollision(f, mx, my)) {
-				return; 
-			}
-
-			//chopboard
-			if (chopStation1.contains(mx,my) || chopStation2.contains(mx, my)) {
-				f.setOnChopStation(true);
-				selectedItem=f;//keep selected
-				repaint();
-				return;
-			}
-
-			//blender
-			else if (blendStation1.contains(mx,my)) {
-				if (blender1Fruit != null || (previousBlended1 != null && remainsInBlender(previousBlended1, 1))) {
-					JOptionPane.showMessageDialog(this, "Blender is already in use!");
-					ingredientsOnScreen.add(f);
-					return;
-				}
-
-
-				if (f.isCut()&& !f.isBlended()) {
-					ingredientsOnScreen.remove(f);
-					selectedItem = null;
-					activeBlender = 1;
-					blendBar.setBounds(blendStation1.x, blendStation1.y - 15, blendStation1.width, 10);
-					startBlendingAnimation(f);
-					repaint();
-					return;
-
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					ingredientsOnScreen.add(f);
-					return;
-
-				}
-			}
-			else if (blendStation2.contains(mx,my)) {
-				if (blender2Fruit != null ||  (previousBlended2 != null && remainsInBlender(previousBlended2, 2))) {
-					JOptionPane.showMessageDialog(this, "Blender is already in use!");
-					ingredientsOnScreen.add(f);
-					return;
-				}
-
-				if (f.isCut()&& !f.isBlended()) {
-					ingredientsOnScreen.remove(f);
-					selectedItem = null;
-					activeBlender = 2;
-					blendBar.setBounds(blendStation2.x, blendStation2.y - 15, blendStation2.width, 10);
-					startBlendingAnimation(f);
-					repaint();
-
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					selectedItem=null;
-					return;
-
-				}
-
-				// Collision with cup
-			}
-
-
-
-			//cup station (add components to cup)
-			else if (cupStation.contains (mx,my)) {
-				if (f.isBlended()) {
-					//	if (currentCup==null) {
-					//		currentCup=new Cup (cupBase);
-					//	}
-					//currentCup.addFruit(f.getFruitType());
-				}else {
-					JOptionPane.showMessageDialog(this, "Blend the fruit first!!!!");
-				}
-				selectedItem=null;
-				return;
-			}
-			else {
-				selectedItem=null;
-				return;
-				}
-		}
-
-
-		else if (selectedItem != null && selectedItem.type.equals("cup")) {
-			Cup cup=(Cup) selectedItem;
-			if (trayStation.contains(mx,my)) {
-				int targetTray=-1;
-				for(int i=0;i<trayCount;i++) {
-					if(trayTickets[i]!=null) {
-						targetTray=i;
-						break;
-					}
-				}
-				if(targetTray!=-1) {
-					if(!cup.getFruits().isEmpty()||!cup.getToppings().isEmpty()) {
-						trayCounters.get(targetTray).add(cup);
-						 ingredientsOnScreen.remove(cup);
-						JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
-
-					}
-					else {
-						JOptionPane.showMessageDialog(this, "empty cup bro...");
-						currentCup=cup;
-					}
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "No Active tray!! assign a ticket first");
-					currentCup=cup;
-				}
-				selectedItem = null;
-				repaint();
-		        return;
-			}
-			else if(servingStation.contains(mx,my)) {
-				boolean served=false;//default
-				for (int i=0;i<customers.size();i++) {//runs through each customer til correct order found, or if not found
-					Customer c=customers.get(i);
-					if(c.getOrder().matches(trayDrinks)) {
-						c.setState("SERVED");
-						c.setTarget(servingStation.x, servingStation.y);
-						if(c.getWaitingSpotIndex()!=-1) 
-							spotOccupied[c.getWaitingSpotIndex()]=false;
-						trayDrinks.clear();
-						JOptionPane.showMessageDialog(this, "served!!!!!!!! +100 pts");
-						served=true;
-						score+=100;
-						break;
-					}
-				}
-				if(!served) {//not matching
-					JOptionPane.showMessageDialog(this,"this tray doesn't match any order!!");
-					//currentCup=cup;//put last cup back into hand
-				}
-			}
-			//else
-			//	currentCup=cup;
-		}
-
-
-		
-		selectedItem=null;
-		repaint();
-
-		if(selectedTicket!=null) {
-			boolean droppedOnTraySpot=false;//tray spot valid?
-			for(int i=0;i<trayCount;i++) {
-				Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
-				if(trayRect.contains(mx,my)) {
-					if (trayTickets[i]==null) {
-						trayTickets[i]=selectedTicket;
+			for(int i =0; i < trayCount; i++) {
+				Rectangle trayRect = new Rectangle(trayPositions[i].x, trayPositions[i].y, 60, 60);
+				if(trayRect.contains(mx, my)) {
+					if (trayTickets[i] == null) {
+						trayTickets[i] = selectedTicket;
 						tickets.remove(selectedTicket);
-						JOptionPane.showMessageDialog(this,"Ticket assigned to tray "+(i+1));
-					}
-					else
+						JOptionPane.showMessageDialog(this, "Ticket assigned to tray " + (i+1));
+					} else {
 						JOptionPane.showMessageDialog(this, "TRAY ALREADY HAS TICKET BROTHER!!!");
-
-					droppedOnTraySpot=true;
+					}
 					break;
 				}
 			}
-			if(!droppedOnTraySpot) {
-				tickets.remove(selectedTicket);
-			}
-			selectedTicket=null;
+			selectedTicket = null;
+			repaint();
+			return;
 		}
+
+		if(selectedItem==null) {
+			for(int i=0;i<trayCount;i++) {
+				Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
+				if(trayRect.contains(mx,my)) {
+					if(trayTickets[i]!=null) {
+						System.out.println("Tray " + i + " has " + trayCounters.get(i).size() + " cups. Order has " + trayTickets[i].getOrder().getDrinks().size() + " drinks.");
+						if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
+							Customer served=trayTickets[i].getCustomer();
+							served.setState("SERVED");
+							served.setTarget(servingStation.x, servingStation.y);
+							if(served.getWaitingSpotIndex()!=-1)
+								spotOccupied[served.getWaitingSpotIndex()]=false;
+							trayCounters.get(i).clear();
+							trayTickets[i]=null;
+							score+=100;
+							JOptionPane.showMessageDialog(this, "SERVED! +_100pts");
+						}
+						else
+							JOptionPane.showMessageDialog(this,"DRINKS DON'T MATCH THE ORDER!");
+					}
+					else
+						JOptionPane.showMessageDialog(this,"No ticket asigned to this tray yet!");
+					return;
+				}
+			}
+			return;
+		}
+		else if(selectedItem.type.equals("pudding")) {
+			Pudding poo=(Pudding)selectedItem;
+			checkPuddingCupCollision(poo,mx,my);
+		}
+		else if(selectedItem.type.equals("pearl")) {
+			Pearl p =(Pearl)selectedItem;
+			if(!checkPearlCupCollision(p,mx,my)&&cookingStation.contains(mx,my)) {
+				if(!p.isCooked()&&cookingPearl==null) {
+					ingredientsOnScreen.remove(p);
+					cookingPearl=p;
+					cookingProgress=0;
+					potState="uncooked1";
+					cookBar.setValue(0);
+					cookBar.setBounds(cookingStation.x,cookingStation.y-15,cookingStation.width,10);;
+					cookBar.setVisible(true);
+					cookTimer.start();
+				}
+				else
+					JOptionPane.showMessageDialog(this, "Alr cooking!!");
+			}
+		}
+		else if(selectedItem.type.equals("fruit")) {
+			Fruit f=(Fruit)selectedItem;
+			f.setOnChopStation(false);
+			if(checkFruitCupCollision(f,mx,my)) {//cup 
+				selectedItem=null;
+				repaint();
+				return;
+			}
+			if(chopStation1.contains(mx,my)||chopStation2.contains(mx,my)) {//chop
+				f.setOnChopStation(true);
+				selectedItem=f;
+				repaint();
+				return;
+			}
+			if (blendStation1.contains(mx,my)) {
+				if(blender1Fruit!=null||(previousBlended1!=null&&remainsInBlender(previousBlended1,1))) 
+					JOptionPane.showMessageDialog(this,"Blender is alr in use!");
+				else if(f.isCut()&&!f.isBlended()) {
+					ingredientsOnScreen.remove(f);
+					selectedItem=null;
+					activeBlender=1;
+					blendBar.setBounds(blendStation1.x,blendStation1.y-15,blendStation1.width,10);;
+					startBlendingAnimation(f);
+				}
+				else
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+				repaint();
+				return;
+			}
+			if(blendStation2.contains(mx,my)) {
+				if(blender2Fruit!=null||(previousBlended2!=null&& remainsInBlender(previousBlended2,2))) 
+					JOptionPane.showMessageDialog(this, "Blender is alr in use!");
+				else if(f.isCut()&&!f.isBlended()) {
+					ingredientsOnScreen.remove(f);
+					selectedItem=null;
+					activeBlender=2;
+					blendBar.setBounds(blendStation2.x,blendStation2.y-15,blendStation2.width,10);
+					startBlendingAnimation(f);
+				}
+				else
+					JOptionPane.showMessageDialog(this, "Chop the fruit first!");;
+					repaint();
+					return;
+			}
+			if(cupStation.contains(mx,my)) {
+				JOptionPane.showMessageDialog(this, "Blend the fruit first!");;
+				selectedItem=null;
+				repaint();
+				return;
+			}
+			selectedItem=null;
+			repaint();
+			return;
+		}
+		else if(selectedItem.type.equals("cup")) {
+			Cup cup=(Cup) selectedItem;
+			int targetTray=-1;
+			for(int i=0;i<trayCount;i++) {
+				Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
+				if(trayRect.contains(mx,my)) {
+					targetTray=i;
+					break;
+				}
+			}
+			if(targetTray!=-1) {
+				if(!cup.getFruits().isEmpty()||!cup.getToppings().isEmpty()) {
+					trayCounters.get(targetTray).add(cup);
+					ingredientsOnScreen.remove(cup);
+					JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
+				}
+				else 
+					JOptionPane.showMessageDialog(this, "Empty cup! add juice/toppings");
+				selectedItem=null;
+				repaint();
+				return;
+			}
+			selectedItem=null;
+			repaint();
+			return;
+			
+		}
+
+		selectedItem=null;
+		repaint();
+
 	}
+
 
 
 
