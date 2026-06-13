@@ -50,6 +50,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private JProgressBar blendBar;//progress of cooking/blending
 	private JProgressBar cookBar;
 	private int score=0;
+	private int customersServed=0;
 	private Item selectedItem=null;
 	private boolean spacePressed=false;
 	//stations
@@ -1104,29 +1105,38 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
 				spawnMango();
+				selectedItem=null;
 				return;
 			}
 
 			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
 				spawnLychee();
+				selectedItem=null;
+
 				return;
 
 			}
 
 			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
 				spawnPearl();
+				selectedItem=null;
+
 				return;
 
 			}
 
 			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
 				spawnPudding();
+				selectedItem=null;
+
 				return;
 
 			}
 
 			if (x >= 175 && x <= 226 && y >= 439 && y <= 493) {
 				spawnCup();
+				selectedItem=null;
+
 				return;
 
 			}
@@ -1227,6 +1237,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 							trayCounters.get(i).clear();
 							trayTickets[i]=null;
 							score+=100;
+							customersServed++;
+							if(customersServed>=5) {//yo idk if we still doing this but u said soooo
+								gameOn=false;
+								screenState=13;
+								level1Passed=true;
+								repaint();
+								return;
+							}
 							JOptionPane.showMessageDialog(this, "SERVED! +_100pts");
 						}
 						else
@@ -1764,6 +1782,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		trayDrinks.clear();
 		//RESET SCORING AND GAME STUFF
 		score=0;
+		customersServed=0;
 		timeLeft=120;//2 min
 		gameOn=true;
 		//RESET THE PLAYER INTERACTIONS
