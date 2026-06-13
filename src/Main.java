@@ -27,6 +27,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private JScrollPane scoreScrollPane;
 	private String scoreFile="highscores.txt";
 	private Cup currentCup;
+	private int pressX,pressY;
+	private boolean isDragging=false;
+	private static final int DRAG_THRESHOLD=5;
 	private ArrayList<Cup> trayDrinks;
 	private ArrayList<Customer> customers=new ArrayList<>();
 	private ArrayList<Ticket> tickets=new ArrayList<>();
@@ -228,11 +231,13 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						return true;
 					} else {
 						JOptionPane.showMessageDialog(this, "Blend the fruit first!");
+					selectedItem=null;
 						return true;
 					}
 				}
 				else {
 					JOptionPane.showMessageDialog(this, "There is already a fruit in this cup");
+					selectedItem=null;
 					return true;
 				}
 			}
@@ -1075,6 +1080,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	public void mousePressed(MouseEvent e) {
 		x = e.getX();
 		y = e.getY();
+		pressX=x;
+		pressY=y;
+		isDragging=false;
 		if (screenState == 9) {
 			boolean itemSelected=false;//select and EXISTING item first always
 			for(int i=ingredientsOnScreen.size()-1;i>=0;i--) {
@@ -1158,10 +1166,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		isDragging=false;//released so no longer dragging
 
 		int mx=e.getX();
 		int my=e.getY();
-
 
 		//ORDERING STATION
 		if(orderingStation.contains(mx,my)) {
@@ -1248,9 +1256,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					cookBar.setVisible(true);
 					cookTimer.start();
 				}
-				else
+				else {
 					JOptionPane.showMessageDialog(this, "Alr cooking!!");
-			}
+			selectedItem=null;
+			return;
+				}
+				}
 		}
 		else if(selectedItem.type.equals("fruit")) {
 			Fruit f=(Fruit)selectedItem;
@@ -1267,23 +1278,32 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				return;
 			}
 			if (blendStation1.contains(mx,my)) {
-				if(blender1Fruit!=null||(previousBlended1!=null&&remainsInBlender(previousBlended1,1))) 
+				if(blender1Fruit!=null||(previousBlended1!=null&&remainsInBlender(previousBlended1,1))) {
 					JOptionPane.showMessageDialog(this,"Blender is alr in use!");
-				else if(f.isCut()&&!f.isBlended()) {
+				selectedItem=null;
+				repaint();
+				return;
+				}else if(f.isCut()&&!f.isBlended()) {
 					ingredientsOnScreen.remove(f);
 					selectedItem=null;
 					activeBlender=1;
 					blendBar.setBounds(blendStation1.x,blendStation1.y-15,blendStation1.width,10);;
 					startBlendingAnimation(f);
 				}
-				else
+				else {
 					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-				repaint();
+				selectedItem=null;
+					repaint();
 				return;
+				}
 			}
 			if(blendStation2.contains(mx,my)) {
-				if(blender2Fruit!=null||(previousBlended2!=null&& remainsInBlender(previousBlended2,2))) 
+				if(blender2Fruit!=null||(previousBlended2!=null&& remainsInBlender(previousBlended2,2))) {
 					JOptionPane.showMessageDialog(this, "Blender is alr in use!");
+				selectedItem=null;
+				repaint();
+				return;
+				}
 				else if(f.isCut()&&!f.isBlended()) {
 					ingredientsOnScreen.remove(f);
 					selectedItem=null;
@@ -1291,10 +1311,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					blendBar.setBounds(blendStation2.x,blendStation2.y-15,blendStation2.width,10);
 					startBlendingAnimation(f);
 				}
-				else
+				else {
 					JOptionPane.showMessageDialog(this, "Chop the fruit first!");;
+					selectedItem=null;
 					repaint();
 					return;
+				}
 			}
 			if(cupStation.contains(mx,my)) {
 				JOptionPane.showMessageDialog(this, "Blend the fruit first!");;
@@ -1358,9 +1380,18 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (selectedItem != null) {
-			selectedItem.x = e.getX() - offsetX;
-			selectedItem.y = e.getY() - offsetY;
+		int newX=e.getX();
+		int newY=e.getY();
+		
+		if(!isDragging&&selectedItem!=null) {
+			int dx=Math.abs(newX-pressX);
+			int dy=Math.abs(newY-pressY);
+			if(dx>DRAG_THRESHOLD||dy>DRAG_THRESHOLD)
+				isDragging=true;
+		}
+		if (selectedItem != null&&isDragging) {
+			selectedItem.x = e.getX()-offsetX;
+			selectedItem.y = e.getY()-offsetY;
 
 			// check if blender 1 emptied
 			if (selectedItem == blender1Fruit && !blendStation1.intersects(new Rectangle(selectedItem.x,selectedItem.y,selectedItem.width,selectedItem.height))) {
