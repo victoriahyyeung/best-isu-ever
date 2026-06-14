@@ -111,19 +111,26 @@ public class Customer {
 	// Parameters: Hashmap that maps customer emotions to images
 	// Return: void
 	public void updateEmotion(HashMap<String, HashMap<String,Image>>images) {
+
 		// change emote based on patience meter
+
+		if(state==null||!state.equals("WAITING"))//only can update emos when waiting 2 b served
+			return;
+//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 		String newEmo;
 		if(currentPatience>50)
-			newEmo="happy";
-		else if(currentPatience>30)
 			newEmo="neutral";
-		else if (currentPatience>0)
+		else if(currentPatience>30)
 			newEmo="impatient";
+
 		else
 			newEmo="angry";
+		if(state.equals("SERVED"))
+			newEmo="happy";
 		if(!(newEmo.equals(currentEmotion))) {
 			currentEmotion=newEmo;
 			this.avatar=images.get(customerType).get(currentEmotion);
+		System.out.println("changed emo to: "+newEmo);
 		}
 	}
 
@@ -288,9 +295,12 @@ public class Customer {
 		this.state=s;
 	}
 	
+//<<<<<<< HEAD
 	// Description: Sets the customer's waiting spot index after ordering
 		// Parameters: index of waiting spot
 		// Return: void
+//=======
+//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 	public void setWaitingSpotIndex(int i) {
 		this.waitingSpotIndex=i;
 	}

@@ -11,7 +11,7 @@
 // Date: June 13, 2026
 
 import java.awt.*;
-import java.awt.*;
+//import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -60,10 +60,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Timer customerSpawnTimer;//spawn customer every n seconds
 	private JProgressBar blendBar;//progress of cooking/blending
 	private JProgressBar cookBar;
+	/*
+	<<<<<<< HEAD
 	private int score=0; // player score
 	private Item selectedItem=null; //no item selected
+=======
+	 */
+	private int score=0;
+	private int customersServed=0;
+	private Item selectedItem=null;
+	//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 	private boolean spacePressed=false;
-
 
 
 
@@ -107,11 +114,23 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private String blend1State = "empty";
 	private String blend2State = "empty";
 
+	/*<<<<<<< HEAD
 	// stations boundaries
 	private Rectangle blendStation1=new Rectangle (69, 571, 50, 50);
 	private Rectangle blendStation2 = new Rectangle(124, 571, 50, 50);
 	private Rectangle cookingStation = new Rectangle (284, 571, 50, 50);
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
+=======
+	 */
+
+	// stations boundaries
+	private Rectangle blendStation1=new Rectangle (70, 540, 52, 82);
+	private Rectangle blendStation2 = new Rectangle(122, 540, 52, 82);
+
+	private Rectangle cookingStation = new Rectangle (282, 558, 62, 64);
+
+	private Rectangle cupStation=new Rectangle (250, 425, 52, 50);
+	//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
 	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
@@ -155,21 +174,21 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Customer orderingCustomer=null;
 	private Point[] lineSpots;//Point stores x and y coordinates
 	private int lineSpotsCount=5;//max # of customers in line
-	private Rectangle orderingStation=new Rectangle(125,280,50,50);//!v-NEEDA CHANGE COORDS!!!!!!
+	private Rectangle orderingStation=new Rectangle(120,310,60,70);//!v-NEEDA CHANGE COORDS!!!!!!
 	private int orderingFrames=0;//will be >0 when bubble visible
 
 	private Point[]waitingSpots;//waiting spots
 	private boolean[]spotOccupied;//true is occupied false is free
 	private HashSet<Integer>occupiedSpots=new HashSet<>();
 
-
-	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits1, credits2, highScore, victory, highScoreBg;
+	Image home, instructions1, instructions2, instructions3, instructions4, instructions5, lockedLevels, unlockedLevels, startImg, gameLevel1, credits1, credits2, highScore, victory, highScoreBg;//gameLevel2 deleted
 	// Screen States
 	// 0 - Home
 	// 1 - Instructions (slide 1)
 	// 2 – Instructions (slide 2)
 	// 3 – Instructions (slide 3)
 	// 4 – Instructions (slide 4)
+	// 5 – Instructions (slide 5)
 	// 6 – Credits Slide 2
 	// 7 – Unlocked Levels
 	// 8 – Start Screen
@@ -193,6 +212,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// parallelogram buttons stored as polygon
 	Polygon slantedCreditsButton = new Polygon();
 	Polygon slantedScoreButton = new Polygon();
+
+	private Rectangle menuButton=new Rectangle(320,10,60,40);
 
 
 	// Description: Spawns mango fruit when its cabinet is clicked
@@ -481,20 +502,41 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		// Create customer line positions
 		lineSpots=new Point[lineSpotsCount];
+		/*<<<<<<< HEAD
 		lineSpots[0]=new Point(orderingStation.x,orderingStation.y);
 
 		// Remaining spots go upward in a line
 		for(int i=1;i<lineSpotsCount;i++) {
 			lineSpots[i]=new Point(orderingStation.x,orderingStation.y-(i*45));
+		 */
+		//=======
+		for(int i=1;i<=lineSpotsCount;i++) {
+			lineSpots[i-1]=new Point(orderingStation.x,orderingStation.y-(i*45));
+			//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+
 		}
+		//	<<<<<<< HEAD
 
 		// Create waiting spots after customer orders
-		waitingSpots=new Point[3];
-		waitingSpots[0]=new Point(100,500);
-		waitingSpots[1]=new Point(150,500);
-		waitingSpots[2]=new Point(200,500);
+		//waitingSpots=new Point[3];
+		//waitingSpots[0]=new Point(100,500);
+		//waitingSpots[1]=new Point(150,500);
+		//waitingSpots[2]=new Point(200,500);
 
 		// Track whether waiting spots are occupied
+		//	=======
+		//AFTER orderingg
+		waitingSpots=new Point[6];
+		//colum 1
+		waitingSpots[0]=new Point(250,280);
+		waitingSpots[1]=new Point(250,235);
+		waitingSpots[2]=new Point(250,190);
+		//column 2
+		waitingSpots[3]=new Point(320,280);
+		waitingSpots[4]=new Point(320,235);
+		waitingSpots[5]=new Point(320,190);
+		//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+
 		spotOccupied=new boolean[waitingSpots.length];
 
 		// Create trays and tray positions
@@ -575,10 +617,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// Parameters: The event source that triggered the action
 	// Return: void
 	public void actionPerformed(ActionEvent e) {
+		//	<<<<<<< HEAD
 
-		if (e.getSource()==gameTimer) {
+		//if (e.getSource()==gameTimer) {
 
-			// Update all customers in the game
+		// Update all customers in the game
+		//	=======
+		if (e.getSource()==gameTimer) {//maybe do dif method?
+			//	>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 			for(int i=customers.size()-1;i>=0;i--) {
 				Customer c=customers.get(i);
 				c.updateMovement(); // Move customer toward their target position
@@ -652,7 +698,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				blendBar.setVisible(false);
 				if (blender1Fruit != null) {
 					blender1Fruit.setBlended();
-					blender1Fruit.setPosition(45, 544);
+					blender1Fruit.setPosition(50, 520);
 					ingredientsOnScreen.add(blender1Fruit);
 					blender1FinishedFruit = blender1Fruit.getFruitType();
 					blend1State = "empty"; // set blender as empty
@@ -680,11 +726,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				blendBar.setVisible(false);
 				if (blender2Fruit != null) {
 					blender2Fruit.setBlended();
-					blender2Fruit.setPosition(100, 544);
+					blender2Fruit.setPosition(105, 520);
 					ingredientsOnScreen.add(blender2Fruit);
 					blender2FinishedFruit = blender2Fruit.getFruitType();
-					blend2State = "empty";
-					previousBlended2 = blender2Fruit;
+					blend2State = "empty"; // set blender as empty
+					previousBlended2 = blender2Fruit; // keep track of fruit
 				}
 
 				blender2Fruit = null;
@@ -714,7 +760,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				cookBar.setVisible(false);
 				if (cookingPearl != null) {
 					cookingPearl.setCooked();
-					cookingPearl.setPosition(283,  568);
+					cookingPearl.setPosition(283,  560);
 					ingredientsOnScreen.add(cookingPearl);
 					cookFinishPearl = "cooked";
 					potState = "empty";
@@ -740,7 +786,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
 			if(screenState==9) {
-				if(orderLine.size()<lineSpotsCount) {
+				if(orderLine.size()<lineSpotsCount&&getFreeWaitingSpot()!=-1) {
 					int backInd=orderLine.size();
 					Point backSpot=lineSpots[backInd];
 					Customer newC=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
@@ -750,17 +796,24 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					repaint();
 				}
 			}
+
 		}
 
 		// game over
 		else if(e.getSource()==roundTimer&&gameOn) {
 			timeLeft--;
-			if(timeLeft<=0) {
-				endGame();
+			if(timeLeft==10&&!lessThan10) {
+				warningSound.setFramePosition(0);;
+				warningSound.start();
+				lessThan10=true;
 			}
+			if(timeLeft<=0)
+				endGame();
+
 			repaint();
 		}
 	}
+
 
 	// Description: Draws graphics such as current screen state, customers, food items
 	// Parameters: Graphics g - the graphics object used for drawing
@@ -775,7 +828,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		else {
 			usernameField.setVisible(false); // text field for player to enter username
 		}
-		
+
 		// instruction slides
 		if (screenState == 1) {
 			g.drawImage(instructions1, 0, 0, 390, 700, this);
@@ -794,8 +847,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		} 
 		if (screenState == 5) {
+			g.drawImage(instructions5, 0, 0, 390, 700, this);
 		}
-		
+
 		// credits slide 2
 		if (screenState == 6) {
 			g.drawImage(credits2, 0, 0, 390, 700, this);
@@ -813,7 +867,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// game screen
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
-
 			// draw customers
 			for (Customer c : customers) {
 				c.draw(g);
@@ -836,90 +889,162 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 			if (timeLeft <= 10) {
-				lessThan10 = true;
-				//warning.setFramePosition (0); 
-				//warning.start ();
+
 				g.setColor(Color.RED);
 			}
 			g.drawString(timerText, 323, 680);
 
+			//DELETE DEBUG
+			// Debug: draw ordering station rectangle
+			g.setColor(Color.RED);
+			g.drawRect(orderingStation.x, orderingStation.y, orderingStation.width, orderingStation.height);
+			g.setColor(Color.BLACK);
+			g.drawString("Ordering", orderingStation.x + 5, orderingStation.y - 5);
+			// ----- Draw all interactive areas (debug) -----
+			g.setColor(Color.BLUE);
+			g.drawRect(chopStation1.x, chopStation1.y, chopStation1.width, chopStation1.height);
+			g.drawRect(chopStation2.x, chopStation2.y, chopStation2.width, chopStation2.height);
+
+			g.setColor(Color.MAGENTA);
+			g.drawRect(blendStation1.x, blendStation1.y, blendStation1.width, blendStation1.height);
+			g.drawRect(blendStation2.x, blendStation2.y, blendStation2.width, blendStation2.height);
+
+			g.setColor(Color.ORANGE);
+			g.drawRect(cookingStation.x, cookingStation.y, cookingStation.width, cookingStation.height);
+
+			g.setColor(Color.CYAN);
+			g.drawRect(cupStation.x, cupStation.y, cupStation.width, cupStation.height);
+			g.drawRect(trayStation.x, trayStation.y, trayStation.width, trayStation.height);
+			g.drawRect(servingStation.x, servingStation.y, servingStation.width, servingStation.height);
+
+			// Spawn buttons (their coordinates from mousePressed)
+			g.setColor(Color.GRAY);
+			g.drawRect(16, 386, 55, 58);       // mango
+			g.drawRect(16, 448, 56, 57);       // lychee
+			g.drawRect(16, 510, 55, 56);       // pearl
+			g.drawRect(230, 439, 53, 55);      // pudding
+			g.drawRect(175, 439, 51, 54);      // cup
+
+			// Trays
+			g.setColor(Color.PINK);
+			for (int i = 0; i < trayCount; i++) {
+				g.drawRect(trayPositions[i].x, trayPositions[i].y, 60, 60);
+			}
+
+			// Menu button
+			g.setColor(Color.RED);
+			g.drawRect(menuButton.x, menuButton.y, menuButton.width, menuButton.height);
+			g.setColor(Color.WHITE);
+			g.drawString("Menu", menuButton.x + 12, menuButton.y + 25);
+			// After drawing chop stations
+			g.drawString("Chop1", chopStation1.x, chopStation1.y - 5);
+			g.drawString("Chop2", chopStation2.x, chopStation2.y - 5);
+
+			// After drawing blenders
+			g.drawString("Blend1", blendStation1.x, blendStation1.y - 5);
+			g.drawString("Blend2", blendStation2.x, blendStation2.y - 5);
+
+			// After cooking station
+			g.drawString("Cook", cookingStation.x, cookingStation.y - 5);
+
+			// After cup station, tray station, serving station
+			g.drawString("Cup", cupStation.x, cupStation.y - 5);
+			g.drawString("Tray", trayStation.x, trayStation.y - 5);
+			g.drawString("Serve", servingStation.x, servingStation.y - 5);
+
+			// For spawn buttons (add after drawing them)
+			g.drawString("Mango", 16, 386 - 5);
+			g.drawString("Lychee", 16, 448 - 5);
+			g.drawString("Pearl", 16, 510 - 5);
+			g.drawString("Pudding", 230, 439 - 5);
+			g.drawString("Cup", 175, 439 - 5);
+
+			// For trays
+			for (int i = 0; i < trayCount; i++) {
+				g.drawString("Tray"+(i+1), trayPositions[i].x, trayPositions[i].y - 5);
+			}
+
+			//////////////////////DELETE AFTER DEBUGGING!!!!!^^^
+
+
+
 			// Cooking pot
 			if (potState.equals("empty")) {
-				g.drawImage(emptyPot, 247, 512, 150, 150, this);
+				g.drawImage(emptyPot, 247, 500, 150, 150, this);
 			}
 			else if (potState.equals("uncooked1")) {
-				g.drawImage(uncookedPearl1, 247, 512, 150, 150, this);
+				g.drawImage(uncookedPearl1, 247, 500, 150, 150, this);
 			}
 			else if (potState.equals("uncooked2")) {
-				g.drawImage(uncookedPearl2, 247, 512, 150, 150, this);
+				g.drawImage(uncookedPearl2, 247, 500, 150, 150, this);
 			}
 			else if (potState.equals("cooked")) {
-				g.drawImage(pearlPot, 247, 512, 150, 150, this);
+				g.drawImage(pearlPot, 247, 500, 150, 150, this);
 			}
 
 
 			// Blender 1
 			if (blend1State.equals("empty")) {
-				g.drawImage(emptyBlender1, 45, 544, 100, 100, this);
+				g.drawImage(emptyBlender1, 50, 520, 100, 100, this);
 			}
 
 			else if (blend1State.equals("unblended1")) {
 				if ("mango".equals(blender1FinishedFruit)) {
-					g.drawImage(blendingMango1, 45, 544, 100, 100, this);
+					g.drawImage(blendingMango1, 50, 520, 100, 100, this);
 
 				}
 				else if ("lychee".equals(blender1FinishedFruit)) {
-					g.drawImage(blendingLychee1, 45, 544, 100, 100, this);
+					g.drawImage(blendingLychee1, 50, 520, 100, 100, this);
 				}
 			}
 
 			else if (blend1State.equals("unblended2")) {
 				if ("mango".equals(blender1FinishedFruit)) {
-					g.drawImage(blendingMango2, 45, 544, 100, 100, this);
+					g.drawImage(blendingMango2, 50, 520, 100, 100, this);
 				}
 				else if ("lychee".equals(blender1FinishedFruit)) {
-					g.drawImage(blendingLychee2, 45, 544, 100, 100, this);
+					g.drawImage(blendingLychee2, 50, 520, 100, 100, this);
 				}
 			}
 			/*
 			else if (blend1State.equals("blended")) {
 				if ("mango".equals(blender1FinishedFruit)) {
-					g.drawImage(mangoBlender, 45, 544, 100, 100, this);
+					g.drawImage(mangoBlender, 50, 520, 100, 100, this);
 				}
 				else if ("lychee".equals(blender1FinishedFruit)) {
-					g.drawImage(lycheeBlender, 45, 544, 100, 100, this);
+					g.drawImage(lycheeBlender, 50, 520, 100, 100, this);
 				}
 			}
 			 */
 
 			// Blender 2
 			if (blend2State.equals("empty")) {
-				g.drawImage(emptyBlender2, 100, 544, 100, 100, this);
+				g.drawImage(emptyBlender2, 105, 520, 100, 100, this);
 			}
 			else if (blend2State.equals("unblended1")) {
 				if ("mango".equals(blender2FinishedFruit)) {
-					g.drawImage(blendingMango1, 100, 544, 100, 100, this);
+					g.drawImage(blendingMango1, 105, 520, 100, 100, this);
 				}
 				else if ("lychee".equals(blender2FinishedFruit)) {
-					g.drawImage(blendingLychee1, 100, 544, 100, 100, this);
+					g.drawImage(blendingLychee1, 105, 520, 100, 100, this);
 				}
 			}
 
 			else if (blend2State.equals("unblended2")) {
 				if ("mango".equals(blender2FinishedFruit)) {
-					g.drawImage(blendingMango2, 100, 544, 100, 100, this);
+					g.drawImage(blendingMango2, 105, 520, 100, 100, this);
 				}
 				else if ("lychee".equals(blender2FinishedFruit)) {
-					g.drawImage(blendingLychee2, 100, 544, 100, 100, this);
+					g.drawImage(blendingLychee2, 105, 520, 100, 100, this);
 				}
 			}
 			/*
 			else if (blend2State.equals("blended")) {
 				if ("mango".equals(blender2FinishedFruit)) {
-					g.drawImage(mangoBlender, 100, 544, 100, 100, this);
+					g.drawImage(mangoBlender, 105, 520, 100, 100, this);
 				}
 				else if ("lychee".equals(blender2FinishedFruit)) {
-					g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
+					g.drawImage(lycheeBlender, 105, 520, 100, 100, this);
 				}
 			}*/
 
@@ -969,8 +1094,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 
-		if (screenState == 10) {
-		}
+		//		if (screenState == 10) {
+		//		}
 		if (screenState == 11) {
 			g.drawImage(credits1,0, 0, 390, 700, this);
 		}
@@ -981,6 +1106,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			return;
 		}
 		if (screenState == 13) {
+			g.drawImage(victory, 0, 0, 390, 700, this);		
 		}
 	}
 
@@ -1113,7 +1239,28 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				buttonClick.start ();
 				screenState = 3;
 			}
+			// Instructions slide 5
+			else if (x >= 357 && x <= 382 && y >= 337 && y <= 364) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
+				screenState = 5;
+			}
 
+		}
+		// Instructions slide 5
+		else if (screenState == 5) {
+			// Home screen
+			if (x >= 20 && x <= 95 && y >= 18 && y <= 52) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
+				screenState = 0;
+			}
+			// Instructions slide 4
+			else if (x >= 9 && x <= 34 && y >= 333 && y <= 365) {
+				buttonClick.setFramePosition (0); 
+				buttonClick.start ();
+				screenState = 4;
+			}
 		}
 
 		// Locked Levels Screen
@@ -1129,7 +1276,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
 				decline.setFramePosition (0); 
 				decline.start ();
-				JOptionPane.showMessageDialog(this, "Pass Level 1 first to unlock level 2!");
+				JOptionPane.showMessageDialog(this, "Coming soon!");
 			}
 			// Level 1 Selection
 			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
@@ -1153,8 +1300,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
 				buttonClick.setFramePosition (0); 
 				buttonClick.start ();
-				resetGame();
-				screenState=10;
+				JOptionPane.showMessageDialog(this, "Coming soon!");
 			}
 
 			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
@@ -1231,173 +1377,255 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 
-	public void mouseClicked(MouseEvent e) {
+public void mouseClicked(MouseEvent e) {
 
+}
+
+// Description: Handles game when user clicks on keys
+// Parameters: KeyEvent e - the key event containing the pressed key
+// Return: void
+public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
+	//		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
+	//			if (!spacePressed) {
+	//				spacePressed=true;
+	//				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
+	//					Fruit f=(Fruit) selectedItem;
+	//					if (f.isOnChopStation() && !f.isCut()) {
+	//						f.cut();
+	//						fruitCut.setFramePosition (0); 
+	//						fruitCut.start ();
+	//						repaint();
+	//					}
+	//				}
+	//			}
+	//		}
+	//Mika said to delete the using space to cut function ^^
+
+	if (e.getKeyCode() == KeyEvent.VK_E) {//GO TO END GAME
+		endGame();
+		screenState = 12; 
+		repaint();
 	}
+	else if(e.getKeyCode()==KeyEvent.VK_C) {//GO TO CREDITS
+		screenState=11;
+		repaint();
+	}
+	else if(e.getKeyCode()==KeyEvent.VK_I) {//GO TO INSTRUCTIONS
+		screenState=1;
+		repaint();
+	}
+	else if(e.getKeyCode()==KeyEvent.VK_H) {//GO TO HOME
+		screenState=0;
+		repaint();
+	}
+	else if (screenState==9) {
+		if(e.getKeyCode()==KeyEvent.VK_V) {//ez win
+			customersServed=5;
+			gameOn=false;
+			screenState=13;
+			level1Passed=true;
+			repaint();
 
-	// Description: Handles game when user clicks on keys
-	// Parameters: KeyEvent e - the key event containing the pressed key
-	// Return: void
-	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
-		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
-			if (!spacePressed) {
-				spacePressed=true;
-				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
-					Fruit f=(Fruit) selectedItem;
-					if (f.isOnChopStation() && !f.isCut()) {
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_L) {
+			//losing
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_P) {//ez get points
+			score+=100;
+			repaint();
+
+		}
+	}
+}
+
+
+public static void main(String[] args) {
+	JFrame frame = new JFrame ("Bad Bubble Tea");
+	Main panel = new Main (); 
+	frame.add(panel);
+	frame.pack();
+	frame.setResizable(false);
+	frame.setVisible(true);
+	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	panel.addMouseListener(panel);
+	panel.addMouseMotionListener(panel);
+	panel.addKeyListener(panel);
+	panel.setFocusable(true);
+}
+
+@Override
+public void keyTyped(KeyEvent e) {
+	// TODO Auto-generated method stub
+
+}
+
+// Description: Handles key release events
+// Parameters: KeyEvent e - the key event containing the released key
+// Return: void
+@Override
+public void keyReleased(KeyEvent e) {
+	if (e.getKeyCode()==KeyEvent.VK_SPACE) {
+		spacePressed=false;
+	}
+}
+
+
+// Description: Processes player's mouse presses for selecting and dragging items, spawning ingredients, and selecting tickets
+// Parameters: MouseEvent e - the mouse event containing click coordinates
+// Return: void
+@Override
+public void mousePressed(MouseEvent e) {
+	x = e.getX();
+	y = e.getY();
+	System.out.print("click: ("+x+", "+y+")");
+
+	pressX=x;
+	pressY=y;
+	isDragging=false;
+	if (screenState == 9) {
+		if(menuButton.contains(x,y)) {
+			String[]options= {"Pause","End Game","Restart","Home"};
+			int choice=JOptionPane.showOptionDialog(this, "Game Menu","",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
+			if(choice==0) {
+				if(roundTimer!=null)
+					roundTimer.stop();
+				if(customerSpawnTimer!=null)
+					customerSpawnTimer.stop();
+				if(patienceTimer!=null)
+					patienceTimer.stop();
+				if(blend1Timer!=null)
+					blend1Timer.stop();
+				if(blend2Timer!=null)
+					blend2Timer.stop();
+				if(cookTimer!=null)
+					cookTimer.stop();
+				JOptionPane.showMessageDialog(this, "Game Paused. Click OK to resume.");
+				roundTimer.start();
+				customerSpawnTimer.start();
+				patienceTimer.start();
+				if(blend1Timer.isRunning())
+					blend1Timer.start();
+				if(blend2Timer.isRunning())
+					blend2Timer.start();
+				if(cookTimer.isRunning())
+					cookTimer.start();
+			}
+			else if(choice==1) {
+				endGame();
+			}
+			else if(choice==2) {
+				resetGame();
+				repaint();
+			}
+			else if(choice==3) {
+				endGame();
+				screenState=0;
+				repaint();
+			}
+			return;
+		}
+		boolean itemSelected=false;//select and EXISTING item first always
+		for(int i=ingredientsOnScreen.size()-1;i>=0;i--) {
+			Item item=ingredientsOnScreen.get(i);
+			if(item.contains(x, y)) {
+				selectedItem=item;
+				offsetX=x-item.x;
+				offsetY=y-item.y;
+				if(selectedItem.isFruit()) {
+					Fruit f=(Fruit)selectedItem;
+					if(f.isOnChopStation()&&!f.isCut()) {
 						f.cut();
 						fruitCut.setFramePosition (0); 
 						fruitCut.start ();
 						repaint();
 					}
 				}
+				itemSelected=true;
+				return;
 			}
 		}
-
-		if (e.getKeyCode() == KeyEvent.VK_E) {
-			endGame();
-			screenState = 12; 
-			repaint();
+		if (x >= 16 && x <= 71 && y >= 380 && y <= 444) {
+			spawnMango();
+			selectedItem=null;
+			return;
 		}
 
-	}
+		if (x>= 16 && x <= 72 && y >= 440 && y <= 505) {
+			spawnLychee();
+			selectedItem=null;
 
+			return;
 
-	public static void main(String[] args) {
-		JFrame frame = new JFrame ("Bad Bubble Tea");
-		Main panel = new Main (); 
-		frame.add(panel);
-		frame.pack();
-		frame.setResizable(false);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		panel.addMouseListener(panel);
-		panel.addMouseMotionListener(panel);
-		panel.addKeyListener(panel);
-		panel.setFocusable(true);
-	}
+		}
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
+		if (x >= 16 && x <= 71 && y >= 505 && y <= 566) {
+			spawnPearl();
+			selectedItem=null;
 
-	}
+			return;
 
-	// Description: Handles key release events
-	// Parameters: KeyEvent e - the key event containing the released key
-	// Return: void
-	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode()==KeyEvent.VK_SPACE) {
-			spacePressed=false;
+		}
+
+		if (x>= 227 && x <= 282 && y >= 429 && y<= 494) {
+			spawnPudding();
+			selectedItem=null;
+
+			return;
+
+		}
+
+		if (x >= 175 && x <= 227 && y >= 425 && y <= 493) {
+			spawnCup();
+			selectedItem=null;
+
+			return;
+
+		}
+		//I THINK SHOULD DELETE
+		//			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
+		//				Item item = ingredientsOnScreen.get(i);
+		//				if (item.contains(x, y)) {
+		//					selectedItem = item;
+		//					offsetX=x- item.x;
+		//					offsetY =y - item.y;
+		//					ingredientsOnScreen.remove(i);
+		//					if(selectedItem.isFruit()) {
+		//						Fruit f=(Fruit) selectedItem;
+		//						if(f.isOnChopStation()&& !f.isCut()) {
+		//							f.cut();
+		//							repaint();
+		//						}
+		//					}
+		//					return; 
+		//				}
+		//			}
+		for(int i=tickets.size()-1;i>=0;i--) {
+			Ticket t=tickets.get(i);
+			if (t.contains(x, y)) {
+				selectedTicket=t;
+				ticketOffsetX=x-t.getBorders().x;
+				ticketOffsetY=y-t.getBorders().y;
+				t.setSelected(true);
+				repaint();
+				return;
+			}
 		}
 	}
+	else
+		handleAction(x,y);
+}
 
 
-	// Description: Processes player's mouse presses for selecting and dragging items, spawning ingredients, and selecting tickets
-	// Parameters: MouseEvent e - the mouse event containing click coordinates
-	// Return: void
-	@Override
-	public void mousePressed(MouseEvent e) {
-		x = e.getX();
-		y = e.getY();
-		pressX=x;
-		pressY=y;
-		isDragging=false;
-		if (screenState == 9) {
-			boolean itemSelected=false;//select and EXISTING item first always
-			for(int i=ingredientsOnScreen.size()-1;i>=0;i--) {
-				Item item=ingredientsOnScreen.get(i);
-				if(item.contains(x, y)) {
-					selectedItem=item;
-					offsetX=x-item.x;
-					offsetY=y-item.y;
-					if(selectedItem.isFruit()) {
-						Fruit f=(Fruit)selectedItem;
-						if(f.isOnChopStation()&&!f.isCut()) {
-							f.cut();
-							fruitCut.setFramePosition (0); 
-							fruitCut.start ();
-							repaint();
-						}
-					}
-					itemSelected=true;
-					return;
-				}
-			}
-			if (x >= 16 && x <= 71 && y >= 386 && y <= 444) {
-				spawnMango();
-				return;
-			}
+// Description: Processes user's mouse releases for dropping items, serving orders, assigning tickets, and station interactions
+// Parameters: MouseEvent e - the mouse event containing release coordinates
+// Return: void
+@Override
+public void mouseReleased(MouseEvent e) {
+	isDragging=false;//released so no longer dragging
 
-			if (x>= 16 && x <= 72 && y >= 448 && y <= 505) {
-				spawnLychee();
-				return;
-
-			}
-
-			if (x >= 16 && x <= 71 && y >= 510 && y <= 566) {
-				spawnPearl();
-				return;
-
-			}
-
-			if (x>= 230 && x <= 283 && y >= 439 && y<= 494) {
-				spawnPudding();
-				return;
-
-			}
-
-			if (x >= 175 && x <= 226 && y >= 439 && y <= 493) {
-				spawnCup();
-				return;
-
-			}
-			//I THINK SHOULD DELETE
-			//			for (int i = ingredientsOnScreen.size() - 1; i >= 0; i--) {
-			//				Item item = ingredientsOnScreen.get(i);
-			//				if (item.contains(x, y)) {
-			//					selectedItem = item;
-			//					offsetX=x- item.x;
-			//					offsetY =y - item.y;
-			//					ingredientsOnScreen.remove(i);
-			//					if(selectedItem.isFruit()) {
-			//						Fruit f=(Fruit) selectedItem;
-			//						if(f.isOnChopStation()&& !f.isCut()) {
-			//							f.cut();
-			//							repaint();
-			//						}
-			//					}
-			//					return; 
-			//				}
-			//			}
-			for(int i=tickets.size()-1;i>=0;i--) {
-				Ticket t=tickets.get(i);
-				if (t.contains(x, y)) {
-					selectedTicket=t;
-					ticketOffsetX=x-t.getBorders().x;
-					ticketOffsetY=y-t.getBorders().y;
-					t.setSelected(true);
-					repaint();
-					return;
-				}
-			}
-		}
-		else
-			handleAction(x,y);
-	}
-
-
-	// Description: Processes user's mouse releases for dropping items, serving orders, assigning tickets, and station interactions
-	// Parameters: MouseEvent e - the mouse event containing release coordinates
-	// Return: void
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		isDragging=false;//released so no longer dragging
-
-		int mx=e.getX();
-		int my=e.getY();
-
+	int mx=e.getX();
+	int my=e.getY();
+	if (screenState==9) {
 		//ORDERING STATION
 		if(orderingStation.contains(mx,my)) {
 			System.out.println("Ordering station clicked");
@@ -1448,18 +1676,37 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 						if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
 							Customer served=trayTickets[i].getCustomer();
 							served.setState("SERVED");
-							served.setTarget(servingStation.x, servingStation.y);
+							//served.setTarget(servingStation.x, servingStation.y);
+							served.setTarget(295, 81);
 							if(served.getWaitingSpotIndex()!=-1)
 								spotOccupied[served.getWaitingSpotIndex()]=false;
 							//	for (int j = 0; j < trayCounters.get(i).size(); j++) {
 							//		ingredientsOnScreen.remove(trayCounters.get(i).get(j));
 							//	}
+
+							// RESET BLENDER STATES
+							previousBlended1 = null;
+							previousBlended2 = null;
+							blender1FinishedFruit = "";
+							blender2FinishedFruit = "";
+							blend1State = "empty";
+							blend2State = "empty";
+
 							trayCounters.get(i).clear();
 							trayTickets[i]=null;
 							score+=100;
+							customersServed++;
+							if(customersServed>=5) {//yo idk if we still doing this but u said soooo
+								gameOn=false;
+								screenState=13;
+								level1Passed=true;
+								repaint();
+								return;
+							}
 							successOrderSubmit.setFramePosition (0); 
 							successOrderSubmit.start ();
 							JOptionPane.showMessageDialog(this, "SERVED! + 100pts");
+
 						}
 						else {
 							failedOrderSubmit.setFramePosition (0); 
@@ -1598,8 +1845,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		selectedItem=null;
 		repaint();
-
 	}
+}
 
 
 
@@ -1607,580 +1854,610 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
+@Override
+public void mouseEntered(MouseEvent e) {
+	// TODO Auto-generated method stub
 
+}
+
+@Override
+public void mouseExited(MouseEvent e) {
+
+}
+
+// Description: Handles player's mouse dragging for moving selected items and tickets around the screen
+// Parameters: MouseEvent e - the mouse event containing drag coordinates
+// Return: void
+@Override
+public void mouseDragged(MouseEvent e) {
+	int newX=e.getX();
+	int newY=e.getY();
+
+	if(!isDragging&&selectedItem!=null) {
+		int dx=Math.abs(newX-pressX);
+		int dy=Math.abs(newY-pressY);
+		if(dx>DRAG_THRESHOLD||dy>DRAG_THRESHOLD)
+			isDragging=true;
 	}
+	if (selectedItem != null&&isDragging) {
+		selectedItem.x = e.getX()-offsetX;
+		selectedItem.y = e.getY()-offsetY;
 
-	@Override
-	public void mouseExited(MouseEvent e) {
+		// check if blender 1 emptied
+		if (selectedItem == blender1Fruit && !blendStation1.intersects(new Rectangle(selectedItem.x,selectedItem.y,selectedItem.width,selectedItem.height))) {
+			blender1Fruit = null;
+			blender1FinishedFruit = "";
+		}
 
+		// check if blender 2 emptied
+		if (selectedItem == blender2Fruit &&!blendStation2.intersects(new Rectangle(selectedItem.x, selectedItem.y,selectedItem.width,selectedItem.height))) {
+			blender2Fruit = null;
+			blender2FinishedFruit = "";
+		}
+
+		repaint();
 	}
-
-	// Description: Handles player's mouse dragging for moving selected items and tickets around the screen
-	// Parameters: MouseEvent e - the mouse event containing drag coordinates
-	// Return: void
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		int newX=e.getX();
-		int newY=e.getY();
-
-		if(!isDragging&&selectedItem!=null) {
-			int dx=Math.abs(newX-pressX);
-			int dy=Math.abs(newY-pressY);
-			if(dx>DRAG_THRESHOLD||dy>DRAG_THRESHOLD)
-				isDragging=true;
-		}
-		if (selectedItem != null&&isDragging) {
-			selectedItem.x = e.getX()-offsetX;
-			selectedItem.y = e.getY()-offsetY;
-
-			// check if blender 1 emptied
-			if (selectedItem == blender1Fruit && !blendStation1.intersects(new Rectangle(selectedItem.x,selectedItem.y,selectedItem.width,selectedItem.height))) {
-				blender1Fruit = null;
-				blender1FinishedFruit = "";
-			}
-
-			// check if blender 2 emptied
-			if (selectedItem == blender2Fruit &&!blendStation2.intersects(new Rectangle(selectedItem.x, selectedItem.y,selectedItem.width,selectedItem.height))) {
-				blender2Fruit = null;
-				blender2FinishedFruit = "";
-			}
-
-			repaint();
-		}
-		if (selectedTicket!=null) {
-			selectedTicket.setPosition(e.getX()-ticketOffsetX, e.getY()-ticketOffsetY);
-			repaint();
-		}
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-
-	// Description: Loads all audio files
-	// Parameters: None
-	// Return: void
-	private void loadAllAudio() {
-		try {
-
-			sound = AudioSystem.getAudioInputStream(new File ("buttonClick.wav"));
-			buttonClick = AudioSystem.getClip();
-			buttonClick.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("fruitSpawn.wav"));
-			fruitSpawn = AudioSystem.getClip();
-			fruitSpawn.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("fruitBlend.wav"));
-			fruitBlend = AudioSystem.getClip();
-			fruitBlend.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("fruitCut.wav"));
-			fruitCut = AudioSystem.getClip();
-			fruitCut.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("boilingPearl.wav"));
-			boilingPearl = AudioSystem.getClip();
-			boilingPearl.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("pourJuice.wav"));
-			pourJuice = AudioSystem.getClip();
-			pourJuice.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("toppingSpawn.wav"));
-			toppingSpawn = AudioSystem.getClip();
-			toppingSpawn.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("cupSpawn.wav"));
-			cupSpawn = AudioSystem.getClip();
-			cupSpawn.open(sound);
-
-			sound = AudioSystem.getAudioInputStream(new File ("addTopping.wav"));
-			addTopping = AudioSystem.getClip();
-			addTopping.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("successOrderSubmit.wav"));
-			successOrderSubmit = AudioSystem.getClip();
-			successOrderSubmit.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("failedOrderSubmit.wav"));
-			failedOrderSubmit = AudioSystem.getClip();
-			failedOrderSubmit.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("ding.wav"));
-			ding = AudioSystem.getClip();
-			ding.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("decline.wav"));
-			decline = AudioSystem.getClip();
-			decline.open(sound);	
-
-			//	sound = AudioSystem.getAudioInputStream(new File ("warning.wav"));
-			//	warning = AudioSystem.getClip();
-			//	warning.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("warningSound.wav"));
-			warningSound = AudioSystem.getClip();
-			warningSound.open(sound);	
-
-			sound = AudioSystem.getAudioInputStream(new File ("victorySound.wav"));
-			victorySound = AudioSystem.getClip();
-			victorySound.open(sound);
-
-			sound = AudioSystem.getAudioInputStream(new File ("thinking.wav"));
-			thinking = AudioSystem.getClip();
-			thinking.open(sound);
-
-			sound = AudioSystem.getAudioInputStream(new File ("homeBackground.wav"));
-			homeBackground = AudioSystem.getClip();
-			homeBackground.open(sound);
-
-			sound = AudioSystem.getAudioInputStream(new File ("gameBackground.wav"));
-			gameBackground = AudioSystem.getClip();
-			gameBackground.open(sound);
-
-		} 
-		catch (Exception e) {
-		}
-	}
-
-	// Description: Loads all image files using MediaTracker
-	// Parameters: None
-	// Return: void
-	private void loadAllImages() {
-
-		MediaTracker tracker = new MediaTracker (this);
-		home = Toolkit.getDefaultToolkit ().getImage ("home.png");
-		tracker.addImage (home, 0);
-		instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
-		tracker.addImage (instructions1, 1);
-		instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
-		tracker.addImage (instructions2, 2);
-		instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
-		tracker.addImage (instructions3, 3);
-		instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
-		tracker.addImage (instructions4, 4);
-		lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
-		tracker.addImage (lockedLevels, 6);
-		unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
-		tracker.addImage (unlockedLevels, 7);
-		startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
-		tracker.addImage (startImg, 8);
-		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
-		tracker.addImage (gameLevel1, 9);
-		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
-		tracker.addImage (gameLevel2, 10);
-		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
-		tracker.addImage (highScore, 12);
-		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
-		tracker.addImage (victory, 13);
-
-		//////////MANGO
-		mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
-		tracker.addImage(mangoFresh, 14);
-		mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
-		tracker.addImage(mangoCut, 15);
-		mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
-		tracker.addImage(mangoBlended, 16);
-		//////////LYCHEE
-		lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
-		tracker.addImage(lycheeFresh, 17);
-		lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
-		tracker.addImage(lycheeCut, 18);
-		lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
-		tracker.addImage(lycheeBlended, 19);
-		//CUP and TOPPINGS
-		cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
-		tracker.addImage(cupBase, 20);
-		pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
-		tracker.addImage(pearlIcon, 21);
-		puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
-		tracker.addImage(puddingIcon, 22);
-
-		//////////     CUSTOMER
-		customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
-		tracker.addImage(customerImg, 23);
-
-		///PEARLZ
-		pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
-		tracker.addImage(pearlUncooked, 24);
-		pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
-		tracker.addImage(pearlCooked, 25);
-
-		// blender
-		emptyBlender1 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
-		tracker.addImage(emptyBlender1, 26);
-
-		emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
-		tracker.addImage(emptyBlender2, 27);
-
-		//mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
-		//	tracker.addImage(mangoBlender, 28);
-
-		//lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
-		//	tracker.addImage(lycheeBlender, 29);
-
-		blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
-		tracker.addImage(blendingMango1, 30);
-
-		blendingMango2 = Toolkit.getDefaultToolkit().getImage("blending_Mango2.png");
-		tracker.addImage(blendingMango2, 31);
-
-		blendingLychee1 = Toolkit.getDefaultToolkit().getImage("blending_Lychee1.png");
-		tracker.addImage(blendingLychee1, 32);
-
-		blendingLychee2 = Toolkit.getDefaultToolkit().getImage("blending_Lychee2.png");
-		tracker.addImage(blendingLychee2, 33);
-
-		blendedMango =  Toolkit.getDefaultToolkit().getImage("blendedMango.png");
-		blendedMango = blendedMango.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-		tracker.addImage(blendedMango, 34);
-
-
-		blendedLychee =  Toolkit.getDefaultToolkit().getImage("blendedLychee.png");
-		blendedLychee = blendedLychee.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-		tracker.addImage(blendedLychee, 35);
-
-
-		//Pot
-		emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
-		tracker.addImage(emptyPot, 36);
-
-		pearlPot = Toolkit.getDefaultToolkit().getImage("pearl_Pot.png");
-		tracker.addImage(pearlPot, 37);
-
-		uncookedPearl1 = Toolkit.getDefaultToolkit().getImage("uncookedPearl1_Pot.png");
-		tracker.addImage(uncookedPearl1, 38);
-
-		uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
-		tracker.addImage(uncookedPearl2, 39);
-
-		// high score background
-		highScoreBg = Toolkit.getDefaultToolkit().getImage("highScoreBg.png");
-		tracker.addImage(highScoreBg, 40);
-
-		// pudding
-		pudding = Toolkit.getDefaultToolkit().getImage("pudding.png");
-		tracker.addImage(pudding, 41);
-
-		// All cups + add to HashMap
-		emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
-		tracker.addImage(emptyCup, 42);
-
-		mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
-		tracker.addImage(mangoJuiceCup, 43);
-		cupImages.put("mangoJuice", mangoJuiceCup);
-
-		lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
-		tracker.addImage(lycheeJuiceCup, 44);
-		cupImages.put("lycheeJuice", lycheeJuiceCup);
-
-		mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
-		tracker.addImage(mangoPearlCup, 45);
-		cupImages.put("mangoPearl", mangoPearlCup);
-
-		lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
-		tracker.addImage(lycheePearlCup, 46);
-		cupImages.put("lycheePearl", lycheePearlCup);
-
-		mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
-		tracker.addImage(mangoPuddingCup, 47);
-		cupImages.put("mangoPudding", mangoPuddingCup);
-
-		lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
-		tracker.addImage(lycheePuddingCup, 48);
-		cupImages.put("lycheePudding", lycheePuddingCup);
-
-		mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
-		tracker.addImage(mangoPearlPuddingCup, 49);
-		cupImages.put("mangoPearlPudding", mangoPearlPuddingCup);
-
-
-		lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
-		tracker.addImage(lycheePearlPuddingCup, 50);
-		cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
-
-
-		// Credits screen
-		credits1 = Toolkit.getDefaultToolkit().getImage("credits1.png");
-		tracker.addImage(credits1, 51);
-		credits2 = Toolkit.getDefaultToolkit().getImage("credits2.png");
-		tracker.addImage(credits2, 52);
-
-		// Levels screens
-		lockedLevels = Toolkit.getDefaultToolkit().getImage("lockedLevels.png");
-		tracker.addImage(lockedLevels, 53);
-		unlockedLevels = Toolkit.getDefaultToolkit().getImage("unlockedLevels.png");
-		tracker.addImage(unlockedLevels, 54);
-
-		// Customers (Orange Cat)
-		orangeCatHappy = Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png");
-		tracker.addImage(orangeCatHappy, 55);
-
-		orangeCatNeutral = Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png");
-		tracker.addImage(orangeCatNeutral, 56);
-
-		orangeCatImpatient = Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png");
-		tracker.addImage(orangeCatImpatient, 57);
-
-		orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
-		tracker.addImage(orangeCatAngry, 58);
-
-
-		try {
-			tracker.waitForAll();
-		}
-		catch(InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		HashMap<String,Image>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
-		orangeCatEmotions.put("happy", orangeCatHappy);
-		orangeCatEmotions.put("neutral", orangeCatNeutral);
-		orangeCatEmotions.put("impatient", orangeCatImpatient);
-		orangeCatEmotions.put("angry", orangeCatAngry);
-		customerImages.put("orangeCat", orangeCatEmotions);
-
-		System.out.println("Customer images loaded: " + customerImages);
-		System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
-		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
-
-
-		Image smallMango=mangoFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-		Image smallLychee=lycheeFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-		Image smallPearl=pearlCooked.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-		Image smallPudding=pudding.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-		ticketIcons.put("mango", smallMango);
-		ticketIcons.put("lychee", smallLychee);
-		ticketIcons.put("pearl", smallPearl);
-		ticketIcons.put("pudding", smallPudding);
-
-
-	}
-
-	// Description: Displays the blending animation for a fruit, displays progress bar and plays blending sound
-	// Parameters:The fruit to be blended
-	// Return: void
-	private void startBlendingAnimation(Fruit f) {
-
-		fruitBlend.setFramePosition (0); 
-		fruitBlend.start ();
-		blendBar.setVisible(true);
-		ingredientsOnScreen.remove(f);
-
-		if (activeBlender == 1) {
-			blender1Fruit = f;
-			blender1FinishedFruit = f.getFruitType();
-			blender1Progress = 0;
-			blend1State = "unblended1";
-			blendBar.setValue(0);
-			blendBar.setVisible(true);
-			blend1Timer.start();
-			repaint();
-		}
-
-		if (activeBlender == 2) {
-			blender2Fruit = f;
-			blender2FinishedFruit = f.getFruitType();
-			blender2Progress = 0;
-			blend2State = "unblended1";
-
-			blendBar.setValue(0);
-			blend2Timer.start();
-			repaint();
-		}
-	}
-
-	// Description: Loads high scores from a text file into the score list
-	// Parameters: None
-	// Return: void
-	private void loadHighScore() {
-		try(Scanner scanner=new Scanner(new File(scoreFile))){
-			while(scanner.hasNextLine()) {
-				String line=scanner.nextLine();
-				String[]parts=line.split(",");
-				if (parts.length==2)   //usrname ////////points
-					scoreList.add(new Score(parts[0],Integer.parseInt(parts[1])));
-			}
-		}
-		catch(FileNotFoundException e) {
-		}
-		Collections.sort(scoreList);
-		refreshScoreList();
-	}
-
-	// Description: Saves current high scores to a text file
-	// Parameters: None
-	// Return: void
-	void saveScore() {
-		try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
-			for (Score s: scoreList) {
-				inFile.println(s.username+","+s.points);
-			}
-		}
-		catch(FileNotFoundException e) {
-		}
-	}
-
-	// Description: Ends the current game, stops all timers, saves the score, and transitions to high score screen
-	// Parameters: None
-	// Return: void
-	private void endGame() {
-
-		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
-			return;
-		gameOn=false;//so no more gaming can happen
-		// stop all timers
-		if (roundTimer != null) 
-			roundTimer.stop();
-		if (blend1Timer != null) 
-			blend1Timer.stop();
-		if (blend2Timer != null) 
-			blend2Timer.stop();
-		if (cookTimer != null) 
-			cookTimer.stop();
-		if (customerSpawnTimer != null) 
-			customerSpawnTimer.stop();
-
-
-		//add a score to scores
-		String name=usernameField.getText().trim();
-		if(name.equals("Enter username:"))
-			name="Anonymous";
-		scoreList.add(new Score(name,score));
-		Collections.sort(scoreList);
-
-		saveScore();
-
-		refreshScoreList();
-		victorySound.setFramePosition (0); 
-		victorySound.start ();
-		screenState=12;
+	if (selectedTicket!=null) {
+		selectedTicket.setPosition(e.getX()-ticketOffsetX, e.getY()-ticketOffsetY);
 		repaint();
 	}
 
+}
 
-	// Description: Finds and returns the index of an unoccupied waiting spot for customers after ordering
-	// Parameters: None
-	// Return: index of free waiting spot (-1 if none available)
-	private int getFreeWaitingSpot() {//find free waiting spots
-		for(int i=0;i<spotOccupied.length;i++) {
-			if (!spotOccupied[i])//if unoccupied, can be occupied!
-				return i;
-		}
-		return -1;//if no spots avail
+@Override
+public void mouseMoved(MouseEvent e) {
+	// TODO Auto-generated method stub
+
+}
+
+
+// Description: Loads all audio files
+// Parameters: None
+// Return: void
+private void loadAllAudio() {
+	try {
+
+		sound = AudioSystem.getAudioInputStream(new File ("buttonClick.wav"));
+		buttonClick = AudioSystem.getClip();
+		buttonClick.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("fruitSpawn.wav"));
+		fruitSpawn = AudioSystem.getClip();
+		fruitSpawn.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("fruitBlend.wav"));
+		fruitBlend = AudioSystem.getClip();
+		fruitBlend.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("fruitCut.wav"));
+		fruitCut = AudioSystem.getClip();
+		fruitCut.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("boilingPearl.wav"));
+		boilingPearl = AudioSystem.getClip();
+		boilingPearl.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("pourJuice.wav"));
+		pourJuice = AudioSystem.getClip();
+		pourJuice.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("toppingSpawn.wav"));
+		toppingSpawn = AudioSystem.getClip();
+		toppingSpawn.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("cupSpawn.wav"));
+		cupSpawn = AudioSystem.getClip();
+		cupSpawn.open(sound);
+
+		sound = AudioSystem.getAudioInputStream(new File ("addTopping.wav"));
+		addTopping = AudioSystem.getClip();
+		addTopping.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("successOrderSubmit.wav"));
+		successOrderSubmit = AudioSystem.getClip();
+		successOrderSubmit.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("failedOrderSubmit.wav"));
+		failedOrderSubmit = AudioSystem.getClip();
+		failedOrderSubmit.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("ding.wav"));
+		ding = AudioSystem.getClip();
+		ding.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("decline.wav"));
+		decline = AudioSystem.getClip();
+		decline.open(sound);	
+
+		//	sound = AudioSystem.getAudioInputStream(new File ("warning.wav"));
+		//	warning = AudioSystem.getClip();
+		//	warning.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("warningSound.wav"));
+		warningSound = AudioSystem.getClip();
+		warningSound.open(sound);	
+
+		sound = AudioSystem.getAudioInputStream(new File ("victorySound.wav"));
+		victorySound = AudioSystem.getClip();
+		victorySound.open(sound);
+
+		sound = AudioSystem.getAudioInputStream(new File ("thinking.wav"));
+		thinking = AudioSystem.getClip();
+		thinking.open(sound);
+
+		sound = AudioSystem.getAudioInputStream(new File ("homeBackground.wav"));
+		homeBackground = AudioSystem.getClip();
+		homeBackground.open(sound);
+
+		sound = AudioSystem.getAudioInputStream(new File ("gameBackground.wav"));
+		gameBackground = AudioSystem.getClip();
+		gameBackground.open(sound);
+
+	} 
+	catch (Exception e) {
+	}
+}
+
+// Description: Loads all image files using MediaTracker
+// Parameters: None
+// Return: void
+private void loadAllImages() {
+
+	MediaTracker tracker = new MediaTracker (this);
+	home = Toolkit.getDefaultToolkit ().getImage ("home.png");
+	tracker.addImage (home, 0);
+	instructions1 = Toolkit.getDefaultToolkit ().getImage ("instructions1.png");
+	tracker.addImage (instructions1, 1);
+	instructions2 = Toolkit.getDefaultToolkit ().getImage ("instructions2.png");
+	tracker.addImage (instructions2, 2);
+	instructions3 = Toolkit.getDefaultToolkit ().getImage ("instructions3.png");
+	tracker.addImage (instructions3, 3);
+	instructions4 = Toolkit.getDefaultToolkit ().getImage ("instructions4.png");
+	tracker.addImage (instructions4, 4);
+	instructions5 = Toolkit.getDefaultToolkit ().getImage ("instructions5.png");
+	tracker.addImage (instructions4, 5);
+	lockedLevels = Toolkit.getDefaultToolkit ().getImage ("lockedLevels.png");
+	tracker.addImage (lockedLevels, 6);
+	unlockedLevels = Toolkit.getDefaultToolkit ().getImage ("unlockedLevels.png");
+	tracker.addImage (unlockedLevels, 7);
+	startImg = Toolkit.getDefaultToolkit ().getImage ("startImg.png");
+	tracker.addImage (startImg, 8);
+	gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
+	tracker.addImage (gameLevel1, 9);
+	//		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
+	//		tracker.addImage (gameLevel2, 10);
+	highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
+	tracker.addImage (highScore, 12);
+	victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
+	tracker.addImage (victory, 13);
+
+	//////////MANGO
+	mangoFresh=Toolkit.getDefaultToolkit().getImage("mango_fresh.png");
+	tracker.addImage(mangoFresh, 14);
+	mangoCut=Toolkit.getDefaultToolkit().getImage("mango_cut.png");
+	tracker.addImage(mangoCut, 15);
+	mangoBlended=Toolkit.getDefaultToolkit().getImage("mango_blended.png");
+	tracker.addImage(mangoBlended, 16);
+	//////////LYCHEE
+	lycheeFresh=Toolkit.getDefaultToolkit().getImage("lychee_fresh.png");
+	tracker.addImage(lycheeFresh, 17);
+	lycheeCut=Toolkit.getDefaultToolkit().getImage("lychee_cut.png");
+	tracker.addImage(lycheeCut, 18);
+	lycheeBlended=Toolkit.getDefaultToolkit().getImage("lychee_blended.png");
+	tracker.addImage(lycheeBlended, 19);
+	//CUP and TOPPINGS
+	cupBase=Toolkit.getDefaultToolkit().getImage("cup_base.png");
+	tracker.addImage(cupBase, 20);
+	pearlIcon=Toolkit.getDefaultToolkit().getImage("pearl_icon.png");
+	tracker.addImage(pearlIcon, 21);
+	puddingIcon=Toolkit.getDefaultToolkit().getImage("pudding_icon.png");
+	tracker.addImage(puddingIcon, 22);
+
+	//////////     CUSTOMER
+	customerImg=Toolkit.getDefaultToolkit().getImage("customer.png");
+	tracker.addImage(customerImg, 23);
+
+	///PEARLZ
+	pearlUncooked=Toolkit.getDefaultToolkit().getImage("pearl_uncooked.png");
+	tracker.addImage(pearlUncooked, 24);
+	pearlCooked=Toolkit.getDefaultToolkit().getImage("pearl_cooked.png");
+	tracker.addImage(pearlCooked, 25);
+
+	// blender
+	emptyBlender1 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
+	tracker.addImage(emptyBlender1, 26);
+
+	emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
+	tracker.addImage(emptyBlender2, 27);
+
+	//mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
+	//	tracker.addImage(mangoBlender, 28);
+
+	//lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
+	//	tracker.addImage(lycheeBlender, 29);
+
+	blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
+	tracker.addImage(blendingMango1, 30);
+
+	blendingMango2 = Toolkit.getDefaultToolkit().getImage("blending_Mango2.png");
+	tracker.addImage(blendingMango2, 31);
+
+	blendingLychee1 = Toolkit.getDefaultToolkit().getImage("blending_Lychee1.png");
+	tracker.addImage(blendingLychee1, 32);
+
+	blendingLychee2 = Toolkit.getDefaultToolkit().getImage("blending_Lychee2.png");
+	tracker.addImage(blendingLychee2, 33);
+
+	blendedMango =  Toolkit.getDefaultToolkit().getImage("blendedMango.png");
+	blendedMango = blendedMango.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+	tracker.addImage(blendedMango, 34);
+
+
+	blendedLychee =  Toolkit.getDefaultToolkit().getImage("blendedLychee.png");
+	blendedLychee = blendedLychee.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+	tracker.addImage(blendedLychee, 35);
+
+
+	//Pot
+	emptyPot = Toolkit.getDefaultToolkit().getImage("emptyPot.png");
+	tracker.addImage(emptyPot, 36);
+
+	pearlPot = Toolkit.getDefaultToolkit().getImage("pearl_Pot.png");
+	tracker.addImage(pearlPot, 37);
+
+	uncookedPearl1 = Toolkit.getDefaultToolkit().getImage("uncookedPearl1_Pot.png");
+	tracker.addImage(uncookedPearl1, 38);
+
+	uncookedPearl2 = Toolkit.getDefaultToolkit().getImage("uncookedPearl2_Pot.png");
+	tracker.addImage(uncookedPearl2, 39);
+
+	// high score background
+	highScoreBg = Toolkit.getDefaultToolkit().getImage("highScoreBg.png");
+	tracker.addImage(highScoreBg, 40);
+
+	// pudding
+	pudding = Toolkit.getDefaultToolkit().getImage("pudding.png");
+	tracker.addImage(pudding, 41);
+
+	// All cups + add to HashMap
+	emptyCup = Toolkit.getDefaultToolkit().getImage("emptyCup.png");
+	tracker.addImage(emptyCup, 42);
+
+	mangoJuiceCup = Toolkit.getDefaultToolkit().getImage("mangoJuiceCup.png");
+	tracker.addImage(mangoJuiceCup, 43);
+	cupImages.put("mangoJuice", mangoJuiceCup);
+
+	lycheeJuiceCup = Toolkit.getDefaultToolkit().getImage("lycheeJuiceCup.png");
+	tracker.addImage(lycheeJuiceCup, 44);
+	cupImages.put("lycheeJuice", lycheeJuiceCup);
+
+	mangoPearlCup = Toolkit.getDefaultToolkit().getImage("mangoPearlCup.png");
+	tracker.addImage(mangoPearlCup, 45);
+	cupImages.put("mangoPearl", mangoPearlCup);
+
+	lycheePearlCup = Toolkit.getDefaultToolkit().getImage("lycheePearlCup.png");
+	tracker.addImage(lycheePearlCup, 46);
+	cupImages.put("lycheePearl", lycheePearlCup);
+
+	mangoPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPuddingCup.png");
+	tracker.addImage(mangoPuddingCup, 47);
+	cupImages.put("mangoPudding", mangoPuddingCup);
+
+	lycheePuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePuddingCup.png");
+	tracker.addImage(lycheePuddingCup, 48);
+	cupImages.put("lycheePudding", lycheePuddingCup);
+
+	mangoPearlPuddingCup = Toolkit.getDefaultToolkit().getImage("mangoPearlPuddingCup.png");
+	tracker.addImage(mangoPearlPuddingCup, 49);
+	cupImages.put("mangoPearlPudding", mangoPearlPuddingCup);
+
+
+	lycheePearlPuddingCup = Toolkit.getDefaultToolkit().getImage("lycheePearlPuddingCup.png");
+	tracker.addImage(lycheePearlPuddingCup, 50);
+	cupImages.put("lycheePearlPudding", lycheePearlPuddingCup);
+
+
+	// Credits screen
+	credits1 = Toolkit.getDefaultToolkit().getImage("credits1.png");
+	tracker.addImage(credits1, 51);
+	credits2 = Toolkit.getDefaultToolkit().getImage("credits2.png");
+	tracker.addImage(credits2, 52);
+
+	// Levels screens
+	lockedLevels = Toolkit.getDefaultToolkit().getImage("lockedLevels.png");
+	tracker.addImage(lockedLevels, 53);
+	unlockedLevels = Toolkit.getDefaultToolkit().getImage("unlockedLevels.png");
+	tracker.addImage(unlockedLevels, 54);
+
+	// Customers (Orange Cat)
+	orangeCatHappy = Toolkit.getDefaultToolkit().getImage("orangeCat_happy.png");
+	tracker.addImage(orangeCatHappy, 55);
+
+	orangeCatNeutral = Toolkit.getDefaultToolkit().getImage("orangeCat_neutral.png");
+	tracker.addImage(orangeCatNeutral, 56);
+
+	orangeCatImpatient = Toolkit.getDefaultToolkit().getImage("orangeCat_impatient.png");
+	tracker.addImage(orangeCatImpatient, 57);
+
+	orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
+	tracker.addImage(orangeCatAngry, 58);
+
+
+	try {
+		tracker.waitForAll();
+	}
+	catch(InterruptedException e) {
+		e.printStackTrace();
 	}
 
-	// Description: Shifts all customers in line forward to fill empty spots after a customer is served
-	// Parameters: None
-	// Return: void
-	private void shiftLineForward() {
-		int ind=0;
-		for(Customer c:orderLine) {//do each customer in the line
-			if(ind<lineSpotsCount) {
-				c.setTarget(lineSpots[ind].x, lineSpots[ind].y);
-			}
-			ind++;//next
+	HashMap<String,Image>orangeCatEmotions=new HashMap<>();//ORNAGE CAT
+	orangeCatEmotions.put("happy", orangeCatHappy);
+	orangeCatEmotions.put("neutral", orangeCatNeutral);
+	orangeCatEmotions.put("impatient", orangeCatImpatient);
+	orangeCatEmotions.put("angry", orangeCatAngry);
+	customerImages.put("orangeCat", orangeCatEmotions);
+
+	System.out.println("Customer images loaded: " + customerImages);
+	System.out.println("Orange cat emotions: " + customerImages.get("orangeCat").keySet());
+	System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
+
+
+	Image smallMango=mangoFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+	Image smallLychee=lycheeFresh.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+	Image smallPearl=pearlCooked.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+	Image smallPudding=pudding.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+	ticketIcons.put("mango", smallMango);
+	ticketIcons.put("lychee", smallLychee);
+	ticketIcons.put("pearl", smallPearl);
+	ticketIcons.put("pudding", smallPudding);
+
+
+}
+
+// Description: Displays the blending animation for a fruit, displays progress bar and plays blending sound
+// Parameters:The fruit to be blended
+// Return: void
+private void startBlendingAnimation(Fruit f) {
+
+	fruitBlend.setFramePosition (0); 
+	fruitBlend.start ();
+	blendBar.setVisible(true);
+	ingredientsOnScreen.remove(f);
+
+	if (activeBlender == 1) {
+		blender1Fruit = f;
+		blender1FinishedFruit = f.getFruitType();
+		blender1Progress = 0;
+		blend1State = "unblended1";
+		blendBar.setValue(0);
+		blendBar.setVisible(true);
+		blend1Timer.start();
+		repaint();
+	}
+
+	if (activeBlender == 2) {
+		blender2Fruit = f;
+		blender2FinishedFruit = f.getFruitType();
+		blender2Progress = 0;
+		blend2State = "unblended1";
+
+		blendBar.setValue(0);
+		blend2Timer.start();
+		repaint();
+	}
+}
+
+// Description: Loads high scores from a text file into the score list
+// Parameters: None
+// Return: void
+private void loadHighScore() {
+	try(Scanner scanner=new Scanner(new File(scoreFile))){
+		while(scanner.hasNextLine()) {
+			String line=scanner.nextLine();
+			String[]parts=line.split(",");
+			if (parts.length==2)   //usrname ////////points
+				scoreList.add(new Score(parts[0],Integer.parseInt(parts[1])));
+		}
+	}
+	catch(FileNotFoundException e) {
+	}
+	Collections.sort(scoreList);
+	refreshScoreList();
+}
+
+// Description: Saves current high scores to a text file
+// Parameters: None
+// Return: void
+void saveScore() {
+	try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
+		for (Score s: scoreList) {
+			inFile.println(s.username+","+s.points);
+		}
+	}
+	catch(FileNotFoundException e) {
+	}
+}
+
+// Description: Ends the current game, stops all timers, saves the score, and transitions to high score screen
+// Parameters: None
+// Return: void
+private void endGame() {
+
+	if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
+		return;
+	victorySound.setFramePosition (0); 
+	victorySound.start ();
+	gameOn=false;//so no more gaming can happen
+	// stop all timers
+	if(roundTimer != null) 
+		roundTimer.stop();
+	if(blend1Timer != null) 
+		blend1Timer.stop();
+	if (blend2Timer != null) 
+		blend2Timer.stop();
+	if(cookTimer != null) 
+		cookTimer.stop();
+	if (customerSpawnTimer != null) 
+		customerSpawnTimer.stop();
+	if(gameBackground.isRunning())
+		gameBackground.stop();
+	if(warningSound.isRunning())
+		warningSound.stop();
+
+	//add a score to scores
+	String name=usernameField.getText().trim();
+	if(name.equals("Enter username:"))
+		name="Anonymous";
+	scoreList.add(new Score(name,score));
+	Collections.sort(scoreList);
+
+	saveScore();
+
+	refreshScoreList();
+
+	screenState=12;
+	repaint();
+}
+
+
+// Description: Finds and returns the index of an unoccupied waiting spot for customers after ordering
+// Parameters: None
+// Return: index of free waiting spot (-1 if none available)
+private int getFreeWaitingSpot() {//find free waiting spots
+	for(int i=0;i<spotOccupied.length;i++) {
+		if (!spotOccupied[i])//if unoccupied, can be occupied!
+			return i;
+	}
+	return -1;//if no spots avail
+}
+
+// Description: Shifts all customers in line forward to fill empty spots after a customer is served
+// Parameters: None
+// Return: void
+private void shiftLineForward() {
+	int ind=0;
+	for(Customer c:orderLine) {//do each customer in the line
+		if(ind<lineSpotsCount) {
+			c.setTarget(lineSpots[ind].x, lineSpots[ind].y);
+		}
+		ind++;//next
+	}
+}
+
+// Description: Refreshes the displayed high score list in the UI
+// Parameters: None
+// Return: void
+private void refreshScoreList() {
+	if(scoreListModel==null)
+		return;
+	scoreListModel.clear();
+	for(Score s: scoreList) {
+		scoreListModel.addElement(String.format("%-15s%45d", s.username, s.points));
+	}
+}
+
+// Description: Resets the entire game state to start a new game, clearing all collections and resetting variables
+// Parameters: None
+// Return: void
+private void resetGame() {
+	//STOP TIMERS
+	if(roundTimer!=null)
+		roundTimer.stop();
+	if(blend1Timer!=null)
+		blend1Timer.stop();
+	if(blend2Timer!=null)
+		blend2Timer.stop();
+	if(cookTimer!=null)
+		cookTimer.stop();
+	if(customerSpawnTimer!=null)
+		customerSpawnTimer.stop();
+	//CLEAR THE COLLECTIONS
+	customers.clear();
+	orderLine.clear();
+	ingredientsOnScreen.clear();
+	trayDrinks.clear();
+	// RESET TICKETS
+	tickets.clear();
+	selectedTicket = null;
+	// RESET TRAYS
+	for (int i = 0; i < trayCount; i++) {
+		trayCounters.get(i).clear(); // remove drinks from tray
+		trayTickets[i] = null;       // remove assigned ticket
+	}
+	// RESET CUSTOMER
+	orderingCustomer = null;
+	orderingFrames = 0;
+	//RESET SCORING AND GAME STUFF
+	score=0;
+	customersServed=0;
+	timeLeft=120;//2 min
+	lessThan10=false;
+	gameOn=true;
+	//RESET THE PLAYER INTERACTIONS
+	selectedItem=null;
+	spacePressed=false;
+	//RESET THESTATIONS
+	/////////blender 1
+	blender1Fruit=null;
+	blender1Progress=0;
+	blend1State="empty";
+	blender1FinishedFruit="";
+	previousBlended1=null;
+	/////////blender 2
+	blender2Fruit=null;
+	blender2Progress=0;
+	blend2State="empty";
+	blender2FinishedFruit="";
+	previousBlended2=null;
+	activeBlender=0;
+	// previous blender
+	//previousBlended1 = null;
+	//previousBlended2 = null;
+	//blender1FinishedFruit = "";
+	//blender2FinishedFruit = "";
+	///blend1State = "empty";
+	//blend2State = "empty";
+	//potState = "empty";
+	//cookingPearl = null;
+	//cookingProgress = 0;
+
+	// tray tickets
+	for (int i = 0; i < trayCount; i++) {
+		if (trayTickets[i] != null) {
+			trayTickets[i] = null;
+		}
+		if (trayCounters.get(i) != null) {
+			trayCounters.get(i).clear();
 		}
 	}
 
-	// Description: Refreshes the displayed high score list in the UI
-	// Parameters: None
-	// Return: void
-	private void refreshScoreList() {
-		if(scoreListModel==null)
-			return;
-		scoreListModel.clear();
-		for(Score s: scoreList) {
-			scoreListModel.addElement(String.format("%-15s%45d", s.username, s.points));
-		}
+	blendBar.setVisible(false);
+	//cooking
+	cookingPearl=null;
+	cookingProgress=0;
+	potState="empty";
+	cookBar.setVisible(false);
+
+	//all waiting spots free!!!
+	for(int i=0;i<spotOccupied.length;i++) {
+		spotOccupied[i]=false;
 	}
 
-	// Description: Resets the entire game state to start a new game, clearing all collections and resetting variables
-	// Parameters: None
-	// Return: void
-	private void resetGame() {
-		//STOP TIMERS
-		if(roundTimer!=null)
-			roundTimer.stop();
-		if(blend1Timer!=null)
-			blend1Timer.stop();
-		if(blend2Timer!=null)
-			blend2Timer.stop();
-		if(cookTimer!=null)
-			cookTimer.stop();
-		if(customerSpawnTimer!=null)
-			customerSpawnTimer.stop();
-		//CLEAR THE COLLECTIONS
-		customers.clear();
-		orderLine.clear();
-		ingredientsOnScreen.clear();
-		trayDrinks.clear();
-		// RESET TICKETS
-		tickets.clear();
-		selectedTicket = null;
-		// RESET TRAYS
-		for (int i = 0; i < trayCount; i++) {
-			trayCounters.get(i).clear(); // remove drinks from tray
-			trayTickets[i] = null;       // remove assigned ticket
-		}
-		// RESET CUSTOMER
-		orderingCustomer = null;
-		orderingFrames = 0;
-		//RESET SCORING AND GAME STUFF
-		score=0;
-		timeLeft=120;//2 min
-		gameOn=true;
-		//RESET THE PLAYER INTERACTIONS
-		selectedItem=null;
-		spacePressed=false;
-		//RESET THESTATIONS
-		/////////blender 1
-		blender1Fruit=null;
-		blender1Progress=0;
-		blend1State="empty";
-		blender1FinishedFruit="";
-		previousBlended1=null;
-		/////////blender 2
-		blender2Fruit=null;
-		blender2Progress=0;
-		blend2State="empty";
-		blender2FinishedFruit="";
-		previousBlended2=null;
-		activeBlender=0;
-		blendBar.setVisible(false);
-		//cooking
-		cookingPearl=null;
-		cookingProgress=0;
-		potState="empty";
-		cookBar.setVisible(false);
+	//now can start timer cuz this method is called when game starts
+	roundTimer=new Timer(1000,this);
+	roundTimer.start();
+	customerSpawnTimer=new Timer(8000,this);
+	customerSpawnTimer.start();
+	if(orderLine.size()<lineSpotsCount) {
+		int backInd= orderLine.size();//should b 0;
+		Point backSpot=lineSpots[backInd];
+		Customer c=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
 
-		//all waiting spots free!!!
-		for(int i=0;i<spotOccupied.length;i++) {
-			spotOccupied[i]=false;
-		}
-
-		//now can start timer cuz this method is called when game starts
-		roundTimer=new Timer(1000,this);
-		roundTimer.start();
-		customerSpawnTimer=new Timer(8000,this);
-		customerSpawnTimer.start();
-		if(orderLine.size()<lineSpotsCount) {
-			int backInd= orderLine.size();//should b 0;
-			Point backSpot=lineSpots[backInd];
-			Customer c=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
-			c.setState("IN_LINE");
-			customers.add(c);
-			orderLine.add(c);
-			repaint();
-		}
+		c.setState("IN_LINE");
+		customers.add(c);
+		orderLine.add(c);
+		repaint();
 	}
+}
 
 }
