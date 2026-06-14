@@ -276,7 +276,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 							cup.refreshImage(cupImages); // refreshes image after adding
 							// Remove the fruit from screen
 							ingredientsOnScreen.remove(fruit);
-							
+
 
 						}
 						// add lychee to chup
@@ -288,7 +288,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 							cup.refreshImage(cupImages); // refresh image after adding
 							// Remove the fruit from screen
 							ingredientsOnScreen.remove(fruit);
-							
+
 
 						}
 						selectedItem = null;
@@ -426,16 +426,18 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		homeBackground.setFramePosition (0); 
 		homeBackground.loop(Clip.LOOP_CONTINUOUSLY);
 
-		// spot for player to enter name
+		// Create text field where player enters username
 		usernameField = new JTextField(10); 
 		usernameField.setBounds(66, 300, 258, 21); 
 		usernameField.setText("Enter username: ");
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
-		// set up score components
+		// Set up high score display list
 		scoreListModel=new DefaultListModel<>();
 		scoreDisplayList=new JList<>(scoreListModel);
+
+		// Add score list into scroll pane for scrolling
 		scoreScrollPane=new JScrollPane(scoreDisplayList);
 		scoreScrollPane.setBounds(50,150,290,400);
 		scoreScrollPane.setVisible(false);
@@ -443,7 +445,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		loadHighScore();
 
 
-		trayDrinks=new ArrayList<>();
+		trayDrinks=new ArrayList<>(); // drinks currently on tray
 
 		// add customer
 		Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y, thinking);
@@ -462,8 +464,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		cookBar.setVisible(false);
 		this.add(cookBar);
 
+		// Add keyboard listener for movement/actions
+
 		addKeyListener(this);
 		setFocusable(true);
+
 		this.setLayout(null); // Use absolute positioning for the box
 		this.add(usernameField); // save player name
 		gameTimer=new Timer (50, this);
@@ -473,37 +478,51 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		patienceTimer=new Timer( 1000, this);
 		patienceTimer.start();
 
-		
+
+		// Create customer line positions
 		lineSpots=new Point[lineSpotsCount];
 		lineSpots[0]=new Point(orderingStation.x,orderingStation.y);
+
+		// Remaining spots go upward in a line
 		for(int i=1;i<lineSpotsCount;i++) {
 			lineSpots[i]=new Point(orderingStation.x,orderingStation.y-(i*45));
 		}
-		//AFTER orderingg
+
+		// Create waiting spots after customer orders
 		waitingSpots=new Point[3];
 		waitingSpots[0]=new Point(100,500);
 		waitingSpots[1]=new Point(150,500);
 		waitingSpots[2]=new Point(200,500);
+
+		// Track whether waiting spots are occupied
 		spotOccupied=new boolean[waitingSpots.length];
 
+		// Create trays and tray positions
 		trayCounters=new ArrayList<>();
 		trayPositions=new Point[trayCount];
-		for(int i=0;i<trayCount;i++) {//trays r basically lists!
+
+		// Each tray is an ArrayList of cups
+		for(int i=0;i<trayCount;i++) {
 			trayCounters.add(new ArrayList<>());
 			trayPositions[i]=new Point(50+i*80,625);
 		}
+
+		// Store ticket assigned to each tray
 		trayTickets=new Ticket[trayCount];
 
 
+		// Create blending timers
 		blend1Timer= new Timer(30, this);
 		blend1Timer.stop();//not initially running
 
+		blend2Timer = new Timer(30, this);
+		blend2Timer.stop();
 
+		// Create cook timer
 		cookTimer = new Timer (30, this);
 		cookTimer.stop();
 
-		blend2Timer = new Timer(30, this);
-		blend2Timer.stop();
+		// create customer spawn timer
 		customerSpawnTimer=new Timer(8000,this);
 		customerSpawnTimer.start();
 
@@ -528,10 +547,12 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// Return: true if fruit is still in blender area, false otherwise
 	public boolean remainsInBlender(Fruit f, int blender) {
 		Rectangle fruitRect =new Rectangle(f.getX(), f.getY(),f.width, f.height);
-
+		// blender 1
 		if (blender == 1) {
 			return blendStation1.intersects(fruitRect);
-		} else {
+		}
+		// blender 2
+		else {
 			return blendStation2.intersects(fruitRect);
 		}
 	}
@@ -555,31 +576,39 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// Return: void
 	public void actionPerformed(ActionEvent e) {
 
-		if (e.getSource()==gameTimer) {//maybe do dif method?
+		if (e.getSource()==gameTimer) {
+
+			// Update all customers in the game
 			for(int i=customers.size()-1;i>=0;i--) {
 				Customer c=customers.get(i);
-				c.updateMovement();
+				c.updateMovement(); // Move customer toward their target position
 				if(c.hasArrived()) {
 					String state=c.getState();
+
+					// If customer was served, free their waiting spot and remove them
 					if(state.equals("SERVED")) {
 						if(c.getWaitingSpotIndex()!=-1) {
 							spotOccupied[c.getWaitingSpotIndex()]=false;
 						}
 						customers.remove(i);
 					}
+
+					// If customer is leaving (angry or done), remove them
 					else if(state.equals("LEAVING")) 
 						customers.remove(i);
 
 				}
 			}
+
+			// Handle ordering animation timing for the current customer
 			if(orderingCustomer!=null&&orderingFrames>0) {
 				orderingFrames--;
-				orderingCustomer.updateBubble();
+				orderingCustomer.updateBubble(); // Update speech bubble animation
 				if(orderingFrames==0) {
-					orderingCustomer.setState("WAITING");
-					orderLine.poll();
-					shiftLineForward();
-					int freeSpot=getFreeWaitingSpot();
+					orderingCustomer.setState("WAITING"); // Move customer into waiting state
+					orderLine.poll(); // Remove them from the ordering line
+					shiftLineForward(); // Shift remaining customers forward in line
+					int freeSpot=getFreeWaitingSpot(); // Assign a free waiting spot if available
 					if(freeSpot!=-1) {
 						Point spot=waitingSpots[freeSpot];
 						orderingCustomer.setTarget(spot.x, spot.y);
@@ -588,8 +617,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					}
 					else
 						orderingCustomer.setTarget(100, 500);
+
+					// Create a ticket for this customer order
 					Ticket newTicket=new Ticket(orderingCustomer,20,100+tickets.size()*60,ticketIcons);
 					tickets.add(newTicket);
+					// Clear current ordering customer
 					orderingCustomer=null;
 				}
 			}
@@ -597,6 +629,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		//CUSOTMER PATIENCE
 		else if(e.getSource()==patienceTimer) {
+
+			// updates customer patience bar and emotes
 			for (int i=customers.size()-1;i>=0;i--) {
 				Customer c=customers.get(i);
 				c.decreasePatience();
@@ -608,9 +642,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		//BLENDING
 		else if (e.getSource() == blend1Timer) {
+			// increases  blender progress
 			blender1Progress += 5;
 			blendBar.setValue(blender1Progress);
 
+			// stops blender
 			if (blender1Progress >= 100) {
 				blend1Timer.stop();
 				blendBar.setVisible(false);
@@ -619,24 +655,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					blender1Fruit.setPosition(45, 544);
 					ingredientsOnScreen.add(blender1Fruit);
 					blender1FinishedFruit = blender1Fruit.getFruitType();
-					blend1State = "empty";
-					previousBlended1 = blender1Fruit;
+					blend1State = "empty"; // set blender as empty
+					previousBlended1 = blender1Fruit; // keep track of fruit
 				}
 				blender1Fruit = null;
 			}
 
 			else if (blender1Progress >= 66) {
-				blend1State = "unblended2";
+				blend1State = "unblended2"; // change fruit state in blender, and thus its image
 			}
 			else if (blender1Progress >= 33) {
-				blend1State = "unblended1";
+				blend1State = "unblended1"; // change fruit state in blender, and thus its image
 			}
 			repaint();
 		}
 
 		else if (e.getSource() == blend2Timer) {
+			// increases  blender progress
 			blender2Progress += 5;
 			blendBar.setValue(blender2Progress);
+			// stops blender
 			if (blender2Progress >= 100) {
 				blend2Timer.stop();
 				blendBar.setVisible(false);
@@ -650,27 +688,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 
 				blender2Fruit = null;
-
 			}
 
 			else if (blender2Progress >= 66) {
-				blend2State = "unblended2";
+				blend2State = "unblended2";// change fruit state in blender, and thus its image
 			}
 			else if (blender2Progress >= 33) {
-				blend2State = "unblended1";
+				blend2State = "unblended1";// change fruit state in blender, and thus its image
 			}
 			repaint();
 		}
 
+		// cooking
 		else if (e.getSource() == cookTimer){
 
 			boilingPearl.setFramePosition (0); 
 			boilingPearl.start ();
 
-
+			// increase cooking progress
 			cookingProgress += 3;
 			cookBar.setValue(cookingProgress);
-
 
 			if (cookingProgress >= 150) {
 				cookTimer.stop();
@@ -685,11 +722,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				cookingPearl = null;
 			}
 
-
+			// updates pot state thus image
 			else if (cookingProgress >= 75) {
 				potState = "uncooked2";
 			}
-
+			// updates pot state thus image
 			else if (cookingProgress >= 50) {
 				potState = "uncooked1";
 			}
@@ -715,6 +752,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 
+		// game over
 		else if(e.getSource()==roundTimer&&gameOn) {
 			timeLeft--;
 			if(timeLeft<=0) {
@@ -729,14 +767,16 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// Return: void
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		// home screen
 		if (screenState == 0) {
 			g.drawImage(home, 0, 0, 390, 700, this);
 			usernameField.setVisible(true);
 		}
-
 		else {
-			usernameField.setVisible(false);
+			usernameField.setVisible(false); // text field for player to enter username
 		}
+		
+		// instruction slides
 		if (screenState == 1) {
 			g.drawImage(instructions1, 0, 0, 390, 700, this);
 
@@ -755,6 +795,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		} 
 		if (screenState == 5) {
 		}
+		
+		// credits slide 2
 		if (screenState == 6) {
 			g.drawImage(credits2, 0, 0, 390, 700, this);
 		}
