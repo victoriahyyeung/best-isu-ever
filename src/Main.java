@@ -165,6 +165,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	Polygon slantedCreditsButton = new Polygon();
 	Polygon slantedScoreButton = new Polygon();
 
+	private Rectangle menuButton=new Rectangle(320,10,60,40);
+
 
 	public void spawnMango() {
 		fruitSpawn.setFramePosition (0); 
@@ -480,8 +482,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void actionPerformed(ActionEvent e) {
-
-
 		if (e.getSource()==gameTimer) {//maybe do dif method?
 			for(int i=customers.size()-1;i>=0;i--) {
 				Customer c=customers.get(i);
@@ -630,7 +630,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
 			if(screenState==9) {
-				if(orderLine.size()<lineSpotsCount) {
+				if(orderLine.size()<lineSpotsCount&&getFreeWaitingSpot()!=-1) {
 					int backInd=orderLine.size();
 					Point backSpot=lineSpots[backInd];
 					Customer newC=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
@@ -640,6 +640,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					repaint();
 				}
 			}
+
 		}
 
 		else if(e.getSource()==roundTimer&&gameOn) {
@@ -733,7 +734,71 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			g.drawRect(orderingStation.x, orderingStation.y, orderingStation.width, orderingStation.height);
 			g.setColor(Color.BLACK);
 			g.drawString("Ordering", orderingStation.x + 5, orderingStation.y - 5);
+			// ----- Draw all interactive areas (debug) -----
+			g.setColor(Color.BLUE);
+			g.drawRect(chopStation1.x, chopStation1.y, chopStation1.width, chopStation1.height);
+			g.drawRect(chopStation2.x, chopStation2.y, chopStation2.width, chopStation2.height);
 
+			g.setColor(Color.MAGENTA);
+			g.drawRect(blendStation1.x, blendStation1.y, blendStation1.width, blendStation1.height);
+			g.drawRect(blendStation2.x, blendStation2.y, blendStation2.width, blendStation2.height);
+
+			g.setColor(Color.ORANGE);
+			g.drawRect(cookingStation.x, cookingStation.y, cookingStation.width, cookingStation.height);
+
+			g.setColor(Color.CYAN);
+			g.drawRect(cupStation.x, cupStation.y, cupStation.width, cupStation.height);
+			g.drawRect(trayStation.x, trayStation.y, trayStation.width, trayStation.height);
+			g.drawRect(servingStation.x, servingStation.y, servingStation.width, servingStation.height);
+
+			// Spawn buttons (their coordinates from mousePressed)
+			g.setColor(Color.GRAY);
+			g.drawRect(16, 386, 55, 58);       // mango
+			g.drawRect(16, 448, 56, 57);       // lychee
+			g.drawRect(16, 510, 55, 56);       // pearl
+			g.drawRect(230, 439, 53, 55);      // pudding
+			g.drawRect(175, 439, 51, 54);      // cup
+
+			// Trays
+			g.setColor(Color.PINK);
+			for (int i = 0; i < trayCount; i++) {
+				g.drawRect(trayPositions[i].x, trayPositions[i].y, 60, 60);
+			}
+
+			// Menu button
+			g.setColor(Color.RED);
+			g.fillRect(menuButton.x, menuButton.y, menuButton.width, menuButton.height);
+			g.setColor(Color.WHITE);
+			g.drawString("Menu", menuButton.x + 12, menuButton.y + 25);
+			// After drawing chop stations
+			g.drawString("Chop1", chopStation1.x, chopStation1.y - 5);
+			g.drawString("Chop2", chopStation2.x, chopStation2.y - 5);
+
+			// After drawing blenders
+			g.drawString("Blend1", blendStation1.x, blendStation1.y - 5);
+			g.drawString("Blend2", blendStation2.x, blendStation2.y - 5);
+
+			// After cooking station
+			g.drawString("Cook", cookingStation.x, cookingStation.y - 5);
+
+			// After cup station, tray station, serving station
+			g.drawString("Cup", cupStation.x, cupStation.y - 5);
+			g.drawString("Tray", trayStation.x, trayStation.y - 5);
+			g.drawString("Serve", servingStation.x, servingStation.y - 5);
+
+			// For spawn buttons (add after drawing them)
+			g.drawString("Mango", 16, 386 - 5);
+			g.drawString("Lychee", 16, 448 - 5);
+			g.drawString("Pearl", 16, 510 - 5);
+			g.drawString("Pudding", 230, 439 - 5);
+			g.drawString("Cup", 175, 439 - 5);
+
+			// For trays
+			for (int i = 0; i < trayCount; i++) {
+			    g.drawString("Tray"+(i+1), trayPositions[i].x, trayPositions[i].y - 5);
+			}
+
+			//////////////////////DELETE AFTER DEBUGGING!!!!!^^^
 
 
 
@@ -1125,22 +1190,23 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
-		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
-			if (!spacePressed) {
-				spacePressed=true;
-				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
-					Fruit f=(Fruit) selectedItem;
-					if (f.isOnChopStation() && !f.isCut()) {
-						f.cut();
-						fruitCut.setFramePosition (0); 
-						fruitCut.start ();
-						repaint();
-					}
-				}
-			}
-		}
+//		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
+//			if (!spacePressed) {
+//				spacePressed=true;
+//				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
+//					Fruit f=(Fruit) selectedItem;
+//					if (f.isOnChopStation() && !f.isCut()) {
+//						f.cut();
+//						fruitCut.setFramePosition (0); 
+//						fruitCut.start ();
+//						repaint();
+//					}
+//				}
+//			}
+//		}
+		//Mika said to delete the using space to cut function ^^
 
-		else if (e.getKeyCode() == KeyEvent.VK_E) {//GO TO END GAME
+		if (e.getKeyCode() == KeyEvent.VK_E) {//GO TO END GAME
 			endGame();
 			screenState = 12; 
 			repaint();
@@ -1215,6 +1281,47 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		pressY=y;
 		isDragging=false;
 		if (screenState == 9) {
+			if(menuButton.contains(x,y)) {
+				String[]options= {"Pause","End Game","Restart","Home"};
+				int choice=JOptionPane.showOptionDialog(this, "Game Menu","",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
+				if(choice==0) {
+					if(roundTimer!=null)
+						roundTimer.stop();
+					if(customerSpawnTimer!=null)
+						customerSpawnTimer.stop();
+					if(patienceTimer!=null)
+						patienceTimer.stop();
+					if(blend1Timer!=null)
+						blend1Timer.stop();
+					if(blend2Timer!=null)
+						blend2Timer.stop();
+					if(cookTimer!=null)
+						cookTimer.stop();
+					JOptionPane.showMessageDialog(this, "Game Paused. Click OK to resume.");
+					roundTimer.start();
+					customerSpawnTimer.start();
+					patienceTimer.start();
+					if(blend1Timer.isRunning())
+						blend1Timer.start();
+					if(blend2Timer.isRunning())
+						blend2Timer.start();
+					if(cookTimer.isRunning())
+						cookTimer.start();
+				}
+				else if(choice==1) {
+					endGame();
+				}
+				else if(choice==2) {
+					resetGame();
+					repaint();
+				}
+				else if(choice==3) {
+					endGame();
+					screenState=0;
+					repaint();
+				}
+				return;
+			}
 			boolean itemSelected=false;//select and EXISTING item first always
 			for(int i=ingredientsOnScreen.size()-1;i>=0;i--) {
 				Item item=ingredientsOnScreen.get(i);

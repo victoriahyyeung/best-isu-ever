@@ -97,8 +97,8 @@ public class Customer {
 	}
 
 	public void updateEmotion(HashMap<String, HashMap<String,Image>>images) {
-//		if(state==null||!state.equals("WAITING"))//only can update emos when waiting 2 b served
-//			return;
+		if(state==null||!state.equals("WAITING"))//only can update emos when waiting 2 b served
+			return;
 		String newEmo;
 		if(currentPatience>50)
 			newEmo="neutral";
@@ -112,6 +112,7 @@ public class Customer {
 		if(!(newEmo.equals(currentEmotion))) {
 			currentEmotion=newEmo;
 			this.avatar=images.get(customerType).get(currentEmotion);
+		System.out.println("changed emo to: "+newEmo);
 		}
 	}
 	public void updateBubble() {
