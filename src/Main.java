@@ -208,8 +208,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	Polygon slantedCreditsButton = new Polygon();
 	Polygon slantedScoreButton = new Polygon();
 
-	private Rectangle menuButton=new Rectangle(320,10,60,40);
-
 
 	// Description: Spawns mango fruit when its cabinet is clicked
 	// Parameters: None
@@ -623,12 +621,17 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// Parameters: The event source that triggered the action
 	// Return: void
 	public void actionPerformed(ActionEvent e) {
+<<<<<<< main
 		//	<<<<<<< HEAD
 
 		//if (e.getSource()==gameTimer) {
 
 		// Update all customers in the game
 		//	=======
+=======
+
+
+>>>>>>> cbe1097 did some stuff
 		if (e.getSource()==gameTimer) {//maybe do dif method?
 			//	>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 			for(int i=customers.size()-1;i>=0;i--) {
@@ -804,7 +807,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		//CUSTOMER SPAWN 
 		else if(e.getSource()==customerSpawnTimer) {
 			if(screenState==9) {
-				if(orderLine.size()<lineSpotsCount&&getFreeWaitingSpot()!=-1) {
+				if(orderLine.size()<lineSpotsCount) {
 					int backInd=orderLine.size();
 					Point backSpot=lineSpots[backInd];
 					Customer newC=new Customer(280,60,customerImages,backSpot.x,backSpot.y, thinking);
@@ -814,7 +817,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					repaint();
 				}
 			}
-
 		}
 
 		// game over
@@ -918,11 +920,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			g.drawRect(orderingStation.x, orderingStation.y, orderingStation.width, orderingStation.height);
 			g.setColor(Color.BLACK);
 			g.drawString("Ordering", orderingStation.x + 5, orderingStation.y - 5);
-			// ----- Draw all interactive areas (debug) -----
-			g.setColor(Color.BLUE);
-			g.drawRect(chopStation1.x, chopStation1.y, chopStation1.width, chopStation1.height);
-			g.drawRect(chopStation2.x, chopStation2.y, chopStation2.width, chopStation2.height);
 
+<<<<<<< main
 			g.setColor(Color.MAGENTA);
 			g.drawRect(blendStation1.x, blendStation1.y, blendStation1.width, blendStation1.height);
 			g.drawRect(blendStation2.x, blendStation2.y, blendStation2.width, blendStation2.height);
@@ -990,6 +989,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 >>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 			//////////////////////DELETE AFTER DEBUGGING!!!!!^^^
+=======
+>>>>>>> cbe1097 did some stuff
 
 
 
@@ -1456,9 +1457,64 @@ public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
 		screenState = 12; 
 		repaint();
 	}
+<<<<<<< main
 	else if(e.getKeyCode()==KeyEvent.VK_C) {//GO TO CREDITS
 		screenState=11;
 		repaint();
+=======
+
+	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
+		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
+			if (!spacePressed) {
+				spacePressed=true;
+				if(selectedItem !=null&& selectedItem.type.equals("fruit")) {
+					Fruit f=(Fruit) selectedItem;
+					if (f.isOnChopStation() && !f.isCut()) {
+						f.cut();
+						fruitCut.setFramePosition (0); 
+						fruitCut.start ();
+						repaint();
+					}
+				}
+			}
+		}
+
+		else if (e.getKeyCode() == KeyEvent.VK_E) {//GO TO END GAME
+			endGame();
+			screenState = 12; 
+			repaint();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_C) {//GO TO CREDITS
+			screenState=11;
+			repaint();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_I) {//GO TO INSTRUCTIONS
+			screenState=1;
+			repaint();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_H) {//GO TO HOME
+			screenState=0;
+			repaint();
+		}
+		else if (screenState==9) {
+			if(e.getKeyCode()==KeyEvent.VK_V) {//ez win
+				customersServed=5;
+				gameOn=false;
+				screenState=13;
+				level1Passed=true;
+				repaint();
+
+			}
+			else if(e.getKeyCode()==KeyEvent.VK_L) {
+				//losing
+			}
+			else if(e.getKeyCode()==KeyEvent.VK_P) {//ez get points
+				score+=100;
+				repaint();
+
+			}
+		}
+>>>>>>> cbe1097 did some stuff
 	}
 	else if(e.getKeyCode()==KeyEvent.VK_I) {//GO TO INSTRUCTIONS
 		screenState=1;
@@ -1611,6 +1667,7 @@ public void mousePressed(MouseEvent e) {
 		pressY=y;
 		isDragging=false;
 		if (screenState == 9) {
+<<<<<<< main
 			if(menuButton.contains(x,y)) {
 				String[]options= {"Pause","End Game","Restart","Home"};
 				int choice=JOptionPane.showOptionDialog(this, "Game Menu","",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
@@ -1654,6 +1711,8 @@ public void mousePressed(MouseEvent e) {
 				}
 				return;
 			}
+=======
+>>>>>>> cbe1097 did some stuff
 			boolean itemSelected=false;//select and EXISTING item first always
 			for(int i=ingredientsOnScreen.size()-1;i>=0;i--) {
 				Item item=ingredientsOnScreen.get(i);
