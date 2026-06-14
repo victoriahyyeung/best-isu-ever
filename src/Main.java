@@ -861,8 +861,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 
-//		if (screenState == 10) {
-//		}
+		//		if (screenState == 10) {
+		//		}
 		if (screenState == 11) {
 			g.drawImage(credits1,0, 0, 390, 700, this);
 		}
@@ -1140,13 +1140,41 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			}
 		}
 
-		if (e.getKeyCode() == KeyEvent.VK_E) {
+		else if (e.getKeyCode() == KeyEvent.VK_E) {//GO TO END GAME
 			endGame();
 			screenState = 12; 
 			repaint();
 		}
-		
+		else if(e.getKeyCode()==KeyEvent.VK_C) {//GO TO CREDITS
+			screenState=11;
+			repaint();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_I) {//GO TO INSTRUCTIONS
+			screenState=1;
+			repaint();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_H) {//GO TO HOME
+			screenState=0;
+			repaint();
+		}
+		else if (screenState==9) {
+			if(e.getKeyCode()==KeyEvent.VK_V) {//ez win
+				customersServed=5;
+				gameOn=false;
+				screenState=13;
+				level1Passed=true;
+				repaint();
 
+			}
+			else if(e.getKeyCode()==KeyEvent.VK_L) {
+				//losing
+			}
+			else if(e.getKeyCode()==KeyEvent.VK_P) {//ez get points
+				score+=100;
+				repaint();
+
+			}
+		}
 	}
 
 
@@ -1662,8 +1690,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		tracker.addImage (startImg, 8);
 		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
 		tracker.addImage (gameLevel1, 9);
-//		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
-//		tracker.addImage (gameLevel2, 10);
+		//		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
+		//		tracker.addImage (gameLevel2, 10);
 		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
 		tracker.addImage (highScore, 12);
 		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");

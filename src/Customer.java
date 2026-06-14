@@ -107,7 +107,7 @@ public class Customer {
 
 		else
 			newEmo="angry";
-		if(state=="SERVED")
+		if(state.equals("SERVED"))
 			newEmo="happy";
 		if(!(newEmo.equals(currentEmotion))) {
 			currentEmotion=newEmo;
