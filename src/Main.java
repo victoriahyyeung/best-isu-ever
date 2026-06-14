@@ -362,6 +362,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		loadAllAudio();
 
 
+		homeBackground.setFramePosition (0); 
+		homeBackground.loop(Clip.LOOP_CONTINUOUSLY);
+
+
 		usernameField = new JTextField(10); 
 		usernameField.setBounds(66, 300, 258, 21); 
 		usernameField.setText("Enter username: ");
@@ -376,6 +380,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		this.add(scoreScrollPane);
 
 		loadHighScore();
+
 
 
 		//currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
@@ -475,8 +480,18 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
-	public void actionPerformed(ActionEvent e) {
+	private void switchMusic(Clip stopClip, Clip playClip) {
+	    if (stopClip != null && stopClip.isRunning()) {
+	        stopClip.stop();
+	    }
 
+	    if (playClip != null) {
+	        playClip.setFramePosition(0);
+	        playClip.loop(Clip.LOOP_CONTINUOUSLY);
+	    }
+	}
+	
+	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource()==gameTimer) {//maybe do dif method?
 			for(int i=customers.size()-1;i>=0;i--) {
@@ -866,9 +881,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		// Home screen
 		if (screenState == 0) {
-			homeBackground.setFramePosition (0); 
-			homeBackground.start ();
-			homeBackground.loop(Clip.LOOP_CONTINUOUSLY);
+
 			// Level 1 Play screen
 			if (x >= 95 && x <= 298 && y >= 343 && y <= 401) {
 				buttonClick.setFramePosition (0); 
@@ -998,6 +1011,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				buttonClick.setFramePosition (0); 
 				buttonClick.start ();
 				screenState = 0;
+				switchMusic(gameBackground, homeBackground);
 			}
 			// Level 2 Selection
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
@@ -1011,6 +1025,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				buttonClick.start ();
 				resetGame();
 				screenState=9;
+				switchMusic(homeBackground, gameBackground);
 			}
 
 		}
@@ -1043,8 +1058,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			if (homeBackground.isRunning()) {
 				homeBackground.stop();
 			}
-			gameBackground.setFramePosition (0); 
-			gameBackground.start ();
+			if (!gameBackground.isRunning()) {
+			    gameBackground.setFramePosition(0);
+			    gameBackground.loop(Clip.LOOP_CONTINUOUSLY);
+			}
 
 			if (lessThan10) {
 				warningSound.setFramePosition (0); 
@@ -1089,9 +1106,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			lessThan10 = false;
 			if (warningSound.isRunning())
 				warningSound.stop();
-			if (gameBackground.isRunning()) {
-				gameBackground.stop();
-			}
+			switchMusic(gameBackground, homeBackground);
 			// home
 			if (x >= 10 && x <= 85 && y >= 13 && y <= 46) {
 				buttonClick.setFramePosition (0); 
@@ -1874,7 +1889,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	private void endGame() {
-		
+
 		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
 			return;
 		gameOn=false;//so no more gaming can happen
