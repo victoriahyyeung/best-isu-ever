@@ -97,15 +97,18 @@ public class Customer {
 	}
 
 	public void updateEmotion(HashMap<String, HashMap<String,Image>>images) {
+//		if(state==null||!state.equals("WAITING"))//only can update emos when waiting 2 b served
+//			return;
 		String newEmo;
 		if(currentPatience>50)
-			newEmo="happy";
-		else if(currentPatience>30)
 			newEmo="neutral";
-		else if (currentPatience>0)
+		else if(currentPatience>30)
 			newEmo="impatient";
+
 		else
 			newEmo="angry";
+		if(state=="SERVED")
+			newEmo="happy";
 		if(!(newEmo.equals(currentEmotion))) {
 			currentEmotion=newEmo;
 			this.avatar=images.get(customerType).get(currentEmotion);
@@ -208,6 +211,7 @@ public class Customer {
 	public void setState(String s) {
 		this.state=s;
 	}
+	
 	public void setWaitingSpotIndex(int i) {
 		this.waitingSpotIndex=i;
 	}

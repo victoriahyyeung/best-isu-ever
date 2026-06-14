@@ -129,15 +129,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	private Customer orderingCustomer=null;
 	private Point[] lineSpots;//Point stores x and y coordinates
 	private int lineSpotsCount=5;//max # of customers in line
-	private Rectangle orderingStation=new Rectangle(125,280,50,50);//!v-NEEDA CHANGE COORDS!!!!!!
+	private Rectangle orderingStation=new Rectangle(120,310,55,70);//!v-NEEDA CHANGE COORDS!!!!!!
 	private int orderingFrames=0;//will be >0 when bubble visible
 
 	private Point[]waitingSpots;//waiting spots
 	private boolean[]spotOccupied;//true is occupied false is free
 	private HashSet<Integer>occupiedSpots=new HashSet<>();
 
-
-	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, gameLevel2, credits1, credits2, highScore, victory, highScoreBg;
+	Image home, instructions1, instructions2, instructions3, instructions4, lockedLevels, unlockedLevels, startImg, gameLevel1, credits1, credits2, highScore, victory, highScoreBg;//gameLevel2 deleted
 	// Screen States
 	// 0 - Home
 	// 1 - Instructions (slide 1)
@@ -418,15 +417,19 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		patienceTimer.start();
 
 		lineSpots=new Point[lineSpotsCount];
-		lineSpots[0]=new Point(orderingStation.x,orderingStation.y);
-		for(int i=1;i<lineSpotsCount;i++) {
-			lineSpots[i]=new Point(orderingStation.x,orderingStation.y-(i*45));
+		for(int i=1;i<=lineSpotsCount;i++) {
+			lineSpots[i-1]=new Point(orderingStation.x,orderingStation.y-(i*45));
 		}
 		//AFTER orderingg
-		waitingSpots=new Point[3];
-		waitingSpots[0]=new Point(100,500);
-		waitingSpots[1]=new Point(150,500);
-		waitingSpots[2]=new Point(200,500);
+		waitingSpots=new Point[6];
+		//colum 1
+		waitingSpots[0]=new Point(250,280);
+		waitingSpots[1]=new Point(250,235);
+		waitingSpots[2]=new Point(250,190);
+		//column 2
+		waitingSpots[3]=new Point(320,280);
+		waitingSpots[4]=new Point(320,235);
+		waitingSpots[5]=new Point(320,190);
 		spotOccupied=new boolean[waitingSpots.length];
 
 		trayCounters=new ArrayList<>();
@@ -641,9 +644,14 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		else if(e.getSource()==roundTimer&&gameOn) {
 			timeLeft--;
-			if(timeLeft<=0) {
-				endGame();
+			if(timeLeft==10&&!lessThan10) {
+				warningSound.setFramePosition(0);;
+				warningSound.start();
+				lessThan10=true;
 			}
+			if(timeLeft<=0)
+				endGame();
+
 			repaint();
 		}
 	}
@@ -692,7 +700,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 			// game screen
 			g.drawImage(gameLevel1, 0, 0, 390, 700, this);
-
 			// draw customers
 			for (Customer c : customers) {
 				c.draw(g);
@@ -715,12 +722,20 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 			if (timeLeft <= 10) {
-				lessThan10 = true;
-				//warning.setFramePosition (0); 
-				//warning.start ();
+
 				g.setColor(Color.RED);
 			}
 			g.drawString(timerText, 323, 680);
+
+			//DELETE DEBUG
+			// Debug: draw ordering station rectangle
+			g.setColor(Color.RED);
+			g.drawRect(orderingStation.x, orderingStation.y, orderingStation.width, orderingStation.height);
+			g.setColor(Color.BLACK);
+			g.drawString("Ordering", orderingStation.x + 5, orderingStation.y - 5);
+
+
+
 
 			// Cooking pot
 			if (potState.equals("empty")) {
@@ -846,8 +861,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 
 
-		if (screenState == 10) {
-		}
+//		if (screenState == 10) {
+//		}
 		if (screenState == 11) {
 			g.drawImage(credits1,0, 0, 390, 700, this);
 		}
@@ -858,6 +873,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			return;
 		}
 		if (screenState == 13) {
+			g.drawImage(victory, 0, 0, 390, 700, this);		
 		}
 	}
 
@@ -1004,7 +1020,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
 				decline.setFramePosition (0); 
 				decline.start ();
-				JOptionPane.showMessageDialog(this, "Pass Level 1 first to unlock level 2!");
+				JOptionPane.showMessageDialog(this, "Coming soon!");
 			}
 			// Level 1 Selection
 			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
@@ -1027,8 +1043,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			else if (x >= 204 && x<= 359 && y >= 165 && y <= 608) {
 				buttonClick.setFramePosition (0); 
 				buttonClick.start ();
-				resetGame();
-				screenState=10;
+				JOptionPane.showMessageDialog(this, "Coming soon!");
 			}
 
 			else if (x >= 34 && x <= 187 && y >= 165 && y <= 610) {
@@ -1130,6 +1145,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			screenState = 12; 
 			repaint();
 		}
+		
 
 	}
 
@@ -1165,6 +1181,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	public void mousePressed(MouseEvent e) {
 		x = e.getX();
 		y = e.getY();
+		System.out.print("click: ("+x+", "+y+")");
+
 		pressX=x;
 		pressY=y;
 		isDragging=false;
@@ -1266,220 +1284,216 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 		int mx=e.getX();
 		int my=e.getY();
-
-		//ORDERING STATION
-		if(orderingStation.contains(mx,my)) {
-			System.out.println("Ordering station clicked");
-			if(!orderLine.isEmpty()) {
-				Customer front=orderLine.peek();
-				if(front.getState().equals("IN_LINE")&&front.hasArrived()) {
-					//DELETE!!!
-					System.out.println("Front customer state: " + front.getState() + ", hasArrived: " + front.hasArrived());
-					orderingCustomer=front;
-					orderingFrames=30;//1.5 secs
-					front.startBubble();
-					front.setState("ORDERING");
+		if (screenState==9) {
+			//ORDERING STATION
+			if(orderingStation.contains(mx,my)) {
+				System.out.println("Ordering station clicked");
+				if(!orderLine.isEmpty()) {
+					Customer front=orderLine.peek();
+					if(front.getState().equals("IN_LINE")&&front.hasArrived()) {
+						//DELETE!!!
+						System.out.println("Front customer state: " + front.getState() + ", hasArrived: " + front.hasArrived());
+						orderingCustomer=front;
+						orderingFrames=30;//1.5 secs
+						front.startBubble();
+						front.setState("ORDERING");
+					}
+					else
+						JOptionPane.showMessageDialog(this, "No customer at front of line.");
 				}
 				else
-					JOptionPane.showMessageDialog(this, "No customer at front of line.");
+					JOptionPane.showMessageDialog(this, "No customers in line.");
+				return;//so no multiple actions on same click.
 			}
-			else
-				JOptionPane.showMessageDialog(this, "No customers in line.");
-			return;//so no multiple actions on same click.
-		}
 
-		//		
-		if(selectedTicket != null) {
-			for(int i =0; i < trayCount; i++) {
-				Rectangle trayRect = new Rectangle(trayPositions[i].x, trayPositions[i].y, 60, 60);
-				if(trayRect.contains(mx, my)) {
-					if (trayTickets[i] == null) {
-						trayTickets[i] = selectedTicket;
-						tickets.remove(selectedTicket);
-						JOptionPane.showMessageDialog(this, "Ticket assigned to tray " + (i+1));
-					} else {
-						JOptionPane.showMessageDialog(this, "TRAY ALREADY HAS TICKET BROTHER!!!");
+			//		
+			if(selectedTicket != null) {
+				for(int i =0; i < trayCount; i++) {
+					Rectangle trayRect = new Rectangle(trayPositions[i].x, trayPositions[i].y, 60, 60);
+					if(trayRect.contains(mx, my)) {
+						if (trayTickets[i] == null) {
+							trayTickets[i] = selectedTicket;
+							tickets.remove(selectedTicket);
+							JOptionPane.showMessageDialog(this, "Ticket assigned to tray " + (i+1));
+						} else {
+							JOptionPane.showMessageDialog(this, "TRAY ALREADY HAS TICKET BROTHER!!!");
+						}
+						break;
 					}
-					break;
 				}
+				selectedTicket = null;
+				repaint();
+				return;
 			}
-			selectedTicket = null;
-			repaint();
-			return;
-		}
 
-		if(selectedItem==null) {
-			for(int i=0;i<trayCount;i++) {
-				Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
-				if(trayRect.contains(mx,my)) {
-					if(trayTickets[i]!=null) {
-						System.out.println("Tray " + i + " has " + trayCounters.get(i).size() + " cups. Order has " + trayTickets[i].getOrder().getDrinks().size() + " drinks.");
-						if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
-							Customer served=trayTickets[i].getCustomer();
-							served.setState("SERVED");
-							served.setTarget(servingStation.x, servingStation.y);
-							if(served.getWaitingSpotIndex()!=-1)
-								spotOccupied[served.getWaitingSpotIndex()]=false;
-							//	for (int j = 0; j < trayCounters.get(i).size(); j++) {
-							//		ingredientsOnScreen.remove(trayCounters.get(i).get(j));
-							//	}
-							trayCounters.get(i).clear();
-							trayTickets[i]=null;
-							score+=100;
-<<<<<<< HEAD
-							customersServed++;
-							if(customersServed>=5) {//yo idk if we still doing this but u said soooo
-								gameOn=false;
-								screenState=13;
-								level1Passed=true;
-								repaint();
-								return;
+			if(selectedItem==null) {
+				for(int i=0;i<trayCount;i++) {
+					Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
+					if(trayRect.contains(mx,my)) {
+						if(trayTickets[i]!=null) {
+							System.out.println("Tray " + i + " has " + trayCounters.get(i).size() + " cups. Order has " + trayTickets[i].getOrder().getDrinks().size() + " drinks.");
+							if(trayTickets[i].getOrder().matches(trayCounters.get(i))) {
+								Customer served=trayTickets[i].getCustomer();
+								served.setState("SERVED");
+								served.setTarget(servingStation.x, servingStation.y);
+								if(served.getWaitingSpotIndex()!=-1)
+									spotOccupied[served.getWaitingSpotIndex()]=false;
+								//	for (int j = 0; j < trayCounters.get(i).size(); j++) {
+								//		ingredientsOnScreen.remove(trayCounters.get(i).get(j));
+								//	}
+								trayCounters.get(i).clear();
+								trayTickets[i]=null;
+								score+=100;
+								customersServed++;
+								if(customersServed>=5) {//yo idk if we still doing this but u said soooo
+									gameOn=false;
+									screenState=13;
+									level1Passed=true;
+									repaint();
+									return;
+								}
+								JOptionPane.showMessageDialog(this, "SERVED! +_100pts");
+								successOrderSubmit.setFramePosition (0); 
+								successOrderSubmit.start ();
 							}
-							JOptionPane.showMessageDialog(this, "SERVED! +_100pts");
-=======
-							successOrderSubmit.setFramePosition (0); 
-							successOrderSubmit.start ();
-							JOptionPane.showMessageDialog(this, "SERVED! + 100pts");
->>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
+							else {
+								failedOrderSubmit.setFramePosition (0); 
+								failedOrderSubmit.start ();
+								JOptionPane.showMessageDialog(this,"DRINKS DON'T MATCH THE ORDER!");
+							}
 						}
 						else {
-							failedOrderSubmit.setFramePosition (0); 
-							failedOrderSubmit.start ();
-							JOptionPane.showMessageDialog(this,"DRINKS DON'T MATCH THE ORDER!");
-						}
+							decline.setFramePosition (0); 
+							decline.start ();
+							JOptionPane.showMessageDialog(this,"No ticket asigned to this tray yet!");
+
+						}return;
+					}
+				}
+				return;
+			}
+			else if(selectedItem.type.equals("pudding")) {
+				Pudding poo=(Pudding)selectedItem;
+				checkPuddingCupCollision(poo,mx,my);
+			}
+			else if(selectedItem.type.equals("pearl")) {
+				Pearl p =(Pearl)selectedItem;
+				if(!checkPearlCupCollision(p,mx,my)&&cookingStation.contains(mx,my)) {
+					if(!p.isCooked()&&cookingPearl==null) {
+						ingredientsOnScreen.remove(p);
+						cookingPearl=p;
+						cookingProgress=0;
+						potState="uncooked1";
+						cookBar.setValue(0);
+						cookBar.setBounds(cookingStation.x,cookingStation.y-15,cookingStation.width,10);;
+						cookBar.setVisible(true);
+						cookTimer.start();
 					}
 					else {
-						decline.setFramePosition (0); 
-						decline.start ();
-						JOptionPane.showMessageDialog(this,"No ticket asigned to this tray yet!");
+						JOptionPane.showMessageDialog(this, "Alr cooking!!");
+						selectedItem=null;
+						return;
+					}
+				}
+			}
+			else if(selectedItem.type.equals("fruit")) {
+				Fruit f=(Fruit)selectedItem;
+				f.setOnChopStation(false);
+				if(checkFruitCupCollision(f,mx,my)) {//cup 
+					selectedItem=null;
+					repaint();
+					return;
+				}
+				if(chopStation1.contains(mx,my)||chopStation2.contains(mx,my)) {//chop
+					f.setOnChopStation(true);
+					selectedItem=f;
+					repaint();
+					return;
+				}
+				if (blendStation1.contains(mx,my)) {
+					if(blender1Fruit!=null||(previousBlended1!=null&&remainsInBlender(previousBlended1,1))) {
+						JOptionPane.showMessageDialog(this,"Blender is alr in use!");
+						selectedItem=null;
+						repaint();
+						return;
+					}else if(f.isCut()&&!f.isBlended()) {
+						ingredientsOnScreen.remove(f);
+						selectedItem=null;
+						activeBlender=1;
+						blendBar.setBounds(blendStation1.x,blendStation1.y-15,blendStation1.width,10);;
+						startBlendingAnimation(f);
+					}
+					else {
+						JOptionPane.showMessageDialog(this, "Chop the fruit first!");
+						selectedItem=null;
+						repaint();
+						return;
+					}
+				}
+				if(blendStation2.contains(mx,my)) {
+					if(blender2Fruit!=null||(previousBlended2!=null&& remainsInBlender(previousBlended2,2))) {
+						JOptionPane.showMessageDialog(this, "Blender is alr in use!");
+						selectedItem=null;
+						repaint();
+						return;
+					}
+					else if(f.isCut()&&!f.isBlended()) {
+						ingredientsOnScreen.remove(f);
+						selectedItem=null;
+						activeBlender=2;
+						blendBar.setBounds(blendStation2.x,blendStation2.y-15,blendStation2.width,10);
+						startBlendingAnimation(f);
+					}
+					else {
+						JOptionPane.showMessageDialog(this, "Chop the fruit first!");;
+						selectedItem=null;
+						repaint();
+						return;
+					}
+				}
+				if(cupStation.contains(mx,my)) {
+					JOptionPane.showMessageDialog(this, "Blend the fruit first!");;
+					selectedItem=null;
+					repaint();
+					return;
+				}
+				selectedItem=null;
+				repaint();
+				return;
+			}
+			else if(selectedItem.type.equals("cup")) {
+				Cup cup=(Cup) selectedItem;
+				int targetTray=-1;
+				for(int i=0;i<trayCount;i++) {
+					Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
+					if(trayRect.contains(mx,my)) {
+						targetTray=i;
+						break;
+					}
+				}
+				if(targetTray!=-1) {
+					if(!cup.getFruits().isEmpty()||!cup.getToppings().isEmpty()) {
+						trayCounters.get(targetTray).add(cup);
+						ingredientsOnScreen.remove(cup);
+						ding.setFramePosition (0); 
+						ding.start ();
+						//JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
+					}
+					else 
+						JOptionPane.showMessageDialog(this, "Empty cup! add juice/toppings");
+					selectedItem=null;
+					repaint();
+					return;
+				}
+				selectedItem=null;
+				repaint();
+				return;
 
-					}return;
-				}
 			}
-			return;
-		}
-		else if(selectedItem.type.equals("pudding")) {
-			Pudding poo=(Pudding)selectedItem;
-			checkPuddingCupCollision(poo,mx,my);
-		}
-		else if(selectedItem.type.equals("pearl")) {
-			Pearl p =(Pearl)selectedItem;
-			if(!checkPearlCupCollision(p,mx,my)&&cookingStation.contains(mx,my)) {
-				if(!p.isCooked()&&cookingPearl==null) {
-					ingredientsOnScreen.remove(p);
-					cookingPearl=p;
-					cookingProgress=0;
-					potState="uncooked1";
-					cookBar.setValue(0);
-					cookBar.setBounds(cookingStation.x,cookingStation.y-15,cookingStation.width,10);;
-					cookBar.setVisible(true);
-					cookTimer.start();
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Alr cooking!!");
-					selectedItem=null;
-					return;
-				}
-			}
-		}
-		else if(selectedItem.type.equals("fruit")) {
-			Fruit f=(Fruit)selectedItem;
-			f.setOnChopStation(false);
-			if(checkFruitCupCollision(f,mx,my)) {//cup 
-				selectedItem=null;
-				repaint();
-				return;
-			}
-			if(chopStation1.contains(mx,my)||chopStation2.contains(mx,my)) {//chop
-				f.setOnChopStation(true);
-				selectedItem=f;
-				repaint();
-				return;
-			}
-			if (blendStation1.contains(mx,my)) {
-				if(blender1Fruit!=null||(previousBlended1!=null&&remainsInBlender(previousBlended1,1))) {
-					JOptionPane.showMessageDialog(this,"Blender is alr in use!");
-					selectedItem=null;
-					repaint();
-					return;
-				}else if(f.isCut()&&!f.isBlended()) {
-					ingredientsOnScreen.remove(f);
-					selectedItem=null;
-					activeBlender=1;
-					blendBar.setBounds(blendStation1.x,blendStation1.y-15,blendStation1.width,10);;
-					startBlendingAnimation(f);
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");
-					selectedItem=null;
-					repaint();
-					return;
-				}
-			}
-			if(blendStation2.contains(mx,my)) {
-				if(blender2Fruit!=null||(previousBlended2!=null&& remainsInBlender(previousBlended2,2))) {
-					JOptionPane.showMessageDialog(this, "Blender is alr in use!");
-					selectedItem=null;
-					repaint();
-					return;
-				}
-				else if(f.isCut()&&!f.isBlended()) {
-					ingredientsOnScreen.remove(f);
-					selectedItem=null;
-					activeBlender=2;
-					blendBar.setBounds(blendStation2.x,blendStation2.y-15,blendStation2.width,10);
-					startBlendingAnimation(f);
-				}
-				else {
-					JOptionPane.showMessageDialog(this, "Chop the fruit first!");;
-					selectedItem=null;
-					repaint();
-					return;
-				}
-			}
-			if(cupStation.contains(mx,my)) {
-				JOptionPane.showMessageDialog(this, "Blend the fruit first!");;
-				selectedItem=null;
-				repaint();
-				return;
-			}
+
 			selectedItem=null;
 			repaint();
-			return;
 		}
-		else if(selectedItem.type.equals("cup")) {
-			Cup cup=(Cup) selectedItem;
-			int targetTray=-1;
-			for(int i=0;i<trayCount;i++) {
-				Rectangle trayRect=new Rectangle(trayPositions[i].x,trayPositions[i].y,60,60);
-				if(trayRect.contains(mx,my)) {
-					targetTray=i;
-					break;
-				}
-			}
-			if(targetTray!=-1) {
-				if(!cup.getFruits().isEmpty()||!cup.getToppings().isEmpty()) {
-					trayCounters.get(targetTray).add(cup);
-					ingredientsOnScreen.remove(cup);
-					ding.setFramePosition (0); 
-					ding.start ();
-					//JOptionPane.showMessageDialog(this, "Drink added to tray "+(targetTray+1));
-				}
-				else 
-					JOptionPane.showMessageDialog(this, "Empty cup! add juice/toppings");
-				selectedItem=null;
-				repaint();
-				return;
-			}
-			selectedItem=null;
-			repaint();
-			return;
-
-		}
-
-		selectedItem=null;
-		repaint();
-
 	}
 
 
@@ -1648,8 +1662,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		tracker.addImage (startImg, 8);
 		gameLevel1 = Toolkit.getDefaultToolkit ().getImage ("gameLevel1.png");
 		tracker.addImage (gameLevel1, 9);
-		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
-		tracker.addImage (gameLevel2, 10);
+//		gameLevel2 = Toolkit.getDefaultToolkit ().getImage ("gameLevel2.png");
+//		tracker.addImage (gameLevel2, 10);
 		highScore = Toolkit.getDefaultToolkit ().getImage ("highScore.png");
 		tracker.addImage (highScore, 12);
 		victory = Toolkit.getDefaultToolkit ().getImage ("victory.png");
@@ -1896,22 +1910,25 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 	private void endGame() {
-		
+
 		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
 			return;
 		gameOn=false;//so no more gaming can happen
 		// stop all timers
-		if (roundTimer != null) 
+		if(roundTimer != null) 
 			roundTimer.stop();
-		if (blend1Timer != null) 
+		if(blend1Timer != null) 
 			blend1Timer.stop();
 		if (blend2Timer != null) 
 			blend2Timer.stop();
-		if (cookTimer != null) 
+		if(cookTimer != null) 
 			cookTimer.stop();
 		if (customerSpawnTimer != null) 
 			customerSpawnTimer.stop();
-
+		if(gameBackground.isRunning())
+			gameBackground.stop();
+		if(warningSound.isRunning())
+			warningSound.stop();
 
 		//add a score to scores
 		String name=usernameField.getText().trim();
@@ -1988,6 +2005,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		score=0;
 		customersServed=0;
 		timeLeft=120;//2 min
+		lessThan10=false;
 		gameOn=true;
 		//RESET THE PLAYER INTERACTIONS
 		selectedItem=null;
