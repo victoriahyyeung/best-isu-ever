@@ -5,20 +5,33 @@ import java.awt.*;
 public class CustomProgressBarUI extends BasicProgressBarUI {
     private Color color;
 
+    // Description: Constructor for CustomProgressBarUI, creates a custom progress bar UI with specified color
+    // Parameters:  the color to use for the progress bar fill
+    // Return: none
     public CustomProgressBarUI(Color color) {
         this.color = color;
     }
 
+    // Description: Returns the foreground color for selected text within the progress bar
+    // Parameters: None
+    // Return:  black color for text
     @Override
     protected Color getSelectionForeground() {
     	return Color.BLACK; 
     	}
     
+ // Description: Returns the background color for selected text within the progress bar
+    // Parameters: None
+    // Return:  black color for text
     @Override
     protected Color getSelectionBackground() {
     	return Color.BLACK; 
     	}
 
+    
+ // Description: Paints the determinate progress bar with custom colors and progress fill
+    // Parameters:  graphics object for drawing, the progress bar component
+    // Return: void
     @Override
     public void paintDeterminate(Graphics g, JComponent c) {
         Graphics2D g2 = (Graphics2D) g;

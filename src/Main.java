@@ -1,3 +1,15 @@
+// Names: Victoria Yeung and Mika Tam
+
+// Description: Bad Bubble Tea is a single-player game inspired by cooking simulation games such as Overcooked and Cooking Fever. 
+// It involves the use of the paint component for graphics, mouse keys for chopping food, picking up food, and dropping food food, as well as a timer system. 
+// Graphics will be drawn digitally by Victoria and Mika. In the game, the player is a chef working at a busy bubble tea shop that serves orders that is made up of mango, lychee, tapioca, and/or pudding. 
+// The player must prepare food orders by cutting and blending the fruit, cooking the tapioca, and combining all ingredients together.
+// The objective of the game is to complete orders as quickly and as accurately as possible within 2 minutes to achieve a high score, where each order gains the player 100 points.
+//  Each customer has a patience meter that decreases steadily over time. If the customer’s patience runs out before the order is completed, the customer will leave, and the player will lose tips.
+// The game will have sound effects and a soundtrack. 
+
+// Date: June 13, 2026
+
 import java.awt.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -18,100 +30,115 @@ import javax.swing.*;
 import javax.sound.sampled.FloatControl;
 public class Main extends JPanel implements MouseListener, KeyListener, MouseMotionListener, ActionListener{
 
-	private int x, y;
-	private AudioInputStream sound;
-	private ArrayList<Score> scoreList=new ArrayList<>();
-	private JList<String> scoreDisplayList;
-	private DefaultListModel<String> scoreListModel;
-	private JScrollPane scoreScrollPane;
+	private int x, y; // Mouse x and y coordinates
+	private AudioInputStream sound; // Audio input stream for sound effects/music
+	private ArrayList<Score> scoreList=new ArrayList<>(); // stores player high score
+	private JList<String> scoreDisplayList; // Displays list of high scores on screen
+	private DefaultListModel<String> scoreListModel;// Scroll pane for viewing high scores
+	private JScrollPane scoreScrollPane;// File storing high score data
 	private String scoreFile="highscores.txt";
-	private Cup currentCup;
-	private int pressX,pressY;
-	private boolean isDragging=false;
-	private static final int DRAG_THRESHOLD=5;
-	private ArrayList<Cup> trayDrinks;
-	private ArrayList<Customer> customers=new ArrayList<>();
-	private ArrayList<Ticket> tickets=new ArrayList<>();
-	private ArrayList<ArrayList<Cup>>trayCounters;
-	private int trayCount=3;
-	private Ticket selectedTicket=null;//da tix being dragged
-	private int ticketOffsetX;
-	private int ticketOffsetY;//this if for when like mouse doesnt click exactly the exact point we want but its still the ticket so its like a range that it can be dragged for ykwiM?
-	private HashMap<String,Image>ticketIcons=new HashMap<>();//for mini icons on ticket
-	private Point[] trayPositions;//where trays r
-	private Ticket[] trayTickets;
+	//private Cup currentCup;
+	private int pressX,pressY; 	// Mouse press coordinates for drag detection
+	private boolean isDragging=false; // Tracks whether an item is currently being dragged
+	private static final int DRAG_THRESHOLD=5; // Minimum mouse movement needed before dragging starts
+	private ArrayList<Cup> trayDrinks; // Stores completed drinks placed on serving tray
+	private ArrayList<Customer> customers=new ArrayList<>(); // Stores all active customers
+	private ArrayList<Ticket> tickets=new ArrayList<>(); // Stores all customer order tickets
+	private ArrayList<ArrayList<Cup>>trayCounters; // Stores trays and drinks placed on tray counters
+	private int trayCount=3; // Maximum number of trays available
+	private Ticket selectedTicket=null;//the ticket being dragged
+	private int ticketOffsetX; 	// X offset for dragging tickets smoothly
+	private int ticketOffsetY;// Y offset for dragging tickets smoothly
+	private HashMap<String,Image>ticketIcons=new HashMap<>();//for mini ingredient icons on ticket
+	private Point[] trayPositions;//where trays are
+	private Ticket[] trayTickets;// // Stores tickets assigned to trays
 	private Timer gameTimer;//for REPAINT
 	private Timer roundTimer;//timer for each ROUND
 	private int timeLeft=120; //120 seconds = 2 mins
-	private boolean gameOn=false;
-	private Timer patienceTimer;
+	private boolean gameOn=false; // Tracks whether the game is currently active
+	private Timer patienceTimer; // Timer for decreasing customer patience
 	private Timer customerSpawnTimer;//spawn customer every n seconds
 	private JProgressBar blendBar;//progress of cooking/blending
 	private JProgressBar cookBar;
-	private int score=0;
-	private Item selectedItem=null;
+	private int score=0; // player score
+	private Item selectedItem=null; //no item selected
 	private boolean spacePressed=false;
-	//stations
-	//!v- NEEDA FIX COORDIANTES
-	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
-	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
+
+
+
+
+	// all sound clips
 	private Clip buttonClick, fruitSpawn, fruitBlend, fruitCut, boilingPearl, pourJuice, toppingSpawn, cupSpawn, addTopping, successOrderSubmit, failedOrderSubmit, ding, decline, warningSound, thinking, victorySound, homeBackground, gameBackground;
 
+	// determine whether there are less than 10 seconds left in game
 	boolean lessThan10 = false;
 
+	// hashmap of cup images
 	private HashMap <String, Image> cupImages;
 
-	private Image orderReceipt;
-
+	// images of empty/non empty blenders
 	private Image emptyBlender1, emptyBlender2, blendingMango1, blendingMango2, blendingLychee1, blendingLychee2;
+	// images of empty/nonempty blenders
 	private Image emptyPot, uncookedPearl1, uncookedPearl2, pearlPot;
 
+	// all variations of cups
 	private Image emptyCup, lycheeJuiceCup, mangoJuiceCup, mangoPearlCup, lycheePearlCup, mangoPuddingCup, lycheePuddingCup, mangoPearlPuddingCup, lycheePearlPuddingCup;
 	private Image pudding;
 
+	// tracks state of pot (empty/nonempty)
 	private String potState = "empty";
-	private Image mangoBlender;
-	private Image lycheeBlender;
+	//private Image mangoBlender;
+	//private Image lycheeBlender;
 
+	// keeps track of previous blended fruit
 	private Fruit previousBlended1, previousBlended2;
 
+	// images of blended mango/lychee
 	private Image blendedMango, blendedLychee;
 
+	// images of customer
 	private Image orangeCatHappy, orangeCatImpatient, orangeCatNeutral, orangeCatAngry;
 
+	// keeps track of which blender is active
 	private int activeBlender = 0; 
 
+	// keeps track of state of both blenders
 	private String blend1State = "empty";
 	private String blend2State = "empty";
 
+	// stations boundaries
 	private Rectangle blendStation1=new Rectangle (69, 571, 50, 50);
 	private Rectangle blendStation2 = new Rectangle(124, 571, 50, 50);
-
 	private Rectangle cookingStation = new Rectangle (284, 571, 50, 50);
-
 	private Rectangle cupStation=new Rectangle (250, 250, 50, 50);
 	private Rectangle trayStation=new Rectangle (350, 350, 50, 50);
 	private Rectangle servingStation=new Rectangle(450, 450, 50,50);
+	private Rectangle chopStation1=new Rectangle (177, 571, 51, 53);
+	private Rectangle chopStation2=new Rectangle (231, 571, 51, 53);
 
+	// fruit in blenders
 	private Fruit blender1Fruit = null;
 	private Fruit blender2Fruit = null;
 
-	private Pearl cookingPearl = null;
-	private int cookingProgress = 0;
+	private Pearl cookingPearl = null; // pearl being cooked
+	private int cookingProgress = 0; // cooking process for pearl in int
 
-
+	// blending process for juice in int
 	private int blender1Progress = 0;
 	private int blender2Progress = 0;
 
+	// timer for blenders
 	private Timer blend1Timer;
 	private Timer blend2Timer;
 
+	// type of fruit
 	private String blender1FinishedFruit = "";
 	private String blender2FinishedFruit = "";
 
 	boolean level1Passed = false;
 
+	// cooking timer
 	private Timer cookTimer;
 	private String cookFinishPearl = "";
 
@@ -151,21 +178,26 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	// 11 – Credits Slide 1
 	// 12 – High Score
 	// 14 - Locked Levels
-	int screenState = 0;
+	int screenState = 0; // default screen state is home screen
 
-	JTextField usernameField;
+	JTextField usernameField; // for user to enter their player name
 
+	// stores ingredients displayed on screen
 	ArrayList<Item> ingredientsOnScreen = new ArrayList<>();
 
 	int offsetX;
 	int offsetY;
 
+	// fruit selected by player
 	Fruit selectedFruit;
-
+	// parallelogram buttons stored as polygon
 	Polygon slantedCreditsButton = new Polygon();
 	Polygon slantedScoreButton = new Polygon();
 
 
+	// Description: Spawns mango fruit when its cabinet is clicked
+	// Parameters: None
+	// Return: void
 	public void spawnMango() {
 		fruitSpawn.setFramePosition (0); 
 		fruitSpawn.start ();
@@ -175,6 +207,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
+	// Description: Spawns lychee fruit when its cabinet is clicked
+	// Parameters: None
+	// Return: void
 	public void spawnLychee() {
 		fruitSpawn.setFramePosition (0); 
 		fruitSpawn.start ();
@@ -184,6 +219,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
+	// Description: Spawns pearl topping when its cabinet is clicked
+	// Parameters: None
+	// Return: void
 	public void spawnPearl() {
 		toppingSpawn.setFramePosition (0); 
 		toppingSpawn.start ();
@@ -193,6 +231,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
+	// Description: Spawns pudding topping when its cabinet is clicked
+	// Parameters: None
+	// Return: void
 	public void spawnPudding() {
 		toppingSpawn.setFramePosition (0); 
 		toppingSpawn.start ();
@@ -202,6 +243,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
+	// Description: Spawns bubble tea cup when its cabinet is clicked
+	// Parameters: None
+	// Return: void
 	public void spawnCup () {
 		cupSpawn.setFramePosition (0); 
 		cupSpawn.start ();
@@ -211,43 +255,46 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
-
+	// Description: Checks for collision between a blended fruit and a cup, adds the fruit juice to the cup if collided
+	// Parameters: The fruit being dropped, x coordinate of mouse, y coordinate of mouse
+	// Return: true/false - true if collision occurred, false otherwise
 	private boolean checkFruitCupCollision(Fruit fruit, int mouseX, int mouseY) {
-		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
+		for (int i = 0; i < ingredientsOnScreen.size(); i++) { 
 			Item item = ingredientsOnScreen.get(i);
 			if (item.type.equals("cup") && item.contains(mouseX, mouseY)) {
 				Cup cup = (Cup) item;
-
 				// Check if there is already fruit in cup
 				if (cup.getFruits().size() == 0) {
 					// Check if fruit is blended
 					if (fruit.isBlended()) {
-						// Add fruit to cup
+						// Add mango to cup
 						if (fruit.getFruitType().equals("mango")) {
 							pourJuice.setFramePosition (0); 
 							pourJuice.start ();
 							cup.getFruits().add("mango");
 							cup.addFruit("mango", mangoJuiceCup);
-							cup.refreshImage(cupImages);
+							cup.refreshImage(cupImages); // refreshes image after adding
 							// Remove the fruit from screen
 							ingredientsOnScreen.remove(fruit);
-							//cup.setJuiceImage(mangoJuiceCup);
+							
 
-						} else if (fruit.getFruitType().equals("lychee")) {
+						}
+						// add lychee to chup
+						else if (fruit.getFruitType().equals("lychee")) {
 							pourJuice.setFramePosition (0); 
 							pourJuice.start ();
 							cup.getFruits().add("lychee");
 							cup.addFruit("lychee", lycheeJuiceCup);
-							cup.refreshImage(cupImages);
+							cup.refreshImage(cupImages); // refresh image after adding
 							// Remove the fruit from screen
 							ingredientsOnScreen.remove(fruit);
-							//cup.setJuiceImage(lycheeJuiceCup);
+							
 
 						}
-
 						selectedItem = null;
 						return true;
 					} else {
+						// plays declining user move sound
 						decline.setFramePosition (0); 
 						decline.start ();
 						JOptionPane.showMessageDialog(this, "Blend the fruit first!");
@@ -256,6 +303,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					}
 				}
 				else {
+					// plays declining user move sound
 					decline.setFramePosition (0); 
 					decline.start ();
 					JOptionPane.showMessageDialog(this, "There is already a fruit in this cup");
@@ -268,6 +316,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		return false;
 	}
 
+	// Description: Checks for collision between cooked pearls and a cup, adds the pearls to the cup if collided and cup already contains juice
+	// Parameters: The pearl being dropped, x coordinate of mouse, y coordinate of mouse
+	// Return: true/false - true if collision occurred, false otherwise
 	private boolean checkPearlCupCollision(Pearl pearl, int mouseX, int mouseY) {
 		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
 			Item item = ingredientsOnScreen.get(i);
@@ -277,6 +328,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				Cup cup = (Cup) item;
 				// must be cooked first
 				if (!pearl.isCooked()) {
+					// plays declining user move sound
 					decline.setFramePosition (0); 
 					decline.start ();
 					JOptionPane.showMessageDialog(this, "Cook the pearls first!");
@@ -284,13 +336,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				}
 				// cup must already contain juice
 				if (cup.getFruits().isEmpty()) {
+					// plays declining user move sound
 					decline.setFramePosition (0); 
 					decline.start ();
 					JOptionPane.showMessageDialog(this, "Add juice to the cup first!");
 					return true;
 				}
-				// prevent duplicate pearls if you want
+				// prevent duplicate pearls
 				if (!cup.getToppings().contains("pearl")) {
+					// add topping sound effect
 					addTopping.setFramePosition (0); 
 					addTopping.start ();
 					cup.getToppings().add("pearl");
@@ -298,6 +352,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					cup.refreshImage(cupImages);
 				}
 				else {
+					// plays declining user move sound
 					decline.setFramePosition (0); 
 					decline.start ();
 					JOptionPane.showMessageDialog(this, "You already added pearls to cup!");
@@ -314,6 +369,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		return false;
 	}
 
+	// Description: Checks for collision between pudding and a cup, adds the pudding to the cup if collided and cup already contains juice
+	// Parameters: The pearl being dropped, x coordinate of mouse, y coordinate of mouse
+	// Return: true/false - true if collision occurred, false otherwise
 	private boolean checkPuddingCupCollision(Pudding pudding, int mouseX, int mouseY) {
 		for (int i = 0; i < ingredientsOnScreen.size(); i++) {
 			Item item = ingredientsOnScreen.get(i);
@@ -354,54 +412,48 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		return false;
 	}
 
-
+	// Description: Constructor for Main class, initializes all game components, images, audio, timers, and UI elements
+	// Parameters: None
+	// Return: none 
 	public Main(){
 		setPreferredSize (new Dimension (390, 700));
 		cupImages = new HashMap<>();
+		// load images/audio
 		loadAllImages();
 		loadAllAudio();
 
-
+		// plays home music
 		homeBackground.setFramePosition (0); 
 		homeBackground.loop(Clip.LOOP_CONTINUOUSLY);
 
-
+		// spot for player to enter name
 		usernameField = new JTextField(10); 
 		usernameField.setBounds(66, 300, 258, 21); 
 		usernameField.setText("Enter username: ");
 		usernameField.setForeground(Color.BLACK);
 		usernameField.setVisible(false);
 
+		// set up score components
 		scoreListModel=new DefaultListModel<>();
 		scoreDisplayList=new JList<>(scoreListModel);
 		scoreScrollPane=new JScrollPane(scoreDisplayList);
 		scoreScrollPane.setBounds(50,150,290,400);
 		scoreScrollPane.setVisible(false);
 		this.add(scoreScrollPane);
-
 		loadHighScore();
 
 
-
-		//currentCup=new Cup(cupBase, pearlIcon, puddingIcon);
 		trayDrinks=new ArrayList<>();
 
-		//<<<<<<< HEAD
+		// add customer
 		Customer firstCust=new Customer(50,300,customerImages,orderingStation.x,orderingStation.y, thinking);
 		firstCust.setState("IN_LINE");
 		customers.add(firstCust);
 		orderLine.add(firstCust);
 
 
-		//=======
-		//	System.out.println("First customer created at: " + firstCust.getX() + ", " + firstCust.getY());
-		System.out.println("Orange cat images: " + customerImages.get("orangeCat"));
-		System.out.println("Neutral image: " + customerImages.get("orangeCat").get("neutral"));
-		//bars for blend/cook/cut
-		//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 		//bar for blend
 		blendBar= new JProgressBar(0,100);
-		//blendBar.setBounds(144, 580, 100, 15);
 		blendBar.setVisible(false);//not visible til action is doing
 		this.add(blendBar);
 
@@ -413,14 +465,15 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		addKeyListener(this);
 		setFocusable(true);
 		this.setLayout(null); // Use absolute positioning for the box
-		this.add(usernameField);
-		System.out.print("DELETE THIS");
+		this.add(usernameField); // save player name
 		gameTimer=new Timer (50, this);
 		gameTimer.start();
 
+		// patience timer
 		patienceTimer=new Timer( 1000, this);
 		patienceTimer.start();
 
+		
 		lineSpots=new Point[lineSpotsCount];
 		lineSpots[0]=new Point(orderingStation.x,orderingStation.y);
 		for(int i=1;i<lineSpotsCount;i++) {
@@ -470,6 +523,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
+	// Description: Checks if a fruit remains within a blender's area during blending animation
+	// Parameters: The fruit to check, the blender number (1 or 2)
+	// Return: true if fruit is still in blender area, false otherwise
 	public boolean remainsInBlender(Fruit f, int blender) {
 		Rectangle fruitRect =new Rectangle(f.getX(), f.getY(),f.width, f.height);
 
@@ -480,17 +536,23 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
+	// Description: Switches background music from the home screen music to game screen music and vice versa
+	// Parameters: The music clip to stop and the music clip to start playing
+	// Return: void
 	private void switchMusic(Clip stopClip, Clip playClip) {
-	    if (stopClip != null && stopClip.isRunning()) {
-	        stopClip.stop();
-	    }
+		if (stopClip != null && stopClip.isRunning()) {
+			stopClip.stop();
+		}
 
-	    if (playClip != null) {
-	        playClip.setFramePosition(0);
-	        playClip.loop(Clip.LOOP_CONTINUOUSLY);
-	    }
+		if (playClip != null) {
+			playClip.setFramePosition(0);
+			playClip.loop(Clip.LOOP_CONTINUOUSLY);
+		}
 	}
-	
+
+	// Description: Handles all action events from timers including game updates, customer movement, blending, cooking, and spawning
+	// Parameters: The event source that triggered the action
+	// Return: void
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource()==gameTimer) {//maybe do dif method?
@@ -662,6 +724,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
+	// Description: Draws graphics such as current screen state, customers, food items
+	// Parameters: Graphics g - the graphics object used for drawing
+	// Return: void
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if (screenState == 0) {
@@ -774,6 +839,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					g.drawImage(blendingLychee2, 45, 544, 100, 100, this);
 				}
 			}
+			/*
 			else if (blend1State.equals("blended")) {
 				if ("mango".equals(blender1FinishedFruit)) {
 					g.drawImage(mangoBlender, 45, 544, 100, 100, this);
@@ -782,7 +848,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					g.drawImage(lycheeBlender, 45, 544, 100, 100, this);
 				}
 			}
-
+			 */
 
 			// Blender 2
 			if (blend2State.equals("empty")) {
@@ -805,6 +871,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 					g.drawImage(blendingLychee2, 100, 544, 100, 100, this);
 				}
 			}
+			/*
 			else if (blend2State.equals("blended")) {
 				if ("mango".equals(blender2FinishedFruit)) {
 					g.drawImage(mangoBlender, 100, 544, 100, 100, this);
@@ -812,7 +879,7 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				else if ("lychee".equals(blender2FinishedFruit)) {
 					g.drawImage(lycheeBlender, 100, 544, 100, 100, this);
 				}
-			}
+			}*/
 
 			for(Ticket t : tickets) {
 				t.draw(g);
@@ -876,6 +943,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 
+	// Description: Processes mouse click actions on different screens, handling button clicks and screen transitions
+	// Parameters:  x coordinate of mouse click, y coordinate of mouse click
+	// Return: void
 	public void handleAction(int x, int y) {
 		System.out.println("x: " + x + " y: " + y);
 
@@ -1059,8 +1129,8 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 				homeBackground.stop();
 			}
 			if (!gameBackground.isRunning()) {
-			    gameBackground.setFramePosition(0);
-			    gameBackground.loop(Clip.LOOP_CONTINUOUSLY);
+				gameBackground.setFramePosition(0);
+				gameBackground.loop(Clip.LOOP_CONTINUOUSLY);
 			}
 
 			if (lessThan10) {
@@ -1123,6 +1193,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
+	// Description: Handles game when user clicks on keys
+	// Parameters: KeyEvent e - the key event containing the pressed key
+	// Return: void
 	public void keyPressed(KeyEvent e) {//for some variety ig we do SPACE
 		if (e.getKeyCode()==KeyEvent.VK_SPACE)	{
 			if (!spacePressed) {
@@ -1168,6 +1241,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
+	// Description: Handles key release events
+	// Parameters: KeyEvent e - the key event containing the released key
+	// Return: void
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode()==KeyEvent.VK_SPACE) {
@@ -1175,6 +1251,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
+
+	// Description: Processes player's mouse presses for selecting and dragging items, spawning ingredients, and selecting tickets
+	// Parameters: MouseEvent e - the mouse event containing click coordinates
+	// Return: void
 	@Override
 	public void mousePressed(MouseEvent e) {
 		x = e.getX();
@@ -1265,6 +1345,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 			handleAction(x,y);
 	}
 
+
+	// Description: Processes user's mouse releases for dropping items, serving orders, assigning tickets, and station interactions
+	// Parameters: MouseEvent e - the mouse event containing release coordinates
+	// Return: void
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		isDragging=false;//released so no longer dragging
@@ -1492,6 +1576,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
+	// Description: Handles player's mouse dragging for moving selected items and tickets around the screen
+	// Parameters: MouseEvent e - the mouse event containing drag coordinates
+	// Return: void
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		int newX=e.getX();
@@ -1535,6 +1622,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 	}
 
 
+	// Description: Loads all audio files
+	// Parameters: None
+	// Return: void
 	private void loadAllAudio() {
 		try {
 
@@ -1619,7 +1709,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
-
+	// Description: Loads all image files using MediaTracker
+	// Parameters: None
+	// Return: void
 	private void loadAllImages() {
 
 		MediaTracker tracker = new MediaTracker (this);
@@ -1687,11 +1779,11 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		emptyBlender2 = Toolkit.getDefaultToolkit().getImage("emptyBlender.png");
 		tracker.addImage(emptyBlender2, 27);
 
-		mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
-		tracker.addImage(mangoBlender, 28);
+		//mangoBlender = Toolkit.getDefaultToolkit().getImage("mango_blender.png");
+		//	tracker.addImage(mangoBlender, 28);
 
-		lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
-		tracker.addImage(lycheeBlender, 29);
+		//lycheeBlender = Toolkit.getDefaultToolkit().getImage("lychee_blender.png");
+		//	tracker.addImage(lycheeBlender, 29);
 
 		blendingMango1 = Toolkit.getDefaultToolkit().getImage("blending_Mango1.png");
 		tracker.addImage(blendingMango1, 30);
@@ -1799,8 +1891,6 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		orangeCatAngry = Toolkit.getDefaultToolkit().getImage("orangeCat_angry.png");
 		tracker.addImage(orangeCatAngry, 58);
 
-		orderReceipt = Toolkit.getDefaultToolkit().getImage("orderReceipt.png");
-		tracker.addImage(orderReceipt, 59);
 
 		try {
 			tracker.waitForAll();
@@ -1833,6 +1923,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 
 	}
 
+	// Description: Displays the blending animation for a fruit, displays progress bar and plays blending sound
+	// Parameters:The fruit to be blended
+	// Return: void
 	private void startBlendingAnimation(Fruit f) {
 
 		fruitBlend.setFramePosition (0); 
@@ -1863,7 +1956,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
-
+	// Description: Loads high scores from a text file into the score list
+	// Parameters: None
+	// Return: void
 	private void loadHighScore() {
 		try(Scanner scanner=new Scanner(new File(scoreFile))){
 			while(scanner.hasNextLine()) {
@@ -1878,6 +1973,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		Collections.sort(scoreList);
 		refreshScoreList();
 	}
+
+	// Description: Saves current high scores to a text file
+	// Parameters: None
+	// Return: void
 	void saveScore() {
 		try(PrintWriter inFile=new PrintWriter(new File(scoreFile))){
 			for (Score s: scoreList) {
@@ -1888,6 +1987,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
+	// Description: Ends the current game, stops all timers, saves the score, and transitions to high score screen
+	// Parameters: None
+	// Return: void
 	private void endGame() {
 
 		if (!gameOn)//if the game has alr ended (endGame() accidently called or smth)
@@ -1922,6 +2024,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		repaint();
 	}
 
+
+	// Description: Finds and returns the index of an unoccupied waiting spot for customers after ordering
+	// Parameters: None
+	// Return: index of free waiting spot (-1 if none available)
 	private int getFreeWaitingSpot() {//find free waiting spots
 		for(int i=0;i<spotOccupied.length;i++) {
 			if (!spotOccupied[i])//if unoccupied, can be occupied!
@@ -1929,6 +2035,10 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 		return -1;//if no spots avail
 	}
+
+	// Description: Shifts all customers in line forward to fill empty spots after a customer is served
+	// Parameters: None
+	// Return: void
 	private void shiftLineForward() {
 		int ind=0;
 		for(Customer c:orderLine) {//do each customer in the line
@@ -1939,6 +2049,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
+	// Description: Refreshes the displayed high score list in the UI
+	// Parameters: None
+	// Return: void
 	private void refreshScoreList() {
 		if(scoreListModel==null)
 			return;
@@ -1948,7 +2061,9 @@ public class Main extends JPanel implements MouseListener, KeyListener, MouseMot
 		}
 	}
 
-	//RESETGAME!!!!!!!!!!!!!!
+	// Description: Resets the entire game state to start a new game, clearing all collections and resetting variables
+	// Parameters: None
+	// Return: void
 	private void resetGame() {
 		//STOP TIMERS
 		if(roundTimer!=null)

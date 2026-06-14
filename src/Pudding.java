@@ -8,6 +8,10 @@ public class Pudding extends Item{
 	int  height;
 	JProgressBar cookBar;
 
+	
+	// Description: Constructor for Pudding class, creates a pudding topping item
+		// Parameters: pudding image
+		// Return: none
 	public Pudding (Image puddingImg) {
 		super (puddingImg, "pudding");
 		this.puddingImg = puddingImg;
