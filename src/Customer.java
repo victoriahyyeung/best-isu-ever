@@ -111,17 +111,11 @@ public class Customer {
 	// Parameters: Hashmap that maps customer emotions to images
 	// Return: void
 	public void updateEmotion(HashMap<String, HashMap<String,Image>>images) {
-<<<<<<< main
-
 		// change emote based on patience meter
 
 		if(state==null||!state.equals("WAITING"))//only can update emos when waiting 2 b served
 			return;
-//>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
-=======
-//		if(state==null||!state.equals("WAITING"))//only can update emos when waiting 2 b served
-//			return;
->>>>>>> cbe1097 did some stuff
+
 		String newEmo;
 		if(currentPatience>50)
 			newEmo="neutral";

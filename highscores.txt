@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 Anonymous,300
 Anonymous,100
 Anonymous,100
@@ -44,6 +45,11 @@ Anonymous,0
 Anonymous,0
 Anonymous,0
 Anonymous,0
+=======
+Anonymous,200
+Anonymous,200
+Anonymous,200
+>>>>>>> branch 'main' of https://github.com/victoriahyyeung/best-isu-ever.git
 =======
 Anonymous,200
 Anonymous,200
